@@ -30,7 +30,7 @@ jobs:
       - name: Publish
         uses: docker/build-push-action@v2
         with:
-          context: docs-server
+          context: .
           file: ./docs-server/Dockerfile
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
