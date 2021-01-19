@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk11-openj9:alpine AS builder
 
-COPY docs-server/docsdex .
+COPY docsdex .
 
 RUN ./gradlew app:shadowJar -Dorg.gradle.daemon=false
 
