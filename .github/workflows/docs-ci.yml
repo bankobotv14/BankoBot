@@ -20,6 +20,13 @@ jobs:
           images: name/app # list of Docker images to use as base name for tags
           tag-sha: true # add git short SHA as Docker tag
       - uses: actions/cache@v1
+        with:
+          key: "$GITHUB_SHA"
+          path: |
+            ~/docs-server/docdex/.gradle
+            ~/docs-server/docdex/build
+            ~/docs-server/docdex/app/build
+            ~/docs-server/docdex/common/build
       - uses: docker/setup-buildx-action@v1
       - name: Publish
         uses: docker/build-push-action@v2
