@@ -30,7 +30,7 @@ jobs:
       - name: Login to GitHub Packages Docker Registry
         uses: docker/login-action@v1
         with:
-          registry: docker.pkg.github.com
+          registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push to GitHub Packages
@@ -39,5 +39,5 @@ jobs:
           context: docs-server
           file: docs-server/Dockerfile
           push: true
-          tags: docker.pkg.github.com/nycodeghg/bankbot/docsdex:latest
+          tags: ghcr.io/nycodeghg/bankbot/docsdex:latest
 
