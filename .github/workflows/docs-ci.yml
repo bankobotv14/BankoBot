@@ -38,5 +38,7 @@ jobs:
         with:
           context: docs-server
           file: ./docs-server/Dockerfile
-          tags: gcr.io/nycodeghg/bankobot/docdex:latest
+          registry: ghcr.io
+          tags: latest
+          repository: nycodeghg/bankobot/docdex
           push: true
