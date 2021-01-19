@@ -25,45 +25,17 @@
 
 package de.nycode.bankobot.command
 
-import de.nycode.bankobot.command.permissions.PermissionHandler
+import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
-import dev.kord.x.commands.model.command.Command
-import dev.kord.x.commands.model.command.CommandBuilder
-import dev.kord.x.commands.model.command.CommandEvent
-import dev.kord.x.commands.model.metadata.Metadata
+import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.model.eventFilter.EventFilter
 import dev.kord.x.commands.model.precondition.Precondition
 import dev.kord.x.commands.model.processor.ProcessorContext
 
-enum class PermissionLevel {
-    ALL,
-    MODERATOR,
-    ADMIN,
-    BOT_OWNER
+abstract class AbstractKordFilter : EventFilter<MessageCreateEvent> {
+    override val context: ProcessorContext<MessageCreateEvent, *, *> = KordContext
 }
 
-private object PermissionData : Metadata.Key<PermissionLevel>
-
-/**
- * The permission of a command.
- *
- * @see PermissionLevel
- */
-val Command<*>.permission: PermissionLevel
-    get() = data.metadata[PermissionData] ?: PermissionLevel.ALL
-
-/**
- * Sets the permission of a command to [permission].
- * @see Command.permission
- */
-fun <S, A, COMMANDCONTEXT : CommandEvent> CommandBuilder<S, A, COMMANDCONTEXT>.permission(permission: PermissionLevel): Unit =
-    metaData.set(PermissionData, permission)
-
-fun PermissionHandler.asPrecondition(): Precondition<KordCommandEvent> =
-    object : AbstractKordPrecondition(), PermissionHandler by this {
-        override suspend fun invoke(event: KordCommandEvent): Boolean {
-            val member = event.event.member ?: error("Missing member")
-            val command = event.command
-            val permission = command.permission
-            return isCovered(member, permission)
-        }
-    }
+abstract class AbstractKordPrecondition : Precondition<KordCommandEvent> {
+    override val context: ProcessorContext<*, *, KordCommandEvent> = KordContext
+}

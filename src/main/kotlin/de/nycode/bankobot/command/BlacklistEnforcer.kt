@@ -23,22 +23,18 @@
  *
  */
 
-package de.nycode.bankobot.command.permissions
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.PermissionLevel
-import dev.kord.core.entity.Member
-import kotlinx.coroutines.runBlocking
+import de.nycode.bankobot.config.Config
+import de.nycode.bankobot.config.Environment
+import dev.kord.core.event.message.MessageCreateEvent
 
-object DebugPermissionHandler : PermissionHandler {
-
-    private val authorizedMembers by lazy {
-        runBlocking {
-            val application = BankoBot.kord.getApplicationInfo()
-            application.team?.run { members.map { it.userId } } ?: listOf(application.ownerId)
+object BlacklistEnforcer : AbstractKordFilter() {
+    override suspend fun invoke(event: MessageCreateEvent): Boolean {
+        if(Config.ENVIRONMENT == Environment.PRODUCTION) {
+            TODO()
+        } else {
+            return false // debug mode disabled playlist
         }
     }
-
-    override suspend fun isCovered(member: Member, command: PermissionLevel): Boolean =
-        member.id in authorizedMembers
 }

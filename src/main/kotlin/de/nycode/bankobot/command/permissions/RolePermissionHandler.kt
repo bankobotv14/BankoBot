@@ -33,7 +33,7 @@ import dev.kord.core.any
 import dev.kord.core.entity.Member
 import kotlinx.coroutines.runBlocking
 
-class RolePermissionHandler : PermissionHandler {
+object RolePermissionHandler : PermissionHandler {
 
     private val modRole = Config.MODERATOR_ROLE ?: error("Please define permission roles in env config")
     private val adminRole = Config.ADMIN_ROLE ?: error("Please define permission roles in env config")

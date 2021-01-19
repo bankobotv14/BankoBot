@@ -26,10 +26,9 @@
 package de.nycode.bankobot
 
 import com.mongodb.MongoClientSettings
-import de.nycode.bankobot.command.BankoBotContextConverter
-import de.nycode.bankobot.command.DebugErrorHandler
-import de.nycode.bankobot.command.HastebinErrorHandler
-import de.nycode.bankobot.command.literal
+import de.nycode.bankobot.command.*
+import de.nycode.bankobot.command.permissions.DebugPermissionHandler
+import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.listeners.selfMentionListener
@@ -71,6 +70,8 @@ object BankoBot {
     private lateinit var database: CoroutineDatabase
     lateinit var kord: Kord
         private set
+    val permissionHandler =
+        if (Config.ENVIRONMENT == Environment.PRODUCTION) RolePermissionHandler else DebugPermissionHandler
 
     class Repositories internal constructor() {
 
@@ -107,10 +108,12 @@ object BankoBot {
                 }
             }
 
+            eventFilters.add(BlacklistEnforcer)
+            preconditions.add(permissionHandler.asPrecondition())
             eventHandlers[KordContext] = BaseEventHandler(
                 KordContext,
                 BankoBotContextConverter,
-                if (Config.ENVIRONMENT != Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
+                if (Config.ENVIRONMENT == Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
             )
 
             // listeners
