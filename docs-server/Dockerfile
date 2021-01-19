@@ -1,10 +1,10 @@
-FROM adpoptopenjdk/openjdk11-openj9 AS builder
+FROM adoptopenjdk/openjdk11-openj9:alpine AS builder
 
 COPY docsdex .
 
 RUN ./gradlew shadowJar -Dorg.gradle.daemon=false
 
-FROM adpoptopenjdk/openjdk11-openj9
+FROM adoptopenjdk/openjdk11-openj9:alpine
 
 WORKDIR /usr/app
 
