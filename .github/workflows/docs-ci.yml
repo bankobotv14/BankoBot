@@ -33,12 +33,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GH_TOKEN_NYCODE }}
-      - name: Publish
-        uses: docker/build-push-action@v2
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
         with:
-          context: docs-server
-          file: ./docs-server/Dockerfile
-          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
           tags: latest
-          repository: nycodeghg/bankobot/docdex
+          repository: NyCodeGHG/BankoBot/docsdex
+          tag_with_ref: true
           push: true
