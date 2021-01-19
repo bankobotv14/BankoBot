@@ -33,6 +33,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
+          context: docs-server
+          file: docs-server/Dockerfile
           tag: latest
           tag_with_ref: true
           push: true
