@@ -8,6 +8,6 @@ FROM adoptopenjdk/openjdk11-openj9:alpine
 
 WORKDIR /usr/app
 
-COPY --from=builder build/libs/docdex.jar ./
+COPY --from=builder docsdex/build/libs/docdex.jar ./
 
 ENTRYPOINT ["/usr/bin/java", "-jar", "/usr/app/docdex.jar"]
