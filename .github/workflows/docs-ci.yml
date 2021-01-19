@@ -39,7 +39,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          tags: latest
-          repository: NyCodeGHG/BankoBot/docsdex
+          tags: NyCodeGHG/BankoBot/docsdex:latest
           tag_with_ref: true
           push: true
