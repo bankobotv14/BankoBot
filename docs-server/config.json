@@ -1,0 +1,25 @@
+{
+  "host": "0.0.0.0",
+  "port": 8800,
+
+  "database": {
+    "host": "database",
+    "port": 27017,
+    "database": "docdex",
+    "username": "docdex",
+    "password": "DoCdEx"
+  },
+
+  "javadocs": [
+    {
+      "names": ["jdk", "jdk11"],
+      "link": "http://localhost/docs/jdk11/index.html",
+      "actual_link": "https://docs.oracle.com/en/java/javase/11/docs/api"
+    },
+    {
+      "names": ["jdk8"],
+      "link": "http://localhost/docs/jdk8/overview-summary.html",
+      "actual_link": "https://docs.oracle.com/javase/8/docs/api"
+    }
+  ]
+}
