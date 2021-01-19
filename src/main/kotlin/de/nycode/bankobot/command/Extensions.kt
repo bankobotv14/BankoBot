@@ -23,33 +23,32 @@
  *
  */
 
-package de.nycode.bankobot.config
+package de.nycode.bankobot.command
 
-import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
+import dev.kord.x.commands.kord.model.command.KordCommandBuilder
+import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.model.command.Command
+import dev.kord.x.commands.model.metadata.Metadata
+import dev.kord.x.commands.model.module.CommandSet
+import java.util.*
 
-object Config {
+@PublishedApi
+internal object CallbackData : Metadata.Key<CommandExecutionCallback>
 
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
+data class CommandExecutionCallback(val stack: StackTraceElement, val fileName: String)
+
+val Command<*>.callback: CommandExecutionCallback
+    get() = data.metadata[CallbackData]!!
+
+fun command(
+    name: String,
+    builder: KordCommandBuilder.() -> Unit
+): CommandSet {
+    val stack = Exception().stackTrace[1]
+    val fileName = builder.javaClass.name.substringBefore("Kt$")
+    val configure: KordCommandBuilder.() -> Unit = {
+        metaData[CallbackData] = CommandExecutionCallback(stack, fileName)
+        builder(this)
     }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
-
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
-
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-}
-
-enum class Environment {
-    PRODUCTION,
-    DEVELOPMENT
+    return dev.kord.x.commands.model.module.command(KordContext, name, configure)
 }

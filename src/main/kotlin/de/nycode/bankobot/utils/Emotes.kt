@@ -23,33 +23,20 @@
  *
  */
 
-package de.nycode.bankobot.config
+package de.nycode.bankobot.utils
 
-import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
-
-object Config {
-
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
-    }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
-
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
-
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-}
-
-enum class Environment {
-    PRODUCTION,
-    DEVELOPMENT
+/**
+ * Useful collection of Discord emotes.
+ *
+ *
+ * Designed by [Rxsto#1337](https://rxsto.me)
+ * Bot needs to be on [https://discord.gg/8phqcej](https://discord.gg/8phqcej)
+ */
+@Suppress("KDocMissingDocumentation")
+object Emotes {
+    const val LOADING: String = "<a:loading:547513249835384833>"
+    const val ERROR: String = "<:error:535827110489620500>"
+    const val WARN: String = "<:warn:535832532365737987>"
+    const val INFO: String = "<:info:535828529573789696>"
+    const val SUCCESS: String = "<:success:535827110552666112>"
 }

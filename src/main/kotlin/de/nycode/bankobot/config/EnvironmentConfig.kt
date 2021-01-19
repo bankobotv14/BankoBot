@@ -83,7 +83,7 @@ sealed class EnvironmentVariable<T>(
      *
      * @return a new [EnvironmentVariable] being optional
      */
-    public open fun optional(): EnvironmentVariable<T?> = Optional(prefix, transform, default)
+    open fun optional(): EnvironmentVariable<T?> = Optional(prefix, transform, default)
 
     /**
      * Internal getter.

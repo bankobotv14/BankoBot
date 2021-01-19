@@ -23,33 +23,23 @@
  *
  */
 
-package de.nycode.bankobot.config
+package de.nycode.bankobot.command
 
-import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
+import dev.kord.x.commands.model.command.Command
+import dev.kord.x.commands.model.command.CommandBuilder
+import dev.kord.x.commands.model.command.CommandEvent
+import dev.kord.x.commands.model.metadata.Metadata
 
-object Config {
+private object CommandDescription : Metadata.Key<String>
 
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
-    }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
+/**
+ * The description of a command.
+ */
+val Command<*>.description: String?
+    get() = data.metadata[CommandDescription]
 
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
-
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-}
-
-enum class Environment {
-    PRODUCTION,
-    DEVELOPMENT
-}
+/**
+ * Sets the description of a command to [description].
+ */
+fun <S, A, COMMANDCONTEXT : CommandEvent> CommandBuilder<S, A, COMMANDCONTEXT>.description(description: String): Unit =
+    metaData.set(CommandDescription, description)
