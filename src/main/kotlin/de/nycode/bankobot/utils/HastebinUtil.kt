@@ -23,33 +23,33 @@
  *
  */
 
-package de.nycode.bankobot.config
+package de.nycode.bankobot.utils
 
-import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.config.Config
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.serialization.Serializable
 
-object Config {
+/**
+ * Util for interacting with Hastebin.
+ * @see Config.HASTE_HOST
+ */
+object HastebinUtil {
 
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
+    /**
+     * Posts the [text] to [Config.HASTE_HOST]
+     * @return the haste-url
+     */
+    suspend fun postToHastebin(text: String): String {
+        val response: HasteBinResponse = BankoBot.httpClient.post {
+            url(URLBuilder(Config.HASTE_HOST).path("documents").build())
+            body = text
+        }
+
+        return URLBuilder(Config.HASTE_HOST).path(response.key).buildString()
     }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
-
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
-
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
 }
 
-enum class Environment {
-    PRODUCTION,
-    DEVELOPMENT
-}
+@Serializable
+private data class HasteBinResponse(val key: String)

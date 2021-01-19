@@ -23,33 +23,22 @@
  *
  */
 
-package de.nycode.bankobot.config
+package de.nycode.bankobot.command.permissions
 
-import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.PermissionLevel
+import dev.kord.core.entity.Member
+import kotlinx.coroutines.runBlocking
 
-object Config {
+class DebugPermissionHandler : PermissionHandler {
 
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
+    private val authorizedMembers by lazy {
+        runBlocking {
+            val application = BankoBot.kord.getApplicationInfo()
+            application.team?.run { members.map { it.userId } } ?: listOf(application.ownerId)
+        }
     }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
 
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
-
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-}
-
-enum class Environment {
-    PRODUCTION,
-    DEVELOPMENT
+    override suspend fun isCovered(member: Member, command: PermissionLevel): Boolean =
+        member.id in authorizedMembers
 }

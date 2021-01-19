@@ -23,33 +23,20 @@
  *
  */
 
-package de.nycode.bankobot.config
+package de.nycode.bankobot.command
 
-import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
+import dev.kord.x.commands.model.prefix.PrefixBuilder
+import dev.kord.x.commands.model.prefix.PrefixRule
 
-object Config {
+@Suppress("unused") // it is supposed to be only invoked on PrefixBuilder even if PrefixBuilder is unused
+fun PrefixBuilder.literal(prefix: String): PrefixRule<Any?> =
+    LiteralPrefixRule(prefix)
 
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
+private class LiteralPrefixRule(prefix: String) : PrefixRule<Any?> {
+    private val regex = "^$prefix\\s*".toRegex()
+
+    override suspend fun consume(message: String, context: Any?): PrefixRule.Result {
+        val match = regex.find(message) ?: return PrefixRule.Result.Denied
+        return PrefixRule.Result.Accepted(match.value)
     }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
-
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
-
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-}
-
-enum class Environment {
-    PRODUCTION,
-    DEVELOPMENT
 }

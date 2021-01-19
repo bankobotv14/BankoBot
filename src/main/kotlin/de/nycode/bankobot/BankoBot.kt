@@ -25,16 +25,27 @@
 
 package de.nycode.bankobot
 
-import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
+import de.nycode.bankobot.command.BankoBotContextConverter
+import de.nycode.bankobot.command.DebugErrorHandler
+import de.nycode.bankobot.command.HastebinErrorHandler
+import de.nycode.bankobot.command.literal
 import de.nycode.bankobot.config.Config
-import dev.kord.common.entity.PresenceStatus
+import de.nycode.bankobot.config.Environment
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
-import dev.kord.x.commands.model.prefix.literal
+import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.kord.model.processor.KordContextConverter
 import dev.kord.x.commands.model.prefix.or
+import dev.kord.x.commands.model.processor.BaseEventHandler
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.util.*
+import kapt.kotlin.generated.configure
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
@@ -48,11 +59,19 @@ object BankoBot {
 
     private var initialized = false
 
+    @OptIn(KtorExperimentalAPI::class)
+    val httpClient = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+    }
+    val repositories = Repositories()
+
     private lateinit var database: CoroutineDatabase
     lateinit var kord: Kord
         private set
 
-    object Repositories {
+    class Repositories internal constructor() {
 
     }
 
@@ -60,28 +79,39 @@ object BankoBot {
         require(!initialized) { "Cannot initialize bot twice" }
         initialized = true
 
-        val client = KMongo.createClient(
-            MongoClientSettings.builder()
-                .uuidRepresentation(UuidRepresentation.STANDARD)
-                .applyConnectionString(ConnectionString(Config.MONGO_URL))
-                .build()
-        )
-            .coroutine
-        database = client.getDatabase(Config.MONGO_DATABASE)
+//        initializeDatabase()
 
         kord = Kord(Config.DISCORD_TOKEN)
 
+        initializeKord()
+    }
+
+    private fun initializeDatabase() {
+        val client = KMongo.createClient(
+            MongoClientSettings.builder()
+                .uuidRepresentation(UuidRepresentation.STANDARD)
+//                .applyConnectionString(ConnectionString(Config.MONGO_URL))
+                .build()
+        )
+            .coroutine
+//        database = client.getDatabase(Config.MONGO_DATABASE)
+    }
+
+    private suspend fun initializeKord() {
         bot(kord) {
+            configure() // add annotation processed commands
             prefix {
                 kord {
                     mention() or literal("xd")
                 }
             }
+
+            eventHandlers[KordContext] = BaseEventHandler(
+                KordContext,
+                BankoBotContextConverter,
+                if (Config.ENVIRONMENT != Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
+            )
         }
 
-        kord.login {
-            status = PresenceStatus.DoNotDisturb
-            playing("Starting ...")
-        }
     }
 }

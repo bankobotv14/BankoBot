@@ -28,6 +28,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.4.21"
     kotlin("kapt") version "1.4.21"
+    kotlin("plugin.serialization") version "1.4.21"
+    application
 }
 
 group = "de.nycode"
@@ -36,9 +38,18 @@ version = "1.0-SNAPSHOT"
 repositories {
     jcenter()
     maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://kotlin.bintray.com/kotlinx/")
+}
+
+application {
+    mainClass.set("de.nycode.bankobot.LauncherKt")
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+
+
     implementation("dev.kord", "kord-core", "0.7.0-SNAPSHOT")
     implementation("dev.kord.x:commands-runtime-kord:0.4.0-SNAPSHOT")
     kapt("dev.kord.x:commands-processor:0.4.0-SNAPSHOT")
@@ -55,5 +66,6 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
     }
 }
