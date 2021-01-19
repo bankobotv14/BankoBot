@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup JDK
+        with:
+          java-version: 11
+      - name: Cache Gradle packages
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Build with Gradle
+        run: ./gradlew distZip
+      - uses: actions/upload-artifact@v2
+        with:
+          name: BankoBot
+          path: build/distributions
