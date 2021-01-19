@@ -36,5 +36,5 @@ jobs:
           registry: docker.pkg.github.com
           file: Dockerfile
           push: true
-          tags: NyCodeGhG/BankoBot:latest
+          tags: nycodeghg/bankbot/docsdex:latest
 
