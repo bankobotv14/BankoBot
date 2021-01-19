@@ -27,7 +27,7 @@ package de.nycode.bankobot.commands
 
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.utils.Emotes
-import de.nycode.bankobot.utils.GithubUtil
+import de.nycode.bankobot.utils.GitHubUtil
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.behavior.edit
@@ -49,12 +49,6 @@ fun infoCommand() = command("info") {
 suspend fun MessageChannelBehavior.sendInfo() {
     val embed: EmbedBuilder.() -> Unit = {
         field {
-            name = "Programmierspraeche"
-            value = "[Kotlin](https://kotlinlang.org)"
-            inline = true
-        }
-
-        field {
             name = "Programmiersprache"
             value = "[Kotlin](https://kotlinlang.org)"
             inline = true
@@ -74,7 +68,7 @@ suspend fun MessageChannelBehavior.sendInfo() {
 
 
     }.edit {
-        val contributors = GithubUtil.retrieveContributors()
+        val contributors = GitHubUtil.retrieveContributors()
         embed {
             embed(this)
             field {

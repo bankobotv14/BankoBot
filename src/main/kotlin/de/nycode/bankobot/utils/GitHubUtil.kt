@@ -31,7 +31,7 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-object GithubUtil {
+object GitHubUtil {
     suspend fun retrieveContributors(): List<GithubContributor> {
         return BankoBot.httpClient.get(API_BASE) {
             url {

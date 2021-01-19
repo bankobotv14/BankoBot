@@ -32,6 +32,7 @@ import de.nycode.bankobot.command.HastebinErrorHandler
 import de.nycode.bankobot.command.literal
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
+import de.nycode.bankobot.listeners.selfMentionListener
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
@@ -111,6 +112,11 @@ object BankoBot {
                 BankoBotContextConverter,
                 if (Config.ENVIRONMENT != Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
             )
+
+            // listeners
+            kord.apply {
+                selfMentionListener()
+            }
         }
 
     }
