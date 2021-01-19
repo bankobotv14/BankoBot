@@ -27,18 +27,12 @@ jobs:
       - name: Make child gradlew executable
         run: |
           chmod +x "${GITHUB_WORKSPACE}/docs-server/docsdex/gradlew"
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GH_TOKEN_NYCODE }}
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          tags: NyCodeGHG/BankoBot/docsdex:latest
+          tag: latest
           tag_with_ref: true
           push: true
