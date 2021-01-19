@@ -42,3 +42,4 @@ jobs:
           tags: ${{ steps.docker_meta.outputs.tags }}
           repository: nycodeghg/bankobot/docdex
           tag_with_ref: true
+          push: true
