@@ -1,4 +1,4 @@
-name: Docs Server CI
+name: Docs-Server CI
 
 on:
   push:
