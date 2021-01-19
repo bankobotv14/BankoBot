@@ -27,7 +27,9 @@ package de.nycode.bankobot.command.permissions
 
 import de.nycode.bankobot.command.PermissionLevel
 import dev.kord.core.entity.Member
+import dev.kord.x.commands.kord.model.context.KordCommandEvent
+import dev.kord.x.commands.model.precondition.Precondition
 
-interface PermissionHandler {
+interface PermissionHandler : Precondition<KordCommandEvent> {
     suspend fun isCovered(member: Member, permission: PermissionLevel): Boolean
 }

@@ -26,11 +26,12 @@
 package de.nycode.bankobot.command.permissions
 
 import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.AbstractPermissionHandler
 import de.nycode.bankobot.command.PermissionLevel
 import dev.kord.core.entity.Member
 import kotlinx.coroutines.runBlocking
 
-object DebugPermissionHandler : PermissionHandler {
+object DebugPermissionHandler : AbstractPermissionHandler() {
 
     private val authorizedMembers by lazy {
         runBlocking {

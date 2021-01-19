@@ -109,7 +109,7 @@ object BankoBot {
             }
 
             eventFilters.add(BlacklistEnforcer)
-            preconditions.add(permissionHandler.asPrecondition())
+            preconditions.add(permissionHandler)
             eventHandlers[KordContext] = BaseEventHandler(
                 KordContext,
                 BankoBotContextConverter,
