@@ -28,11 +28,11 @@ jobs:
             ~/docs-server/docdex/app/build
             ~/docs-server/docdex/common/build
       - uses: docker/setup-buildx-action@v1
+      - name: Make child gradlew executable
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/script.sh"
       - name: Publish
         uses: docker/build-push-action@v2
-      - name: Make child gradlew executable
-      - run: |
-          chmod +x "${GITHUB_WORKSPACE}/docs-server/docdex/gradlew"
         with:
           context: docs-server
           file: ./docs-server/Dockerfile
