@@ -39,5 +39,5 @@ jobs:
           context: docs-server
           file: docs-server/Dockerfile
           push: true
-          tags: nycodeghg/bankbot/docsdex:latest
+          tags: docker.pkg.github.com/nycodeghg/bankbot/docsdex:latest
 
