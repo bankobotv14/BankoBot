@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           context: docs-server
           registry: docker.pkg.github.com
-          file: Dockerfile
+          file: docs-server/Dockerfile
           push: true
           tags: nycodeghg/bankbot/docsdex:latest
 
