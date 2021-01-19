@@ -32,9 +32,9 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
           context: docs-server
+          registry: docker.pkg.github.com
           file: Dockerfile
-          tag: latest
-          tag_with_ref: true
           push: true
+          tags: NyCodeGhG/BankoBot:latest
+
