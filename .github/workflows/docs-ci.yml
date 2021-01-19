@@ -1,9 +1,12 @@
 name: Docs Server CI
 
 on:
-  create:
-    tags:
-      - docs-*
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - docs-server
 
 jobs:
   release:
