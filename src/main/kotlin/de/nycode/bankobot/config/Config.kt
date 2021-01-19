@@ -42,8 +42,8 @@ object Config {
     val SENTRY_TOKEN: String? by getEnv().optional()
     val DISCORD_TOKEN: String by getEnv()
 
-//    val MONGO_DATABASE: String by getEnv()
-//    val MONGO_URL: String by getEnv()
+    val MONGO_DATABASE: String by getEnv()
+    val MONGO_URL: String by getEnv()
 
     val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
     val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()

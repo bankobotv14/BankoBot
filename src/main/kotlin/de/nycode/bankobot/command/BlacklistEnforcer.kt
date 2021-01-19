@@ -25,16 +25,18 @@
 
 package de.nycode.bankobot.command
 
+import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import dev.kord.core.event.message.MessageCreateEvent
 
 object BlacklistEnforcer : AbstractKordFilter() {
     override suspend fun invoke(event: MessageCreateEvent): Boolean {
-        if(Config.ENVIRONMENT == Environment.PRODUCTION) {
-            TODO()
+        return if(Config.ENVIRONMENT == Environment.PRODUCTION) {
+            val id = event.member?.id ?: return false
+            BankoBot.repositories.blacklistedUsers.findOneById(id) == null
         } else {
-            return false // debug mode disabled playlist
+            true // debug mode disabled playlist
         }
     }
 }

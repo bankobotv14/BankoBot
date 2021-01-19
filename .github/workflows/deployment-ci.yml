@@ -1,0 +1,41 @@
+name: DeploymentCI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/**
+      - build.gradle.kts
+      - settings.gradle.kts
+
+jobs:
+  release:
+    name: Publish Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true # docdex src is a submodule which would not get checked out
+      - uses: actions/cache@v1
+        with:
+          key: "$GITHUB_SHA"
+          path: |
+            ~/.gradle
+            ~/build
+      - uses: docker/setup-buildx-action@v1
+      - name: Make child gradlew executable
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/gradlew"
+      - name: Publish
+        uses: docker/build-push-action@v2
+        with:
+          context: .Do
+          file: ./docs-server/Dockerfile
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          tags: latest
+          repository: nycodeghg/bankobot/bot
+          tag_with_ref: true
+          push: true

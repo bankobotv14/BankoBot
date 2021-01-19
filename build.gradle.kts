@@ -57,7 +57,7 @@ dependencies {
     implementation("io.github.microutils", "kotlin-logging", "1.12.0")
     implementation("io.github.cdimascio", "dotenv-kotlin", "6.2.2")
 
-    implementation("org.litote.kmongo", "kmongo-coroutine", "4.2.3")
+    implementation("org.litote.kmongo", "kmongo-coroutine-serialization", "4.2.3")
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("io.sentry", "sentry", "3.1.0")
     implementation("io.sentry", "sentry-logback", "3.2.0")
