@@ -1,0 +1,12 @@
+version: "3.1"
+
+services:
+  database:
+    image: mariadb
+  app:
+    ports:
+      - 127.0.0.1:8800:8800
+    volumes:
+      - ./config.json:/usr/app/config.json
+    depends_on:
+      - database

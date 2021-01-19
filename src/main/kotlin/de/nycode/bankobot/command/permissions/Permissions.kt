@@ -25,10 +25,16 @@
 
 package de.nycode.bankobot.command
 
+import de.nycode.bankobot.command.permissions.PermissionHandler
+import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.Embeds.respondEmbed
+import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.command.CommandBuilder
 import dev.kord.x.commands.model.command.CommandEvent
 import dev.kord.x.commands.model.metadata.Metadata
+import dev.kord.x.commands.model.precondition.Precondition
+import dev.kord.x.commands.model.processor.ProcessorContext
 
 enum class PermissionLevel {
     ALL,
@@ -53,3 +59,21 @@ val Command<*>.permission: PermissionLevel
  */
 fun <S, A, COMMANDCONTEXT : CommandEvent> CommandBuilder<S, A, COMMANDCONTEXT>.permission(permission: PermissionLevel): Unit =
     metaData.set(PermissionData, permission)
+
+abstract class AbstractPermissionHandler : AbstractKordPrecondition(), PermissionHandler {
+    override suspend fun invoke(event: KordCommandEvent): Boolean {
+        val member = event.event.member ?: error("Missing member")
+        val command = event.command
+        val permission = command.permission
+        if (isCovered(member, permission)) return true
+
+        event.respondEmbed(
+            Embeds.error(
+                "Keine Berechtigung",
+                "Du benötigst die Berechtigung $permission um diesen Befehl benutzen zu können"
+            )
+        )
+        return false
+    }
+
+}

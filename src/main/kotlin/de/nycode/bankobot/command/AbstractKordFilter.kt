@@ -23,23 +23,19 @@
  *
  */
 
-package de.nycode.bankobot.command.permissions
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.AbstractPermissionHandler
-import de.nycode.bankobot.command.PermissionLevel
-import dev.kord.core.entity.Member
-import kotlinx.coroutines.runBlocking
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.kord.model.context.KordCommandEvent
+import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.model.eventFilter.EventFilter
+import dev.kord.x.commands.model.precondition.Precondition
+import dev.kord.x.commands.model.processor.ProcessorContext
 
-object DebugPermissionHandler : AbstractPermissionHandler() {
+abstract class AbstractKordFilter : EventFilter<MessageCreateEvent> {
+    override val context: ProcessorContext<MessageCreateEvent, *, *> = KordContext
+}
 
-    private val authorizedMembers by lazy {
-        runBlocking {
-            val application = BankoBot.kord.getApplicationInfo()
-            application.team?.run { members.map { it.userId } } ?: listOf(application.ownerId)
-        }
-    }
-
-    override suspend fun isCovered(member: Member, command: PermissionLevel): Boolean =
-        member.id in authorizedMembers
+abstract class AbstractKordPrecondition : Precondition<KordCommandEvent> {
+    override val context: ProcessorContext<*, *, KordCommandEvent> = KordContext
 }
