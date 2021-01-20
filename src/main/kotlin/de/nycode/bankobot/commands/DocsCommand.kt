@@ -232,7 +232,5 @@ private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuild
     }
 }
 
-private val htmlRenderer = FlexmarkHtmlConverter.builder().build()
-
 private const val EMBED_DESCRIPTION_MAX_LENGTH = 2048
 

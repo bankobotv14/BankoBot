@@ -44,16 +44,22 @@ private val referenceRegex =
 val ReferenceArgument: Argument<Reference, Any?> = InternalReferenceArgument("")
 
 private class InternalReferenceArgument(override val name: String) :
-    VariableLengthArgument<Reference, Any?>() {
+    Argument<Reference, Any?> {
 
-    override suspend fun parse(words: List<String>, context: Any?): ArgumentResult<Reference> {
-        val input = words.joinToString(" ")
+    override suspend fun parse(
+        text: String,
+        fromIndex: Int,
+        context: Any?
+    ): ArgumentResult<Reference> {
+        val inputRaw = text.substring(fromIndex)
+        val input = inputRaw.trim()
         val classReference = classReferenceRegex.matchEntire(input)
+        val diff = fromIndex + inputRaw.length - input.length
 
         return if (classReference != null) {
             val reference =
                 Reference(classReference.value, classReference.groupValues[1], classReference.groupValues[2], null)
-            success(reference, classReference.value.length)
+            ArgumentResult.Success(reference, classReference.value.length + diff)
         } else {
             val genericReference = referenceRegex.matchEntire(input)
             if (genericReference != null) {
@@ -63,9 +69,9 @@ private class InternalReferenceArgument(override val name: String) :
                     genericReference.groupValues[2],
                     genericReference.groupValues[3]
                 )
-                success(reference, genericReference.value.length)
+                ArgumentResult.Success(reference, genericReference.value.length + diff)
             } else {
-                failure("Expected Java reference like List#add()")
+                ArgumentResult.Failure("Expected Java reference like List#add()", fromIndex)
             }
         }
     }
