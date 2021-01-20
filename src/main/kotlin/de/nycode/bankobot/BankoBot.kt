@@ -34,7 +34,6 @@ import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.utils.SnowflakeSerializer
-import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
