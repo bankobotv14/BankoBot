@@ -55,6 +55,11 @@ dependencies {
     implementation("dev.kord.x:commands-runtime-kord:0.4.0-SNAPSHOT")
     kapt("dev.kord.x:commands-processor:0.4.0-SNAPSHOT")
 
+    implementation("io.ktor:ktor-client:1.4.3")
+    implementation("io.ktor:ktor-client-cio:1.4.3")
+    implementation("io.ktor:ktor-client-json:1.4.3")
+    implementation("io.ktor:ktor-serialization:1.4.3")
+
     implementation("io.github.microutils", "kotlin-logging", "1.12.0")
     implementation("io.github.cdimascio", "dotenv-kotlin", "6.2.2")
 

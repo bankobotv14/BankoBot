@@ -26,11 +26,12 @@
 package de.nycode.bankobot.config
 
 import ch.qos.logback.classic.Level
-import dev.kord.common.entity.Snowflake
-import de.nycode.bankobot.command.permissions.RolePermissionHandler
-import de.nycode.bankobot.command.permissions.DebugPermissionHandler
-import de.nycode.bankobot.command.HastebinErrorHandler
 import de.nycode.bankobot.command.DebugErrorHandler
+import de.nycode.bankobot.command.HastebinErrorHandler
+import de.nycode.bankobot.command.permissions.DebugPermissionHandler
+import de.nycode.bankobot.command.permissions.RolePermissionHandler
+import dev.kord.common.entity.Snowflake
+import io.ktor.http.*
 
 object Config {
 
@@ -45,6 +46,8 @@ object Config {
 
     val SENTRY_TOKEN: String? by getEnv().optional()
     val DISCORD_TOKEN: String by getEnv()
+
+    val DOCDEX_URL: Url by getEnv(default = Url("https://docs-repository.schlaubi.net/")) { Url(it) }
 
     val MONGO_DATABASE: String by getEnv()
     val MONGO_URL: String by getEnv()

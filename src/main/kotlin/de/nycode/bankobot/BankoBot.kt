@@ -32,6 +32,7 @@ import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
+import de.nycode.bankobot.docdex.DocumentationModule
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.utils.SnowflakeSerializer
 import dev.kord.core.Kord
@@ -65,7 +66,10 @@ object BankoBot {
     @OptIn(KtorExperimentalAPI::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
-            serializer = KotlinxSerializer()
+            val json = kotlinx.serialization.json.Json {
+                serializersModule = DocumentationModule
+            }
+            serializer = KotlinxSerializer(json)
         }
     }
     val repositories = Repositories()
