@@ -25,7 +25,6 @@
 
 package de.nycode.bankobot.commands
 
-import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.docdex.*
@@ -46,7 +45,12 @@ import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 
 @Suppress("FunctionName")
-fun AbstractDocsCommand(displayName: String, name: String, doc: String, builder: KordCommandBuilder.() -> Unit): CommandSet = command(name) {
+fun AbstractDocsCommand(
+    displayName: String,
+    name: String,
+    doc: String,
+    builder: KordCommandBuilder.() -> Unit,
+): CommandSet = command(name) {
     builder(this)
     description("Zeigt das $displayName Javadoc in Discord an")
     invoke(ReferenceArgument.named("query")) { query ->
@@ -111,8 +115,13 @@ private suspend fun respond(status: Message, doc: DocumentedElement) {
     status.editEmbed(embed)
 }
 
+private fun formatDocDefinition(name: String) = """```java
+    |$name
+    |```
+""".trimMargin()
+
 @Suppress("TooLongLine")
-private fun formatClassName(doc: DocumentedClassObject): String =
+private fun formatClassDefinition(doc: DocumentedClassObject): String =
     "${
         doc.annotations.joinToString(
             " ",
@@ -120,8 +129,11 @@ private fun formatClassName(doc: DocumentedClassObject): String =
         ) { "@${it.className}" }
     }${doc.modifiers.joinToString(" ")} ${doc.type.name.toLowerCase()} ${doc.`package`}.${doc.name}"
 
+private fun formatClassName(doc: DocumentedObject) = "${doc.`package`}.${doc.name}"
+
 private fun renderClass(doc: DocumentedClassObject): EmbedBuilder = Embeds.doc(doc) {
     val meta = doc.metadata
+    description = formatDocDefinition(formatClassDefinition(doc))
     title = formatClassName(doc)
 
     if (meta.extensions.isNotEmpty()) {
@@ -153,14 +165,17 @@ private fun renderClass(doc: DocumentedClassObject): EmbedBuilder = Embeds.doc(d
     }
 }
 
-private fun formatMethodName(doc: DocumentedMethodObject): String {
+private fun formatMethodName(doc: DocumentedMethodObject) =
+    "${doc.`package`}.${doc.metadata.owner}#${doc.name}(${doc.metadata.parameters.joinToString { "${it.type} ${it.name}" }})"
+
+private fun formatMethodDefinition(doc: DocumentedMethodObject): String {
     val meta = doc.metadata
     return "${
         doc.annotations.joinToString(
             " ",
             postfix = "\n"
         ) { "@${it.className}" }
-    } ${doc.modifiers.joinToString(" ")} ${doc.metadata.returns} ${doc.name}(${
+    }${doc.modifiers.joinToString(" ")} ${doc.metadata.returns} ${doc.name}(${
         meta.parameters.joinToString {
             "${
                 it.annotations.joinToString(
@@ -177,6 +192,7 @@ private fun String?.asDescriber() = if (isNullOrBlank()) "" else " - $this"
 private fun renderMethod(doc: DocumentedMethodObject): EmbedBuilder = Embeds.doc(doc) {
     val meta = doc.metadata
     title = formatMethodName(doc)
+    description = formatDocDefinition(formatMethodDefinition(doc))
 
     field {
         name = "Returns"
@@ -190,12 +206,7 @@ private fun renderMethod(doc: DocumentedMethodObject): EmbedBuilder = Embeds.doc
             value =
                 meta.parameters.joinToString("\n")
                 {
-                    "${
-                        it.annotations.joinToString(
-                            " ",
-                            postfix = " "
-                        )
-                    }${it.type} ${it.name}${meta.parameterDescriptions[it.name].asDescriber()}"
+                    "${it.type} ${it.name}${meta.parameterDescriptions[it.name].asDescriber()}"
                 }
         }
     }
@@ -219,9 +230,12 @@ private fun List<DocumentedReference>.format() = joinToString("`, `", "`", "`") 
 
 @Suppress("unused")
 private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuilder {
-    return EmbedBuilder().apply(creator).apply {
+    return EmbedBuilder().apply {
         url = doc.link
-        description = htmlRenderer.convert(doc.description.limit(EMBED_DESCRIPTION_MAX_LENGTH))
+        field {
+            name = "Description"
+            value = htmlRenderer.convert(doc.description.limit(EMBED_DESCRIPTION_MAX_LENGTH))
+        }
 
         if (doc.deprecated) {
             field {
@@ -229,7 +243,7 @@ private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuild
                 value = doc.deprecationMessage
             }
         }
-    }
+    }.apply(creator)
 }
 
 private const val EMBED_DESCRIPTION_MAX_LENGTH = 2048

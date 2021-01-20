@@ -36,7 +36,10 @@ object DocsGoogle {
     /**
      * Finds the most suitable [DocumentedElement] for the requested [Reference].
      */
-    fun findMostSuitable(options: List<DocumentedElement>, reference: Reference): DocumentedElement {
+    fun findMostSuitable(
+        options: List<DocumentedElement>,
+        reference: Reference,
+    ): DocumentedElement {
         val notClass = reference.method != null
         return options.minByOrNull {
             val obj = it.`object`
@@ -57,7 +60,10 @@ object DocsGoogle {
                 penalty += levenshtein.distance(
                     reference.clazz.toLowerCase(),
                     if (obj is DocumentedMethodObject) obj.metadata.owner.toLowerCase() else obj.name.toLowerCase()
-                )
+                ) * 0.3
+                // this has a very low value since sometimes you refer
+                // to a method from an interface by a common implementation
+                // e.g Player#sendMessage(String) is actually CommandSender#sendMessage()
             }
 
             if (reference.method != null) {
@@ -67,7 +73,7 @@ object DocsGoogle {
                     penalty += levenshtein.distance(
                         reference.method.toLowerCase(),
                         obj.name.toLowerCase()
-                    )
+                    ) * 10 // This has a very high value, see explanation for className above
                 }
             }
 
