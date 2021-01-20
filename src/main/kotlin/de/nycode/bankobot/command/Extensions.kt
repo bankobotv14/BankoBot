@@ -25,21 +25,25 @@
 
 package de.nycode.bankobot.command
 
+import de.nycode.bankobot.commands.general.sourceCommand
 import dev.kord.x.commands.kord.model.command.KordCommandBuilder
 import dev.kord.x.commands.kord.model.processor.KordContext
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.metadata.Metadata
 import dev.kord.x.commands.model.module.CommandSet
-import java.util.*
 
 @PublishedApi
 internal object CallbackData : Metadata.Key<CommandExecutionCallback>
 
 data class CommandExecutionCallback(val stack: StackTraceElement, val fileName: String)
 
+@Suppress("UnsafeCallOnNullableType") // we know it's not null
 val Command<*>.callback: CommandExecutionCallback
     get() = data.metadata[CallbackData]!!
 
+/**
+ * Replacement of [dev.kord.x.commands.model.module.command] which stores some data required for [sourceCommand]
+ */
 fun command(
     name: String,
     builder: KordCommandBuilder.() -> Unit

@@ -30,7 +30,7 @@ import dev.kord.common.Color
 /**
  * Wrapper for [Discordapp.com/branding][https://discordapp.com/branding] colors and some other colors:
  */
-@Suppress("KDocMissingDocumentation", "unused")
+@Suppress("KDocMissingDocumentation", "unused", "MagicNumber")
 object Colors {
     // Discord
     val BLURLPLE: Color = Color(114, 137, 218)

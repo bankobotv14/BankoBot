@@ -31,7 +31,14 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Utility to interact with the GitHub API.
+ */
 object GitHubUtil {
+
+    /**
+     * Fetches all contributors of the bot's repository
+     */
     suspend fun retrieveContributors(): List<GithubContributor> {
         return BankoBot.httpClient.get(API_BASE) {
             url {
@@ -41,9 +48,13 @@ object GitHubUtil {
     }
 
     private val API_BASE = Url("https://api.github.com")
-    private val GET_CONTRIBUTORS_ENDPOINT = "repos/nycodeghg/bankobot/contributors"
+    private const val GET_CONTRIBUTORS_ENDPOINT = "repos/nycodeghg/bankobot/contributors"
 }
 
+/**
+ * Representation of a GitHub contributor.
+ */
+@Suppress("LongParameterList")
 @Serializable
 class GithubContributor(
     val login: String,
@@ -74,7 +85,7 @@ class GithubContributor(
     @SerialName("events_url")
     val eventsUrl: String,
     @SerialName("received_events_url")
-    val received_eventsUrl: String,
+    val receivedEventsUrl: String,
     val type: String,
     @SerialName("site_admin")
     val siteAdmin: Boolean,

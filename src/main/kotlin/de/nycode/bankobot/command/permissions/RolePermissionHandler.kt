@@ -26,18 +26,32 @@
 package de.nycode.bankobot.command.permissions
 
 import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.AbstractPermissionHandler
-import de.nycode.bankobot.command.PermissionLevel
 import de.nycode.bankobot.config.Config
+import de.nycode.bankobot.config.Environment
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.any
 import dev.kord.core.entity.Member
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Implementation of [PermissionHandler] which uses Discord roles.
+ *
+ * [PermissionLevel.ALL] requires nothing
+ * [PermissionLevel.BOT_OWNER] requires being a member of the Discord application team.
+ * [PermissionLevel.ADMIN] requires [Config.ADMIN_ROLE]
+ * [PermissionLevel.MODERATOR] requires [Config.MODERATOR_ROLE] or [Config.ADMIN_ROLE]
+ *
+ * Used with [Environment.PRODUCTION]
+ *
+ * @see Config.ADMIN_ROLE
+ * @see Config.MODERATOR_ROLE
+ */
 object RolePermissionHandler : AbstractPermissionHandler() {
 
-    private val modRole = Config.MODERATOR_ROLE ?: error("Please define permission roles in env config")
-    private val adminRole = Config.ADMIN_ROLE ?: error("Please define permission roles in env config")
+    private val modRole =
+        Config.MODERATOR_ROLE ?: error("Please define permission roles in env config")
+    private val adminRole =
+        Config.ADMIN_ROLE ?: error("Please define permission roles in env config")
 
     private val botOwners by lazy {
         runBlocking {

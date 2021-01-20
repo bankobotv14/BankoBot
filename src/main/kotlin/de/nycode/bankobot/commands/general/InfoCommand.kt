@@ -23,9 +23,10 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Emotes
 import de.nycode.bankobot.utils.GitHubUtil
 import dev.kord.core.behavior.channel.MessageChannelBehavior
@@ -36,16 +37,20 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
 
-
+@PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
-fun infoCommand() = command("info") {
+internal fun infoCommand() = command("info") {
     alias("whoareyou")
     invoke {
         channel.sendInfo()
     }
 }
 
+/**
+ * Sends an about message for the bot in this channel.
+ * The developers field is fetched from the GitHub repository contributors
+ */
 suspend fun MessageChannelBehavior.sendInfo() {
     val embed: EmbedBuilder.() -> Unit = {
         field {
@@ -65,8 +70,6 @@ suspend fun MessageChannelBehavior.sendInfo() {
             name = "Entwickler"
             value = Emotes.LOADING
         }
-
-
     }.edit {
         val contributors = GitHubUtil.retrieveContributors()
         embed {

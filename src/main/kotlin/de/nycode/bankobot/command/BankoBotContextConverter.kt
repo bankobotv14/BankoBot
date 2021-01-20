@@ -31,6 +31,13 @@ import dev.kord.x.commands.kord.model.processor.KordContextConverter
 import dev.kord.x.commands.model.processor.ContextConverter
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Implementation of [ContextConverter] which sends typing before replying to a command.
+ *
+ * Most methods delegate to [KordContextConverter]
+ * @see KordContextConverter
+ * @see ContextConverter
+ */
 object BankoBotContextConverter :
     ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
     override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {

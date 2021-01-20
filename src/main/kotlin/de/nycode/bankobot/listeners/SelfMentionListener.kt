@@ -26,14 +26,14 @@
 package de.nycode.bankobot.listeners
 
 import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.commands.sendInfo
+import de.nycode.bankobot.commands.general.sendInfo
 import dev.kord.core.Kord
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 
 private val mentionRegex by lazy { "<@!?${BankoBot.kord.selfId.asString}>".toRegex() }
 
-fun Kord.selfMentionListener() = on<MessageCreateEvent> {
+internal fun Kord.selfMentionListener() = on<MessageCreateEvent> {
     if (message.content.matches(mentionRegex)) {
         message.channel.sendInfo()
     }

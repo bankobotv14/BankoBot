@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot
 
+import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
@@ -32,12 +33,12 @@ import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.listeners.selfMentionListener
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
 import dev.kord.x.commands.kord.model.processor.KordContext
-import dev.kord.x.commands.kord.model.processor.KordContextConverter
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
 import io.ktor.client.*
@@ -47,9 +48,11 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.util.*
 import kapt.kotlin.generated.configure
 import org.bson.UuidRepresentation
+import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
+import org.litote.kmongo.serialization.registerSerializer
 
 suspend fun main() {
     Kord(Config.DISCORD_TOKEN).login()
@@ -74,14 +77,14 @@ object BankoBot {
         if (Config.ENVIRONMENT == Environment.PRODUCTION) RolePermissionHandler else DebugPermissionHandler
 
     class Repositories internal constructor() {
-
+        lateinit var blacklist: CoroutineCollection<BlacklistEntry>
     }
 
     suspend operator fun invoke() {
         require(!initialized) { "Cannot initialize bot twice" }
         initialized = true
 
-//        initializeDatabase()
+        initializeDatabase()
 
         kord = Kord(Config.DISCORD_TOKEN)
 
@@ -89,14 +92,18 @@ object BankoBot {
     }
 
     private fun initializeDatabase() {
+        registerSerializer(Snowflake.serializer())
+
         val client = KMongo.createClient(
             MongoClientSettings.builder()
                 .uuidRepresentation(UuidRepresentation.STANDARD)
-//                .applyConnectionString(ConnectionString(Config.MONGO_URL))
+                .applyConnectionString(ConnectionString(Config.MONGO_URL))
                 .build()
         )
             .coroutine
-//        database = client.getDatabase(Config.MONGO_DATABASE)
+        database = client.getDatabase(Config.MONGO_DATABASE)
+
+        repositories.blacklist = database.getCollection("blacklist")
     }
 
     private suspend fun initializeKord() {
@@ -121,6 +128,5 @@ object BankoBot {
                 selfMentionListener()
             }
         }
-
     }
 }
