@@ -33,6 +33,7 @@ import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.listeners.selfMentionListener
+import de.nycode.bankobot.utils.SnowflakeSerializer
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
@@ -92,7 +93,7 @@ object BankoBot {
     }
 
     private fun initializeDatabase() {
-        registerSerializer(Snowflake.serializer())
+        registerSerializer(SnowflakeSerializer)
 
         val client = KMongo.createClient(
             MongoClientSettings.builder()

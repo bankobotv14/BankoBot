@@ -43,7 +43,7 @@ internal fun blacklistCommand() = command("blacklist") {
     alias("bl", "schwarzeliste", "schwarze-liste")
 
     invoke(MemberArgument) { member ->
-        val entry = BankoBot.repositories.blacklist.findOneById(member.id)
+        val entry = BankoBot.repositories.blacklist.findOneById(member.id.value)
         if (entry == null) {
             val newEntry = BlacklistEntry(member.id)
             BankoBot.repositories.blacklist.save(newEntry)

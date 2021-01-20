@@ -41,7 +41,7 @@ import dev.kord.x.commands.model.command.invoke
 @AutoWired
 @ModuleName(GeneralModule)
 internal fun infoCommand() = command("info") {
-    alias("whoareyou")
+    alias("i", "whoareyou")
     invoke {
         channel.sendInfo()
     }

@@ -23,32 +23,21 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.utils
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.config.Config
-import de.nycode.bankobot.config.Environment
 import dev.kord.common.entity.Snowflake
-import dev.kord.core.event.message.MessageCreateEvent
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-/**
- * Entry in the blacklist.
- *
- * @property userId [Snowflake] of the user represented by this entry
- */
-@Serializable
-data class BlacklistEntry(@SerialName("_id") @Contextual val userId: Snowflake)
+object SnowflakeSerializer : KSerializer<Snowflake> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
 
-internal object BlacklistEnforcer : AbstractKordFilter() {
-    override suspend fun invoke(event: MessageCreateEvent): Boolean {
-        return if (Config.ENVIRONMENT != Environment.PRODUCTION) {
-            val id = event.member?.id ?: return false
-            BankoBot.repositories.blacklist.findOneById(id) == null
-        } else {
-            true // debug mode disabled playlist
-        }
-    }
+    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
+
+    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
 }
