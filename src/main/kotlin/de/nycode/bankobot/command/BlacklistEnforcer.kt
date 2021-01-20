@@ -48,7 +48,7 @@ internal object BlacklistEnforcer : AbstractKordFilter() {
             val id = event.member?.id ?: return false
             BankoBot.repositories.blacklist.findOneById(id) == null
         } else {
-            true // debug mode disabled playlist
+            true // debug mode disabled blacklist
         }
     }
 }
