@@ -25,8 +25,25 @@
 
 package de.nycode.bankobot.utils
 
+import kotlinx.datetime.Instant
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+
 /**
  * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
  */
 fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength)
     substring(0, maxLength - truncate.length) + truncate else this
+
+object InstantSerializer : KSerializer<Instant> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Instant = Instant.parse(decoder.decodeString())
+
+    override fun serialize(encoder: Encoder, value: Instant) = encoder.encodeString(value.toString())
+
+}
