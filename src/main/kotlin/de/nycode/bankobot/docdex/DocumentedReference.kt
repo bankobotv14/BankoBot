@@ -38,6 +38,8 @@ sealed class DocumentedReference(val raw: String, val `package`: String, val cla
 
 
     companion object : KSerializer<DocumentedReference> {
+        private val packageRegex = "[a-z.]".toRegex()
+
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("reference", PrimitiveKind.STRING)
 
@@ -45,8 +47,8 @@ sealed class DocumentedReference(val raw: String, val `package`: String, val cla
             encoder.encodeString(value.raw)
 
         override fun deserialize(decoder: Decoder): DocumentedReference {
-            val input = decoder.decodeString()
-            val `package` = input.takeWhile { it.isLowerCase() }
+            val input = decoder.decodeString().replace("@", "")
+            val `package` = input.takeWhile { it.toString().matches(packageRegex) }
 
             // length = lastIndex + 1 => first char after the string
             val rest = input.substring(`package`.length)

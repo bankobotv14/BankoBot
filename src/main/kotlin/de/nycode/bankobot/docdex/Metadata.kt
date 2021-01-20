@@ -56,7 +56,7 @@ data class ClassMetadata(
 data class MethodMetadata(
     val owner: String,
     val parameters: List<MethodParameter>,
-    @SerialName("parameters_description")
+    @SerialName("parameter_descriptions")
     val parameterDescriptions: Map<String, String>,
     val returns: String,
     @SerialName("returns_description")
@@ -72,7 +72,7 @@ data class MethodMetadata(
     )
 
     @Serializable(with = MethodParameter.Companion::class)
-    data class MethodParameter(val type: String, val name: String) {
+    data class MethodParameter(val annotations: List<String>, val type: String, val name: String) {
         companion object : KSerializer<MethodParameter> {
             override val descriptor: SerialDescriptor =
                 PrimitiveSerialDescriptor("MethodParameter", PrimitiveKind.STRING)
@@ -82,9 +82,15 @@ data class MethodMetadata(
             }
 
             override fun deserialize(decoder: Decoder): MethodParameter {
-                val input = decoder.decodeString().split(" ")
-                val (type, name) = input
-                return MethodParameter(type, name)
+                val input = decoder.decodeString().split(" |\\s".toRegex())
+                return if (input.size == 2) {
+                    val (type, name) = input
+                    MethodParameter(emptyList(), type, name)
+                } else {
+                    val annotations = input.dropLast(2)
+                    val (type, name) = input.takeLast(2)
+                    MethodParameter(annotations, type, name)
+                }
             }
         }
     }

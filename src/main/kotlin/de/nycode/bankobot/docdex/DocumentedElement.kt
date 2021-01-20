@@ -54,14 +54,22 @@ data class DocumentedElement(
 sealed class DocumentedObject {
     abstract val link: String
     val type: Type
-        get() = error("")
+        get() = when(this) {
+            is DocumentedClass -> Type.CLASS
+            is DocumentedEnum -> Type.ENUM
+            is DocumentedInterface -> Type.INTERFACE
+            is DocumentedAnnotation -> Type.ANNOTATION
+            is DocumentedConstructor -> Type.CONSTRUCTOR
+            is DocumentedMethod -> Type.METHOD
+            else -> error("Unknown type")
+        }
     abstract val `package`: String
     abstract val name: String
     abstract val description: String
 
     @SerialName("stripped_description")
     abstract val strippedDescription: String
-    abstract val annotations: List<String>
+    abstract val annotations: List<DocumentedReference>
     abstract val deprecated: Boolean
 
     @SerialName("deprecation_message")
@@ -100,7 +108,7 @@ data class DocumentedClass(
     override val description: String,
     @SerialName("stripped_description")
     override val strippedDescription: String,
-    override val annotations: List<String>,
+    override val annotations: List<DocumentedReference>,
     override val modifiers: List<String>,
     override val metadata: ClassMetadata,
     override val `package`: String,
@@ -117,7 +125,7 @@ data class DocumentedEnum(
     override val description: String,
     @SerialName("stripped_description")
     override val strippedDescription: String,
-    override val annotations: List<String>,
+    override val annotations: List<DocumentedReference>,
     override val modifiers: List<String>,
     override val metadata: ClassMetadata,
     override val `package`: String,
@@ -133,7 +141,7 @@ data class DocumentedInterface(
     override val description: String,
     @SerialName("stripped_description")
     override val strippedDescription: String,
-    override val annotations: List<String>,
+    override val annotations: List<DocumentedReference>,
     override val modifiers: List<String>,
     override val metadata: ClassMetadata,
     override val `package`: String,
@@ -150,7 +158,7 @@ data class DocumentedAnnotation(
     override val description: String,
     @SerialName("stripped_description")
     override val strippedDescription: String,
-    override val annotations: List<String>,
+    override val annotations: List<DocumentedReference>,
     override val modifiers: List<String>,
     override val metadata: ClassMetadata,
     override val `package`: String,
@@ -167,7 +175,7 @@ data class DocumentedMethod(
     override val description: String,
     @SerialName("stripped_description")
     override val strippedDescription: String,
-    override val annotations: List<String>,
+    override val annotations: List<DocumentedReference>,
     override val modifiers: List<String>,
     override val metadata: MethodMetadata,
     override val `package`: String,
@@ -184,7 +192,7 @@ data class DocumentedConstructor(
     override val description: String,
     @SerialName("stripped_description")
     override val strippedDescription: String,
-    override val annotations: List<String>,
+    override val annotations: List<DocumentedReference>,
     override val modifiers: List<String>,
     override val metadata: MethodMetadata,
     override val `package`: String,
