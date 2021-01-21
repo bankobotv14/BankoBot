@@ -41,19 +41,21 @@ import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
+import org.litote.kmongo.contains
 import org.litote.kmongo.eq
+import org.litote.kmongo.or
 
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
 internal fun tagCommand(): CommandSet = command("tag") {
     alias("t")
-    description("TODO: coole beschreibung")
+    description("Einen Tag anzeigen")
 
     invoke(WordArgument.named("tag")) { tagName ->
-        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+        val tag = BankoBot.repositories.tag.findOne(or(TagEntry::name eq tagName, TagEntry::aliases contains tagName))
         if (tag == null) {
-            respondEmbed(Embeds.error("Unbekannter Tag!", "Dieser Tag konnte nicht gefunden werden!"))
+            respondEmbed(notFound())
         } else {
             respond(tag.toString())
         }
@@ -63,13 +65,18 @@ internal fun tagCommand(): CommandSet = command("tag") {
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
-internal fun tagCreateCommand(): CommandSet = command("create-tag") {
+internal fun createTagCommand(): CommandSet = command("create-tag") {
     description("Tag erstellen")
 
     invoke(WordArgument.named("tag"), StringArgument.named("text")) { tagName, tagText ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
         if (tag != null) {
-            respondEmbed(Embeds.error("Tag existierst bereits", "Ein Tag mit dem Namen '$tagName' existiert bereits!"))
+            respondEmbed(
+                Embeds.error(
+                    "Tag existierst bereits",
+                    "Ein Tag mit dem Namen **$tagName** existiert bereits!"
+                )
+            )
         } else {
             val entry = TagEntry(author = author.id, name = tagName.trim(), text = tagText)
             val loadingEmbed =
@@ -78,7 +85,7 @@ internal fun tagCreateCommand(): CommandSet = command("create-tag") {
             loadingEmbed.editEmbed(
                 Embeds.success(
                     "Tag wurde erstellt",
-                    "Du hast den Tag '${tagName.trim()}' erfolgreich erstellt!"
+                    "Du hast den Tag **${tagName.trim()}** erfolgreich erstellt!"
                 )
             )
         }
@@ -88,7 +95,7 @@ internal fun tagCreateCommand(): CommandSet = command("create-tag") {
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
-internal fun tagDeleteCommand(): CommandSet = command("delete-tag") {
+internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
     description("Tag löschen")
     alias("remove-tag")
 
@@ -108,12 +115,12 @@ internal fun tagDeleteCommand(): CommandSet = command("delete-tag") {
                 loadingEmbed.editEmbed(
                     Embeds.success(
                         "Tag wurde gelöscht!",
-                        "Du hast den Tag '${tagName.trim()}' erfolgreich gelöscht!"
+                        "Du hast den Tag **${tagName.trim()}** erfolgreich gelöscht!"
                     )
                 )
             }
         } else {
-            respondEmbed(Embeds.error("Unbekannter Tag!", "Dieser Tag konnte nicht gefunden werden!"))
+            respondEmbed(notFound())
         }
     }
 }
@@ -122,3 +129,48 @@ private suspend fun Member.hasDeletePermission(): Boolean {
     return BankoBot.permissionHandler.isCovered(this, PermissionLevel.MODERATOR) ||
             BankoBot.permissionHandler.isCovered(this, PermissionLevel.BOT_OWNER)
 }
+
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun createAliasCommand(): CommandSet = command("create-alias") {
+    description("Alias erstellen.")
+
+    invoke(WordArgument.named("tag"), WordArgument.named("alias")) { tagName, aliasName ->
+        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+
+        if (tag == null) {
+            respondEmbed(notFound())
+            return@invoke
+        }
+
+        val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
+        if (aliasTag != null) {
+            respondEmbed(
+                Embeds.error(
+                    "Alias existiert bereits!",
+                    "Du kannst diesen Alias nicht erstellen, da der Tag **${aliasTag.name}** diesen bereits nutzt!"
+                )
+            )
+            return@invoke
+        }
+
+        val aliasNameTag = BankoBot.repositories.tag.findOne(TagEntry::name eq aliasName)
+        if (aliasNameTag != null) {
+            respondEmbed(
+                Embeds.error(
+                    "Name bereits genutzt!",
+                    "Du kannst diesen Alias nicht erstellen, da der Tag **${aliasNameTag.name}** diesen bereits als Namen nutzt!"
+                )
+            )
+            return@invoke
+        }
+
+        val loadingMessage = respondEmbed(Embeds.loading("Alias wird erstellt", null))
+        val newTag = tag.copy(aliases = listOf(aliasName.trim(), *tag.aliases.toTypedArray()))
+        BankoBot.repositories.tag.save(newTag)
+        loadingMessage.editEmbed(Embeds.success("Alias wurde erstellt!", "Du hast den Alias **$aliasName** erstellt!"))
+    }
+}
+
+private fun notFound() = Embeds.error("Unbekannter Tag!", "Dieser Tag konnte nicht gefunden werden!")
