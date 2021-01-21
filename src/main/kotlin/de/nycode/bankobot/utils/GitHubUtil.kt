@@ -32,12 +32,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Utility to interact with the GitHub API.
+ * Utility for Github API methods.
  */
 object GitHubUtil {
 
     /**
-     * Fetches all contributors of the bot's repository
+     * Retrieves a list of [GithubContributors][GithubContributor] of the BankoBot repository.
      */
     suspend fun retrieveContributors(): List<GithubContributor> {
         return BankoBot.httpClient.get(API_BASE) {

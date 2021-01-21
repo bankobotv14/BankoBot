@@ -23,25 +23,16 @@
  *
  */
 
-package de.nycode.bankobot.command
-
-import dev.kord.x.commands.model.prefix.PrefixBuilder
-import dev.kord.x.commands.model.prefix.PrefixRule
+package de.nycode.bankobot.utils
 
 /**
- * [PrefixRule] which requires the literal string [prefix] to be present in front of the command.
- * This matches against the prefix being at the beginning of the line and ignores an unlimited amount
- * of spaces between the prefix and the command. (Regex "^$prefix\s*")
+ * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
  */
-@Suppress("unused") // it is supposed to be only invoked on PrefixBuilder even if PrefixBuilder is unused
-fun PrefixBuilder.literal(prefix: String): PrefixRule<Any?> =
-    LiteralPrefixRule(prefix)
-
-private class LiteralPrefixRule(prefix: String) : PrefixRule<Any?> {
-    private val regex = "^$prefix\\s*".toRegex(RegexOption.IGNORE_CASE)
-
-    override suspend fun consume(message: String, context: Any?): PrefixRule.Result {
-        val match = regex.find(message) ?: return PrefixRule.Result.Denied
-        return PrefixRule.Result.Accepted(match.value)
-    }
+fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
+    substring(0, maxLength - truncate.length) + truncate
+} else {
+    this
 }
+
+fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
+    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)

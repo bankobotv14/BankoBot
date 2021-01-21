@@ -23,25 +23,42 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.docdex
 
-import dev.kord.x.commands.model.prefix.PrefixBuilder
-import dev.kord.x.commands.model.prefix.PrefixRule
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.config.Config
+import io.ktor.client.request.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-/**
- * [PrefixRule] which requires the literal string [prefix] to be present in front of the command.
- * This matches against the prefix being at the beginning of the line and ignores an unlimited amount
- * of spaces between the prefix and the command. (Regex "^$prefix\s*")
- */
-@Suppress("unused") // it is supposed to be only invoked on PrefixBuilder even if PrefixBuilder is unused
-fun PrefixBuilder.literal(prefix: String): PrefixRule<Any?> =
-    LiteralPrefixRule(prefix)
+object DocDex {
 
-private class LiteralPrefixRule(prefix: String) : PrefixRule<Any?> {
-    private val regex = "^$prefix\\s*".toRegex(RegexOption.IGNORE_CASE)
-
-    override suspend fun consume(message: String, context: Any?): PrefixRule.Result {
-        val match = regex.find(message) ?: return PrefixRule.Result.Denied
-        return PrefixRule.Result.Accepted(match.value)
+    /**
+     * Retrieves a list of all available javadocs.
+     */
+    suspend fun allJavadocs(): List<JavaDoc> = BankoBot.httpClient.get(Config.DOCDEX_URL) {
+        url {
+            path("javadocs")
+        }
     }
+
+    /**
+     * Retrieves a list of [DocumentedElements][DocumentedElement] from the [javadoc].
+     */
+    suspend fun search(javadoc: String, query: String): List<DocumentedElement> =
+        BankoBot.httpClient.get(Config.DOCDEX_URL) {
+            url {
+                path("index")
+                parameter("javadoc", javadoc)
+                parameter("query", query)
+            }
+        }
 }
+
+@Serializable
+class JavaDoc(
+    val names: List<String>,
+    val link: String,
+    @SerialName("actual_link")
+    val actualLink: String
+)

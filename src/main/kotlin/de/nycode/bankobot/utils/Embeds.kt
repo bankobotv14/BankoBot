@@ -169,7 +169,7 @@ object Embeds {
     /**
      * Sends a new message in this channel containing the embed provided by [base] and applies [creator] to it
      */
-    suspend fun MessageChannelBehavior.createMessage(
+    suspend fun MessageChannelBehavior.createEmbed(
         base: EmbedBuilder,
         creator: suspend EmbedBuilder.() -> Unit = {}
     ): Message {

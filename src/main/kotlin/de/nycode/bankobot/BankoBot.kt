@@ -32,6 +32,8 @@ import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
+import de.nycode.bankobot.docdex.DocDex
+import de.nycode.bankobot.docdex.DocumentationModule
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.utils.SnowflakeSerializer
 import dev.kord.core.Kord
@@ -61,11 +63,16 @@ suspend fun main() {
 object BankoBot {
 
     private var initialized = false
+    lateinit var availableDocs: List<String>
+        private set
 
     @OptIn(KtorExperimentalAPI::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
-            serializer = KotlinxSerializer()
+            val json = kotlinx.serialization.json.Json {
+                serializersModule = DocumentationModule
+            }
+            serializer = KotlinxSerializer(json)
         }
     }
     val repositories = Repositories()
@@ -88,6 +95,7 @@ object BankoBot {
 
         kord = Kord(Config.DISCORD_TOKEN)
 
+        availableDocs = DocDex.allJavadocs().map { it.names }.flatten()
         initializeKord()
     }
 
@@ -111,7 +119,7 @@ object BankoBot {
             configure() // add annotation processed commands
             prefix {
                 kord {
-                    mention() or literal("xd")
+                    mention() or literal("xd") or literal("!")
                 }
             }
 

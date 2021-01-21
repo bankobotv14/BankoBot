@@ -51,9 +51,15 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
 
+
     implementation("dev.kord", "kord-core", "0.7.0-SNAPSHOT")
     implementation("dev.kord.x:commands-runtime-kord:0.4.0-SNAPSHOT")
     kapt("dev.kord.x:commands-processor:0.4.0-SNAPSHOT")
+
+    implementation("io.ktor:ktor-client:1.4.3")
+    implementation("io.ktor:ktor-client-cio:1.4.3")
+    implementation("io.ktor:ktor-client-json:1.4.3")
+    implementation("io.ktor:ktor-serialization:1.4.3")
 
     implementation("io.github.microutils", "kotlin-logging", "1.12.0")
     implementation("io.github.cdimascio", "dotenv-kotlin", "6.2.2")
@@ -62,6 +68,9 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("io.sentry", "sentry", "3.1.0")
     implementation("io.sentry", "sentry-logback", "3.2.0")
+
+    implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.60.2")
+
 
     detektPlugins("io.gitlab.arturbosch.detekt", "detekt-formatting", "1.15.0")
 }
