@@ -73,7 +73,7 @@ object DocsGoogle {
                     penalty += levenshtein.distance(
                         reference.method.toLowerCase(),
                         obj.name.toLowerCase()
-                    ) * 10 // This has a very high value, see explanation for className above
+                    ) * 20 // This has a very high value, see explanation for className above
                 }
             }
 

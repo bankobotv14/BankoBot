@@ -118,7 +118,7 @@ private suspend fun respond(status: Message, doc: DocumentedElement) {
 private fun formatDocDefinition(name: String) = """```java
     |$name
     |```
-""".trimMargin()
+""".trimMargin().limit(1024)
 
 @Suppress("TooLongLine")
 private fun formatClassDefinition(doc: DocumentedClassObject): String =
@@ -127,13 +127,25 @@ private fun formatClassDefinition(doc: DocumentedClassObject): String =
             " ",
             postfix = "\n"
         ) { "@${it.className}" }
-    }${doc.modifiers.joinToString(" ")} ${doc.type.name.toLowerCase()} ${doc.`package`}.${doc.name}"
+    }${doc.modifiers.joinToString(" ")} ${doc.type.name.toLowerCase()} ${doc.name} ${
+        if (doc.metadata.extensions.isNotEmpty()) {
+            "extends ${doc.metadata.extensions.first().className} "
+        } else {
+            ""
+        }
+    }${
+        if (doc.metadata.implementations.isNotEmpty()) {
+            "implements ${
+                doc.metadata.implementations.joinToString(", ") { it.className }
+            }"
+        } else ""
+    }"
 
 private fun formatClassName(doc: DocumentedObject) = "${doc.`package`}.${doc.name}"
 
 private fun renderClass(doc: DocumentedClassObject): EmbedBuilder = Embeds.doc(doc) {
     val meta = doc.metadata
-    description = formatDocDefinition(formatClassDefinition(doc))
+    definition(formatClassDefinition(doc))
     title = formatClassName(doc)
 
     if (meta.extensions.isNotEmpty()) {
@@ -192,7 +204,7 @@ private fun String?.asDescriber() = if (isNullOrBlank()) "" else " - $this"
 private fun renderMethod(doc: DocumentedMethodObject): EmbedBuilder = Embeds.doc(doc) {
     val meta = doc.metadata
     title = formatMethodName(doc)
-    description = formatDocDefinition(formatMethodDefinition(doc))
+    definition(formatMethodDefinition(doc))
 
     field {
         name = "Returns"
@@ -228,14 +240,19 @@ private fun List<DocumentedReference>.format() = joinToString("`, `", "`", "`") 
     }
 }.limit(EMBED_DESCRIPTION_MAX_LENGTH)
 
+private fun EmbedBuilder.definition(definition: String) = field {
+    name = "Definition"
+    value = formatDocDefinition(definition)
+}
+
 @Suppress("unused")
 private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuilder {
     return EmbedBuilder().apply {
         url = doc.link
-        field {
-            name = "Description"
-            value = htmlRenderer.convert(doc.description.limit(EMBED_DESCRIPTION_MAX_LENGTH))
-        }
+        // Originally I wanted to limit the input, but that sucks because
+        // 1) you would count html chars which don't exist
+        // 2) sometimes flexmark wil remove the ... at the end
+        description = htmlRenderer.convert(doc.description).limit(EMBED_DESCRIPTION_MAX_LENGTH)
 
         if (doc.deprecated) {
             field {

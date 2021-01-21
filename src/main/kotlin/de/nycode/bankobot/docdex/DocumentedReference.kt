@@ -36,7 +36,6 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(with = DocumentedReference.Companion::class)
 sealed class DocumentedReference(val raw: String, val `package`: String, val className: String) {
 
-
     companion object : KSerializer<DocumentedReference> {
         private val packageRegex = "[a-z.]".toRegex()
 
