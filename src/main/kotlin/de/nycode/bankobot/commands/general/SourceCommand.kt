@@ -23,11 +23,12 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.command.callback
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.annotation.AutoWired
@@ -42,9 +43,10 @@ import dev.kord.x.commands.model.command.invoke
 private const val GITHUB_BASE = "https://github.com/NyCodeGHG/BankoBot"
 private const val GITHUB_FILE_APPENDIX = "/tree/main/src/main/kotlin/"
 
+@PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
-fun sourceCommand() = command("source") {
+internal fun sourceCommand() = command("source") {
     alias("skid", "github")
     description("Zeigt dir den Sourcecode eines bestimmten Befehls")
 

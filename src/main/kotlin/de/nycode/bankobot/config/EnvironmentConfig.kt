@@ -30,7 +30,8 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 /**
- * Returns a delegated environment variable prefixed by [prefix] that fallbacks to [default] if the found variable is empty or invalid
+ * Returns a delegated environment variable prefixed by [prefix] that
+ * fallbacks to [default] if the found variable is empty or invalid
  */
 fun getEnv(
     prefix: String? = null,
@@ -39,7 +40,8 @@ fun getEnv(
     EnvironmentVariable(prefix, { it }, default)
 
 /**
- * Returns a delegated environment variable prefixed by [prefix] that fallbacks to [default] if the found variable is empty or invalid.
+ * Returns a delegated environment variable prefixed by [prefix]
+ * that fallbacks to [default] if the found variable is empty or invalid.
  *
  * The variable is transformed to [T] by [transform]
  */
@@ -100,7 +102,7 @@ sealed class EnvironmentVariable<T>(
         private var _value: T? = null
         private fun missing(name: String): Nothing = error("Missing env variable: $name")
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "VariableNaming")
         override fun getValue(thisRef: Any, property: KProperty<*>): T {
             val _v1 = _value
             if (_v1 != null) {
@@ -118,9 +120,7 @@ sealed class EnvironmentVariable<T>(
                 }
             }
         }
-
     }
-
 
     private class Optional<T>(prefix: String?, transform: (String) -> T?, default: T?) :
         EnvironmentVariable<T?>(prefix, transform, default) {
@@ -131,7 +131,7 @@ sealed class EnvironmentVariable<T>(
 
         override fun optional(): EnvironmentVariable<T?> = this
 
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "VariableNaming")
         override fun getValue(thisRef: Any, property: KProperty<*>): T {
             val _v1 = _value
             if (_v1 != UNINITIALIZED) {
@@ -149,14 +149,13 @@ sealed class EnvironmentVariable<T>(
                 }
             }
         }
-
     }
 
-    public companion object {
+    companion object {
         /**
          * @see EnvironmentVariable
          */
-        public operator fun <T> invoke(
+        operator fun <T> invoke(
             prefix: String?,
             transform: (String) -> T?,
             default: T?,

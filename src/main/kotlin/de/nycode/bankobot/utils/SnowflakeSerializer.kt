@@ -23,22 +23,21 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.utils
 
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
-import dev.kord.x.commands.kord.model.processor.KordContextConverter
-import dev.kord.x.commands.model.processor.ContextConverter
-import kotlinx.coroutines.runBlocking
+import dev.kord.common.entity.Snowflake
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-object BankoBotContextConverter :
-    ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
-    override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {
-        // This request has to finish before anything else happens
-        // Otherwise we might respond with a message and have to wait
-        // for the send typing timeout
-        // hence the runBlocking
-        runBlocking { message.channel.type() }
-        return this
-    }
+object SnowflakeSerializer : KSerializer<Snowflake> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
+
+    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
+
+    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
 }

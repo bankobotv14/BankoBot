@@ -26,23 +26,18 @@
 package de.nycode.bankobot.utils
 
 import de.nycode.bankobot.command.description
-import de.nycode.bankobot.command.permission
+import de.nycode.bankobot.command.permissions.permission
 import dev.kord.core.behavior.MessageBehavior
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.MessageCreateBuilder
-import dev.kord.rest.builder.message.MessageModifyBuilder
 import dev.kord.x.commands.kord.model.KordEvent
 import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.command.AliasInfo
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.processor.CommandProcessor
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 /**
  * Defines a creator of an embed.
@@ -52,7 +47,7 @@ typealias EmbedCreator = EmbedBuilder.() -> Unit
 /**
  * Some presets for frequently used embeds.
  */
-@Suppress("unused")
+@Suppress("unused", "TooManyFunctions")
 object Embeds {
 
     /**
@@ -209,5 +204,4 @@ object Embeds {
             embed = base
         }
     }
-
 }

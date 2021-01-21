@@ -23,10 +23,11 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.annotation.AutoWired
@@ -40,9 +41,10 @@ import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import dev.kord.x.commands.model.precondition.Precondition
 
+@PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
-fun helpCommand(): CommandSet = command("help") {
+internal fun helpCommand(): CommandSet = command("help") {
     alias("h", "hilfe", "idunnowhattodo", "tech-support", "whodoyouwork")
     description("Zeigt die eine Liste aller Befehle oder Informationen zu einem spezifischem Befehl")
 

@@ -23,13 +23,29 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.command
 
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.kord.model.context.KordCommandEvent
+import dev.kord.x.commands.kord.model.processor.KordContextConverter
+import dev.kord.x.commands.model.processor.ContextConverter
+import kotlinx.coroutines.runBlocking
 
-@ModuleName(GeneralModule)
-@AutoWired
-fun tagCommand() {
-
+/**
+ * Implementation of [ContextConverter] which sends typing before replying to a command.
+ *
+ * Most methods delegate to [KordContextConverter]
+ * @see KordContextConverter
+ * @see ContextConverter
+ */
+object BankoBotContextConverter :
+    ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
+    override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {
+        // This request has to finish before anything else happens
+        // Otherwise we might respond with a message and have to wait
+        // for the send typing timeout
+        // hence the runBlocking
+        runBlocking { message.channel.type() }
+        return this
+    }
 }

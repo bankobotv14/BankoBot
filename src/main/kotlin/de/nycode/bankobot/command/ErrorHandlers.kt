@@ -27,8 +27,8 @@ package de.nycode.bankobot.command
 
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.createMessage
-import de.nycode.bankobot.utils.Emotes
 import de.nycode.bankobot.utils.HastebinUtil
+import de.nycode.bankobot.config.Environment
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.TextChannel
@@ -42,6 +42,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.coroutineContext
 
+/**
+ * Implementation of [ErrorHandler] which just sends a generic error message.
+ *
+ * Used in [Environment.DEVELOPMENT]
+ */
 object DebugErrorHandler : ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> {
 
     override suspend fun CommandProcessor.exceptionThrown(
@@ -55,6 +60,8 @@ object DebugErrorHandler : ErrorHandler<MessageCreateEvent, MessageCreateEvent, 
 
 /**
  * Implementation of [ErrorHandler] that reports an error log to hastebin.
+ *
+ * @see HastebinUtil
  */
 object HastebinErrorHandler :
     ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> {
@@ -63,12 +70,20 @@ object HastebinErrorHandler :
         command: Command<KordCommandEvent>,
         exception: Exception
     ) {
-        event.message.channel.createMessage(Embeds.loading(
+        event.message.channel.createMessage(
+            Embeds.loading(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte warte einen Augenblick, während ich versuche mehr Informationen über den Fehler herauszufinden"
-        )).edit {
+            )
+        ).edit {
             val hastebinLink =
-                HastebinUtil.postToHastebin(collectErrorInformation(exception, event.message, Thread.currentThread()))
+                HastebinUtil.postToHastebin(
+                    collectErrorInformation(
+                        exception,
+                        event.message,
+                        Thread.currentThread()
+                    )
+                )
             embed = Embeds.error(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
@@ -88,7 +103,8 @@ object HastebinErrorHandler :
         information.append("Guild: ").append(guild.name).append('(').append(guild.id.value)
             .appendLine(')')
         val executor = context.author
-        information.append("Executor: ").append('@').append(executor?.tag).append('(').append(executor?.id?.value)
+        information.append("Executor: ").append('@').append(executor?.tag).append('(')
+            .append(executor?.id?.value)
             .appendLine(')')
         val selfMember = guild.getMember(context.kord.selfId)
         information.append("Permissions: ").appendLine(selfMember.getPermissions().code)

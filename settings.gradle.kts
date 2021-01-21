@@ -25,3 +25,18 @@
 
 rootProject.name = "BankoBot"
 
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            repositories {
+                jcenter {
+                    content {
+                        // just allow to include kotlinx projects
+                        // detekt needs 'kotlinx-html' for the html report
+                        includeGroup("org.jetbrains.kotlinx")
+                    }
+                }
+            }
+        }
+    }
+}

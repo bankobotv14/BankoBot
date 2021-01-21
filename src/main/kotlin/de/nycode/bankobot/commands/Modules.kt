@@ -23,9 +23,16 @@
  *
  */
 
+@file:Suppress("TopLevelPropertyNaming")
+
 package de.nycode.bankobot.commands
 
 /**
  * Name for the general module.
  */
 const val GeneralModule: String = "General"
+
+/**
+ * Name for moderation module.
+ */
+const val ModerationModule: String = "Moderation"
