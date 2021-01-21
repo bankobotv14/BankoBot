@@ -30,6 +30,7 @@ import com.mongodb.MongoClientSettings
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
+import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.command.slashcommands.*
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
@@ -37,7 +38,7 @@ import de.nycode.bankobot.docdex.DocDex
 import de.nycode.bankobot.docdex.DocumentationModule
 import de.nycode.bankobot.listeners.autoUploadListener
 import de.nycode.bankobot.listeners.selfMentionListener
-import de.nycode.bankobot.utils.SnowflakeSerializer
+import de.nycode.bankobot.serialization.SnowflakeSerializer
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
@@ -92,6 +93,7 @@ object BankoBot : CoroutineScope {
 
     class Repositories internal constructor() {
         lateinit var blacklist: CoroutineCollection<BlacklistEntry>
+        lateinit var tag: CoroutineCollection<TagEntry>
     }
 
     suspend operator fun invoke() {
@@ -106,7 +108,7 @@ object BankoBot : CoroutineScope {
         initializeKord()
     }
 
-    private fun initializeDatabase() {
+    private suspend fun initializeDatabase() {
         registerSerializer(SnowflakeSerializer)
 
         val client = KMongo.createClient(
@@ -119,6 +121,8 @@ object BankoBot : CoroutineScope {
         database = client.getDatabase(Config.MONGO_DATABASE)
 
         repositories.blacklist = database.getCollection("blacklist")
+        repositories.tag = database.getCollection("tag")
+        repositories.tag.ensureUniqueIndex(TagEntry::name)
     }
 
     @OptIn(KordPreview::class)

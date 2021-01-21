@@ -26,6 +26,7 @@
 package de.nycode.bankobot.command
 
 import de.nycode.bankobot.commands.general.sourceCommand
+import dev.kord.core.entity.Member
 import dev.kord.x.commands.kord.model.command.KordCommandBuilder
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.context.CommonContext

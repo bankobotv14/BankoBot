@@ -23,27 +23,23 @@
  *
  */
 
-@file:Suppress("TopLevelPropertyNaming")
+package de.nycode.bankobot.commands.tag
 
-package de.nycode.bankobot.commands
+import dev.kord.common.entity.Snowflake
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 
-/**
- * Name for the general module.
- */
-const val GeneralModule: String = "General"
-
-/**
- * Name for moderation module.
- */
-const val ModerationModule: String = "Moderation"
-
-
-/**
- * Name for the tag module.
- */
-const val TagModule: String = "Tag"
-
-/**
- * Name for the bot owner module
- */
-const val BotOwnerModule: String = "BotOwner"
+@Serializable
+data class TagEntry(
+    @SerialName("_id")
+    @Contextual
+    val id: Id<TagEntry> = newId(),
+    @Contextual
+    val author: Snowflake,
+    val name: String,
+    val text: String,
+    val aliases: List<String> = emptyList()
+)
