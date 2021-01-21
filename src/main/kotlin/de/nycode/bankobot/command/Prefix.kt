@@ -38,7 +38,7 @@ fun PrefixBuilder.literal(prefix: String): PrefixRule<Any?> =
     LiteralPrefixRule(prefix)
 
 private class LiteralPrefixRule(prefix: String) : PrefixRule<Any?> {
-    private val regex = "^$prefix\\s*".toRegex()
+    private val regex = "^$prefix\\s*".toRegex(RegexOption.IGNORE_CASE)
 
     override suspend fun consume(message: String, context: Any?): PrefixRule.Result {
         val match = regex.find(message) ?: return PrefixRule.Result.Denied

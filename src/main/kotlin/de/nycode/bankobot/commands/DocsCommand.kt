@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.commands
 
+import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.docdex.*
@@ -32,6 +33,7 @@ import de.nycode.bankobot.utils.EmbedCreator
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.format
 import de.nycode.bankobot.utils.limit
 import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.EmbedBuilder
@@ -39,37 +41,36 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.WordArgument
-import dev.kord.x.commands.kord.model.command.KordCommandBuilder
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
-import dev.kord.x.commands.model.module.CommandSet
 
-@Suppress("FunctionName")
-fun AbstractDocsCommand(
-    displayName: String,
-    name: String,
-    doc: String,
-    builder: KordCommandBuilder.() -> Unit,
-): CommandSet = command(name) {
-    builder(this)
-    description("Zeigt das $displayName Javadoc in Discord an")
-    invoke(ReferenceArgument.named("query")) { query ->
-        docs(doc, query)
+const val DocsModule = "Documentation"
+
+@AutoWired
+@ModuleName(DocsModule)
+fun allDocsCommand() = command("alldocs") {
+    description("Zeigt eine Lister alle unterstützten Javadocs")
+    alias("all-docs", "list-docs", "listdocs", "availabledocs", "available-docs")
+
+    invoke {
+        respondEmbed(Embeds.info(
+            "Verfügbare Dokumentationen!",
+            BankoBot.availableDocs.format()
+        ))
     }
 }
 
 @AutoWired
-@ModuleName(GeneralModule)
+@ModuleName(DocsModule)
 fun docsCommand() = command("docs") {
     description("Zeigt Javadoc in Discord an")
-    alias("doc")
+    alias("doc", "d")
 
     invoke(
         WordArgument.named("javadoc-name"),
         ReferenceArgument.named("query")
     ) { doc, query ->
-        val available = DocDex.allJavadocs().map { it.names }.flatten()
-        if (doc !in available) {
+        if (doc !in BankoBot.availableDocs) {
             respondEmbed(
                 Embeds.error(
                     "Unbekannte docs!",
@@ -151,28 +152,28 @@ private fun renderClass(doc: DocumentedClassObject): EmbedBuilder = Embeds.doc(d
     if (meta.extensions.isNotEmpty()) {
         field {
             name = "Extends"
-            value = meta.extensions.format()
+            value = meta.extensions.formatReferences()
         }
     }
 
     if (meta.allImplementations.isNotEmpty()) {
         field {
             name = "Implements"
-            value = meta.allImplementations.format()
+            value = meta.allImplementations.formatReferences()
         }
     }
 
     if (meta.implementingClasses.isNotEmpty()) {
         field {
             name = "All known implementing Classes"
-            value = meta.implementingClasses.format()
+            value = meta.implementingClasses.formatReferences()
         }
     }
 
     if (doc.type == DocumentedObject.Type.ENUM) {
         field {
             name = "fields"
-            value = meta.fields.format()
+            value = meta.fields.formatReferences()
         }
     }
 }
@@ -232,7 +233,7 @@ private fun renderMethod(doc: DocumentedMethodObject): EmbedBuilder = Embeds.doc
     }
 }
 
-private fun List<DocumentedReference>.format() = joinToString("`, `", "`", "`") {
+private fun List<DocumentedReference>.formatReferences() = format {
     when (it) {
         is DocumentedReference.Class -> "${it.`package`}${it.className}"
         is DocumentedReference.Method -> "${it.className}#${it.methodName}"

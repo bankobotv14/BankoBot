@@ -31,3 +31,5 @@ package de.nycode.bankobot.utils
 fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength)
     substring(0, maxLength - truncate.length) + truncate else this
 
+fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
+    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
