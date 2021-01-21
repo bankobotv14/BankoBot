@@ -47,14 +47,14 @@ val DocumentationModule = SerializersModule {
 @Serializable
 data class DocumentedElement(
     val name: String,
-    val `object`: DocumentedObject
+    val `object`: DocumentedObject,
 )
 
 @Serializable
 sealed class DocumentedObject {
     abstract val link: String
     val type: Type
-        get() = when(this) {
+        get() = when (this) {
             is DocumentedClass -> Type.CLASS
             is DocumentedEnum -> Type.ENUM
             is DocumentedInterface -> Type.INTERFACE
@@ -63,6 +63,8 @@ sealed class DocumentedObject {
             is DocumentedMethod -> Type.METHOD
             else -> error("Unknown type")
         }
+
+    @Suppress("VariableNaming")
     abstract val `package`: String
     abstract val name: String
     abstract val description: String
@@ -115,7 +117,7 @@ data class DocumentedClass(
     override val name: String,
     override val deprecated: Boolean,
     @SerialName("deprecation_message")
-    override val deprecationMessage: String
+    override val deprecationMessage: String,
 ) : DocumentedClassObject()
 
 @SerialName("ENUM")
@@ -131,7 +133,7 @@ data class DocumentedEnum(
     override val `package`: String,
     override val name: String,
     override val deprecated: Boolean,
-    @SerialName("deprecation_message") override val deprecationMessage: String
+    @SerialName("deprecation_message") override val deprecationMessage: String,
 ) : DocumentedClassObject()
 
 @SerialName("INTERFACE")
@@ -148,7 +150,7 @@ data class DocumentedInterface(
     override val name: String,
     override val deprecated: Boolean,
     @SerialName("deprecation_message")
-    override val deprecationMessage: String
+    override val deprecationMessage: String,
 ) : DocumentedClassObject()
 
 @SerialName("ANNOTATION")
@@ -165,7 +167,7 @@ data class DocumentedAnnotation(
     override val name: String,
     override val deprecated: Boolean,
     @SerialName("deprecation_message")
-    override val deprecationMessage: String
+    override val deprecationMessage: String,
 ) : DocumentedClassObject()
 
 @SerialName("METHOD")
@@ -182,7 +184,7 @@ data class DocumentedMethod(
     override val name: String,
     override val deprecated: Boolean,
     @SerialName("deprecation_message")
-    override val deprecationMessage: String
+    override val deprecationMessage: String,
 ) : DocumentedMethodObject()
 
 @SerialName("CONSTRUCTOR")
@@ -199,5 +201,5 @@ data class DocumentedConstructor(
     override val name: String,
     override val deprecated: Boolean,
     @SerialName("deprecation_message")
-    override val deprecationMessage: String
+    override val deprecationMessage: String,
 ) : DocumentedMethodObject()

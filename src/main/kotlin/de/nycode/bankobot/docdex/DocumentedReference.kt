@@ -75,6 +75,8 @@ sealed class DocumentedReference(val raw: String, val `package`: String, val cla
             raw, `package`,
             className
         ) {
+
+        @Suppress("MaxLineLength")
         override fun toString(): String {
             return "DocumentedReference.Field(raw='$raw', `package`='$`package`', className='$className', fieldName='$fieldName')"
         }
@@ -85,6 +87,7 @@ sealed class DocumentedReference(val raw: String, val `package`: String, val cla
             raw, `package`,
             className
         ) {
+        @Suppress("MaxLineLength")
         override fun toString(): String {
             return "DocumentedReference.Method(raw='$raw', `package`='$`package`', className='$className', methodName='$methodName')"
         }

@@ -45,9 +45,14 @@ import kotlin.coroutines.coroutineContext
 
 private val kordHandler = KordErrorHandler()
 
+@Suppress("UnnecessaryAbstractClass")
 abstract class AbstractErrorHandler :
     ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by kordHandler {
-    override suspend fun CommandProcessor.rejectArgument(rejection: ErrorHandler.RejectedArgument<MessageCreateEvent, MessageCreateEvent, KordCommandEvent>) {
+    override suspend fun CommandProcessor.rejectArgument(
+        rejection: ErrorHandler.RejectedArgument<MessageCreateEvent,
+                MessageCreateEvent,
+                KordCommandEvent>,
+    ) {
         if (rejection.message == "Expected more input but reached end.") {
             rejection.event.message.channel.createEmbed(Embeds.command(rejection.command, this))
         } else with(kordHandler) { rejectArgument(rejection) }

@@ -26,10 +26,9 @@
 package de.nycode.bankobot.docdex
 
 import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.VariableLengthArgument
 import dev.kord.x.commands.argument.result.ArgumentResult
 
-//https://regex101.com/r/JvZoYD/4
+// https://regex101.com/r/JvZoYD/4
 private val classReferenceRegex = "(?:((?:(?:[a-zA-Z0-9]+)\\.?)+)\\.)?([a-zA-Z0-9]+)".toRegex()
 
 // https://regex101.com/r/26jVyw/7
@@ -46,6 +45,7 @@ val ReferenceArgument: Argument<Reference, Any?> = InternalReferenceArgument("")
 private class InternalReferenceArgument(override val name: String) :
     Argument<Reference, Any?> {
 
+    @Suppress("MagicNumber")
     override suspend fun parse(
         text: String,
         fromIndex: Int,

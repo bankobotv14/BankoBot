@@ -36,6 +36,7 @@ object DocsGoogle {
     /**
      * Finds the most suitable [DocumentedElement] for the requested [Reference].
      */
+    @Suppress("MagicNumber")
     fun findMostSuitable(
         options: List<DocumentedElement>,
         reference: Reference,

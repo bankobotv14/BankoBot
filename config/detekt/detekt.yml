@@ -245,8 +245,7 @@ formatting:
     indentSize: 4
     continuationIndentSize: 4
   MaximumLineLength:
-    active: true
-    maxLineLength: 120
+    active: false
   ModifierOrdering:
     active: true
     autoCorrect: true
@@ -330,12 +329,7 @@ naming:
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
     classPattern: '[A-Z][a-zA-Z0-9]*'
   ConstructorParameterNaming:
-    active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
-    parameterPattern: '[a-z][A-Za-z0-9]*'
-    privateParameterPattern: '[a-z][A-Za-z0-9]*'
-    excludeClassPattern: '$^'
-    ignoreOverridden: true
+    active: false
   EnumNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']

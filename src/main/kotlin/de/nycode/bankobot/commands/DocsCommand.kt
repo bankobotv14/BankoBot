@@ -44,6 +44,7 @@ import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
+@Suppress("TopLevelPropertyNaming")
 const val DocsModule = "Documentation"
 
 @AutoWired
@@ -119,7 +120,7 @@ private suspend fun respond(status: Message, doc: DocumentedElement) {
 private fun formatDocDefinition(name: String) = """```java
     |$name
     |```
-""".trimMargin().limit(1024)
+""".trimMargin().limit(EMBED_TITLE_MAX_LENGTH)
 
 @Suppress("TooLongLine")
 private fun formatClassDefinition(doc: DocumentedClassObject): String =
@@ -178,6 +179,7 @@ private fun renderClass(doc: DocumentedClassObject): EmbedBuilder = Embeds.doc(d
     }
 }
 
+@Suppress("MaxLineLength")
 private fun formatMethodName(doc: DocumentedMethodObject) =
     "${doc.`package`}.${doc.metadata.owner}#${doc.name}(${doc.metadata.parameters.joinToString { "${it.type} ${it.name}" }})"
 
@@ -217,8 +219,7 @@ private fun renderMethod(doc: DocumentedMethodObject): EmbedBuilder = Embeds.doc
         field {
             name = "Parameters"
             value =
-                meta.parameters.joinToString("\n")
-                {
+                meta.parameters.joinToString("\n") {
                     "${it.type} ${it.name}${meta.parameterDescriptions[it.name].asDescriber()}"
                 }
         }
@@ -265,4 +266,4 @@ private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuild
 }
 
 private const val EMBED_DESCRIPTION_MAX_LENGTH = 2048
-
+private const val EMBED_TITLE_MAX_LENGTH = 1024
