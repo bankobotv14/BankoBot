@@ -33,14 +33,12 @@ import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
-import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Member
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.argument.text.WordArgument
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import org.litote.kmongo.eq
@@ -107,7 +105,12 @@ internal fun tagDeleteCommand(): CommandSet = command("delete-tag") {
             } else {
                 val loadingEmbed = respondEmbed(Embeds.loading("Tag wird gelöscht", null))
                 BankoBot.repositories.tag.deleteOneById(tag.id)
-                loadingEmbed.editEmbed(Embeds.success("Tag wurde gelöscht!", "Du hast den Tag '${tagName.trim()}' erfolgreich gelöscht!"))
+                loadingEmbed.editEmbed(
+                    Embeds.success(
+                        "Tag wurde gelöscht!",
+                        "Du hast den Tag '${tagName.trim()}' erfolgreich gelöscht!"
+                    )
+                )
             }
         } else {
             respondEmbed(Embeds.error("Unbekannter Tag!", "Dieser Tag konnte nicht gefunden werden!"))

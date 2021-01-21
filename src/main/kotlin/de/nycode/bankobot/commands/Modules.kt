@@ -37,7 +37,6 @@ const val GeneralModule: String = "General"
  */
 const val ModerationModule: String = "Moderation"
 
-
 /**
  * Name for the tag module.
  */
