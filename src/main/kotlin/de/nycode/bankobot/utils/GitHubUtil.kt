@@ -39,7 +39,7 @@ object GitHubUtil {
     /**
      * Retrieves a list of [GithubContributors][GithubContributor] of the BankoBot repository.
      */
-    suspend fun retrieveContributors(): List<GithubContributor> {
+    suspend fun retrieveContributors(): List<GitHubContributor> {
         return BankoBot.httpClient.get(API_BASE) {
             url {
                 path(GET_CONTRIBUTORS_ENDPOINT)
@@ -57,7 +57,7 @@ object GitHubUtil {
  */
 @Suppress("LongParameterList")
 @Serializable
-class GithubContributor(
+class GitHubContributor(
     val login: String,
     val id: Long,
     @SerialName("node_id")
