@@ -37,6 +37,8 @@ import dev.kord.core.entity.Member
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
+import dev.kord.x.commands.argument.extension.optional
+import dev.kord.x.commands.argument.primitive.IntArgument
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
@@ -160,17 +162,48 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
             respondEmbed(
                 Embeds.error(
                     "Name bereits genutzt!",
-                    "Du kannst diesen Alias nicht erstellen, da der Tag **${aliasNameTag.name}** diesen bereits als Namen nutzt!"
+                    "Du kannst diesen Alias nicht erstellen," +
+                            " da der Tag **${aliasNameTag.name}** diesen bereits als Namen nutzt!"
                 )
             )
             return@invoke
         }
 
         val loadingMessage = respondEmbed(Embeds.loading("Alias wird erstellt", null))
-        val newTag = tag.copy(aliases = listOf(aliasName.trim(), *tag.aliases.toTypedArray()))
+
+        val newTag = tag.copy(aliases = tag.aliases.toMutableList().apply {
+            add(aliasName.trim())
+        }.toList())
+
         BankoBot.repositories.tag.save(newTag)
+
         loadingMessage.editEmbed(Embeds.success("Alias wurde erstellt!", "Du hast den Alias **$aliasName** erstellt!"))
     }
 }
 
 private fun notFound() = Embeds.error("Unbekannter Tag!", "Dieser Tag konnte nicht gefunden werden!")
+
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun listTagsCommand(): CommandSet = command("list-tags") {
+    description("Alle Tags anzeigen")
+
+    invoke(IntArgument.named("page").optional(1), IntArgument.named("pageSize").optional(10)) { page, pageSize ->
+        val tags = BankoBot.repositories.tag
+            .find()
+            .skip(pageSize * (page - 1))
+            .limit(pageSize)
+            .toList()
+
+        respondEmbed(Embeds.info("Tags") {
+            description = buildString {
+                tags.forEachIndexed { index, entry ->
+                    append("`${index + 1}.` ")
+                    append(entry.name)
+                    append("\n")
+                }
+            }.trim()
+        })
+    }
+}
