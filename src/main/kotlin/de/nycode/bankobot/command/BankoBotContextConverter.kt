@@ -51,6 +51,8 @@ import kotlin.time.seconds
 object BankoBotContextConverter :
     ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
 
+    @OptIn(ExperimentalTime::class)
+    private val timeout = 5.seconds
     private val responses = mutableMapOf<Snowflake, MessageBehavior>()
 
     override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {
@@ -70,7 +72,7 @@ object BankoBotContextConverter :
     @OptIn(ExperimentalTime::class)
     fun MessageCreateEvent.awaitResponse() {
         kord.launch {
-            withTimeout(5.seconds) {
+            withTimeout(timeout) {
                 val message = kord.events
                     .filterIsInstance<MessageCreateEvent>()
                     .map { it.message }
