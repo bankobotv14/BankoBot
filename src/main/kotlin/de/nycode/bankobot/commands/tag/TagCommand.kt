@@ -33,6 +33,8 @@ import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.LazyItemProvider
+import de.nycode.bankobot.utils.paginate
 import dev.kord.core.entity.Member
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -183,27 +185,25 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
 
 private fun notFound() = Embeds.error("Unbekannter Tag!", "Dieser Tag konnte nicht gefunden werden!")
 
+@Suppress("MagicNumber")
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
 internal fun listTagsCommand(): CommandSet = command("list-tags") {
     description("Alle Tags anzeigen")
 
-    invoke(IntArgument.named("page").optional(1), IntArgument.named("pageSize").optional(10)) { page, pageSize ->
-        val tags = BankoBot.repositories.tag
-            .find()
-            .skip(pageSize * (page - 1))
-            .limit(pageSize)
-            .toList()
+    invoke(IntArgument.named("page").optional(1), IntArgument.named("pageSize").optional(8)) { page, pageSize ->
+        val tagCount = BankoBot.repositories.tag.countDocuments().toInt()
 
-        respondEmbed(Embeds.info("Tags") {
-            description = buildString {
-                tags.forEachIndexed { index, entry ->
-                    append("`${index + 1}.` ")
-                    append(entry.name)
-                    append("\n")
-                }
-            }.trim()
-        })
+        LazyItemProvider(tagCount) { start, end ->
+            BankoBot.repositories.tag.find()
+                .skip(start)
+                .limit(end - start)
+                .toList()
+                .map { it.name }
+        }.paginate(message.channel, "Tags") {
+            firstPage = page
+            itemsPerPage = pageSize
+        }
     }
 }
