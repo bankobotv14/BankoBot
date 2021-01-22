@@ -53,6 +53,7 @@ dependencies {
 
 
     implementation("dev.kord", "kord-core", "0.7.0-SNAPSHOT")
+    implementation("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")
     implementation("dev.kord.x:commands-runtime-kord:0.4.0-SNAPSHOT")
     kapt("dev.kord.x:commands-processor:0.4.0-SNAPSHOT")
 

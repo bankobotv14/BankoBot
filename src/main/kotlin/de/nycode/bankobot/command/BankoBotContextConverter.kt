@@ -25,11 +25,25 @@
 
 package de.nycode.bankobot.command
 
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.Kord
+import dev.kord.core.behavior.MessageBehavior
 import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.core.event.message.MessageDeleteEvent
+import dev.kord.core.on
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.kord.model.processor.KordContextConverter
 import dev.kord.x.commands.model.processor.ContextConverter
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
+
+@Suppress("MagicNumber")
+@OptIn(ExperimentalTime::class)
+private val timeout = 5.seconds
 
 /**
  * Implementation of [ContextConverter] which sends typing before replying to a command.
@@ -40,12 +54,38 @@ import kotlinx.coroutines.runBlocking
  */
 object BankoBotContextConverter :
     ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
+
+    private val responses = mutableMapOf<Snowflake, MessageBehavior>()
+
     override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {
         // This request has to finish before anything else happens
         // Otherwise we might respond with a message and have to wait
         // for the send typing timeout
         // hence the runBlocking
         runBlocking { message.channel.type() }
+        awaitResponse()
         return this
+    }
+
+    fun Kord.messageDeleteListener() = on<MessageDeleteEvent> {
+        responses.remove(messageId)?.delete()
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun MessageCreateEvent.awaitResponse() {
+        kord.launch {
+            withTimeout(timeout) {
+                val message = kord.events
+                    .filterIsInstance<MessageCreateEvent>()
+                    .map { it.message }
+                    .filter { it.channelId == this@awaitResponse.message.channelId }
+                    .filter { it.author?.id == kord.selfId }
+                    .filter { ERROR_MARKER !in it.content }
+                    .take(1)
+                    .single()
+
+                responses[this@awaitResponse.message.id] = message
+            }
+        }
     }
 }

@@ -49,23 +49,24 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.util.*
 import kapt.kotlin.generated.configure
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.serialization.registerSerializer
+import kotlin.coroutines.CoroutineContext
 
-suspend fun main() {
-    Kord(Config.DISCORD_TOKEN).login()
-}
-
-object BankoBot {
+object BankoBot : CoroutineScope {
 
     private var initialized = false
+    override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
+
     lateinit var availableDocs: List<String>
         private set
-
     @OptIn(KtorExperimentalAPI::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
@@ -75,11 +76,12 @@ object BankoBot {
             serializer = KotlinxSerializer(json)
         }
     }
-    val repositories = Repositories()
 
+    val repositories = Repositories()
     private lateinit var database: CoroutineDatabase
     lateinit var kord: Kord
         private set
+
     val permissionHandler =
         if (Config.ENVIRONMENT == Environment.PRODUCTION) RolePermissionHandler else DebugPermissionHandler
 
@@ -134,6 +136,9 @@ object BankoBot {
             // listeners
             kord.apply {
                 selfMentionListener()
+                with(BankoBotContextConverter) {
+                    messageDeleteListener()
+                }
             }
         }
     }
