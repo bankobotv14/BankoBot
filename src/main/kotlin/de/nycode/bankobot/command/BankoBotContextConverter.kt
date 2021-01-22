@@ -41,6 +41,10 @@ import kotlinx.coroutines.withTimeout
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
+@Suppress("MagicNumber")
+@OptIn(ExperimentalTime::class)
+private val timeout = 5.seconds
+
 /**
  * Implementation of [ContextConverter] which sends typing before replying to a command.
  *
@@ -51,8 +55,6 @@ import kotlin.time.seconds
 object BankoBotContextConverter :
     ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
 
-    @OptIn(ExperimentalTime::class)
-    private val timeout = 5.seconds
     private val responses = mutableMapOf<Snowflake, MessageBehavior>()
 
     override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {
