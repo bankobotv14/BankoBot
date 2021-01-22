@@ -34,6 +34,7 @@ import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.LazyItemProvider
+import de.nycode.bankobot.utils.doExpensiveTask
 import de.nycode.bankobot.utils.paginate
 import dev.kord.core.entity.Member
 import dev.kord.x.commands.annotation.AutoWired
@@ -82,16 +83,16 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
                 )
             )
         } else {
-            val entry = TagEntry(author = author.id, name = tagName.trim(), text = tagText)
-            val loadingEmbed =
-                respondEmbed(Embeds.loading("Tag wird erstellt", "Erstelle den Tag '${tagName.trim()}'!"))
-            BankoBot.repositories.tag.save(entry)
-            loadingEmbed.editEmbed(
-                Embeds.success(
-                    "Tag wurde erstellt",
-                    "Du hast den Tag **${tagName.trim()}** erfolgreich erstellt!"
+            doExpensiveTask("Tag wird erstellt", "Erstelle den Tag '${tagName.trim()}'!") {
+                val entry = TagEntry(author = author.id, name = tagName.trim(), text = tagText)
+                BankoBot.repositories.tag.save(entry)
+                editEmbed(
+                    Embeds.success(
+                        "Tag wurde erstellt",
+                        "Du hast den Tag **${tagName.trim()}** erfolgreich erstellt!"
+                    )
                 )
-            )
+            }
         }
     }
 }
@@ -114,14 +115,15 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
                     )
                 )
             } else {
-                val loadingEmbed = respondEmbed(Embeds.loading("Tag wird gelöscht", null))
-                BankoBot.repositories.tag.deleteOneById(tag.id)
-                loadingEmbed.editEmbed(
-                    Embeds.success(
-                        "Tag wurde gelöscht!",
-                        "Du hast den Tag **${tagName.trim()}** erfolgreich gelöscht!"
+                doExpensiveTask("Tag wird gelöscht") {
+                    BankoBot.repositories.tag.deleteOneById(tag.id)
+                    editEmbed(
+                        Embeds.success(
+                            "Tag wurde gelöscht!",
+                            "Du hast den Tag **${tagName.trim()}** erfolgreich gelöscht!"
+                        )
                     )
-                )
+                }
             }
         } else {
             respondEmbed(notFound())
