@@ -134,6 +134,9 @@ object BankoBot {
             // listeners
             kord.apply {
                 selfMentionListener()
+                with(BankoBotContextConverter) {
+                    messageDeleteListener()
+                }
             }
         }
     }

@@ -45,6 +45,8 @@ import kotlin.coroutines.coroutineContext
 
 private val kordHandler = KordErrorHandler()
 
+const val ERROR_MARKER = "[ERROR]"
+
 @Suppress("UnnecessaryAbstractClass")
 abstract class AbstractErrorHandler :
     ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by kordHandler {
@@ -66,7 +68,7 @@ object DebugErrorHandler : AbstractErrorHandler() {
         command: Command<KordCommandEvent>,
         exception: Exception,
     ) {
-        event.message.channel.createMessage("An error occurred please read the logs")
+        event.message.channel.createMessage("$ERROR_MARKER An error occurred please read the logs")
     }
 }
 
@@ -82,7 +84,8 @@ object HastebinErrorHandler :
     ) {
         event.message.channel.createMessage {
             // Pingy ping!
-            content = "<@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
+            content =
+                "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
             embed = Embeds.loading(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte warte einen Augenblick, während ich versuche mehr Informationen über den Fehler herauszufinden"

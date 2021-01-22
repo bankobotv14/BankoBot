@@ -29,12 +29,10 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.docdex.*
-import de.nycode.bankobot.utils.EmbedCreator
-import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
-import de.nycode.bankobot.utils.format
-import de.nycode.bankobot.utils.limit
+import dev.kord.core.behavior.MessageBehavior
 import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
@@ -85,36 +83,31 @@ fun docsCommand() = command("docs") {
 }
 
 suspend fun KordCommandEvent.docs(doc: String, reference: Reference) {
-    val status = respondEmbed(
-        Embeds.loading(
-            "Bitte warten!",
-            "Das Javadoc wird gesucht."
-        )
-    )
+    doExpensiveTask(statusDescription = "Das Javadoc wird gesucht.") {
+        val docElements = DocDex.search(doc, reference.toDocDexQuery())
 
-    val docElements = DocDex.search(doc, reference.toDocDexQuery())
-
-    if (docElements.isEmpty()) {
-        status.editEmbed(
-            Embeds.error(
-                "Nichts gefunden!",
-                "Ich konnte leider kein doc für `${reference.raw}` finden."
+        if (docElements.isEmpty()) {
+            editEmbed(
+                Embeds.error(
+                    "Nichts gefunden!",
+                    "Ich konnte leider kein doc für `${reference.raw}` finden."
+                )
             )
-        )
-        return
-    }
+            return@doExpensiveTask
+        }
 
-    val mostSuitableDoc = DocsGoogle.findMostSuitable(docElements, reference)
-    respond(status, mostSuitableDoc)
+        val mostSuitableDoc = DocsGoogle.findMostSuitable(docElements, reference)
+        respond(mostSuitableDoc)
+    }
 }
 
-private suspend fun respond(status: Message, doc: DocumentedElement) {
+private suspend fun MessageBehavior.respond(doc: DocumentedElement) {
     val embed = when (val obj = doc.`object`) {
         is DocumentedClassObject -> renderClass(obj)
         is DocumentedMethodObject -> renderMethod(obj)
     }
 
-    status.editEmbed(embed)
+    editEmbed(embed)
 }
 
 private fun formatDocDefinition(name: String) = """```java
