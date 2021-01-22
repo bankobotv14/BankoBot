@@ -319,8 +319,7 @@ formatting:
     active: true
     autoCorrect: true
   StringTemplate:
-    active: true
-    autoCorrect: true
+    active: false
 
 naming:
   active: true
