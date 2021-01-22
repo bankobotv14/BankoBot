@@ -218,9 +218,7 @@ private class Paginator constructor(
     private var canceller = timeout()
 
     private fun timeout(): Job {
-        println("Canceller start")
         return BankoBot.launch {
-            println("Canceller start CORO")
             delay(options.timeout)
             close()
         }
