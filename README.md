@@ -1,3 +1,3 @@
 # Banko Bot
 
-![CI](https://github.com/NyCodeGHG/BankoBot/workflows/.github/workflows/ci.yml/badge.svg)
+![CI](https://github.com/bankobotv14/BankoBot/workflows/.github/workflows/ci.yml/badge.svg)
