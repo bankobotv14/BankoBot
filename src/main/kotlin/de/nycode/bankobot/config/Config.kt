@@ -52,6 +52,9 @@ object Config {
     val MONGO_DATABASE: String by getEnv()
     val MONGO_URL: String by getEnv()
 
+    val GOOGLE_API_KEY: String by getEnv()
+    val GOOGLE_CX_CODE: String by getEnv()
+
     val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
     val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
 }
