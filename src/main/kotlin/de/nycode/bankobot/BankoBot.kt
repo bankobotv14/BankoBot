@@ -72,6 +72,7 @@ object BankoBot : CoroutineScope {
         install(JsonFeature) {
             val json = kotlinx.serialization.json.Json {
                 serializersModule = DocumentationModule
+                ignoreUnknownKeys = true
             }
             serializer = KotlinxSerializer(json)
         }
