@@ -36,7 +36,7 @@ import de.nycode.bankobot.utils.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.text.ListArgument
+import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
@@ -46,8 +46,8 @@ fun searchCommand() = command("google") {
     alias("find", "search", "duckduckgo")
     description("Sucht dir deinen Scheiß aus dem Internet zusammen.")
 
-    invoke(ListArgument.named("query")) { query ->
-        search(query.joinToString { s -> "$s " })
+    invoke(StringArgument.named("Text")) { argument ->
+        search(argument)
     }
 }
 
@@ -55,7 +55,7 @@ private suspend fun KordCommandEvent.search(search: String) {
     doExpensiveTask("Searching...", "Bitte warte, bis ich Ergebnisse gefunden habe!") {
         val list = getResultAsList(search)
         if (list == null) {
-            editEmbed(Embeds.error("Schade!", "Google möchte dir anscheninend nicht antworten! ._."))
+            editEmbed(Embeds.error("Schade!", "Google möchte dir anscheinend nicht antworten! ._."))
         } else {
             delete()
             list.paginate(channel, "Suchergebnisse") {

@@ -32,11 +32,9 @@ import kotlinx.serialization.Serializable
 
 object GoogleUtil {
 
-    private val client = BankoBot.httpClient
-
     suspend fun getResults(search: String): Array<GoogleResult>? {
         val response: GoogleResponse =
-            client.get("https://www.googleapis.com/customsearch/v1") {
+            BankoBot.httpClient.get("https://www.googleapis.com/customsearch/v1") {
                 parameter("q", search)
                 parameter("key", Config.GOOGLE_API_KEY)
                 parameter("cx", Config.GOOGLE_CX_CODE)
