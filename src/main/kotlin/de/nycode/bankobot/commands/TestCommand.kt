@@ -23,16 +23,27 @@
  *
  */
 
-@file:Suppress("TopLevelPropertyNaming")
-
 package de.nycode.bankobot.commands
 
-/**
- * Name for the general module.
- */
-const val GeneralModule: String = "General"
+import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.permissions.PermissionLevel
+import de.nycode.bankobot.command.permissions.permission
+import de.nycode.bankobot.utils.paginate
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.model.command.invoke
 
-/**
- * Name for moderation module.
- */
-const val ModerationModule: String = "Moderation"
+@Suppress("TopLevelPropertyNaming")
+const val TestModule = "Test"
+
+@Suppress("MagicNumber")
+@AutoWired
+@ModuleName(TestModule)
+fun paginatorCommand() = command("paginator-test") {
+    permission(PermissionLevel.BOT_OWNER)
+
+    invoke {
+        val items = "1".repeat(20).split("")
+        items.paginate(channel, "Test liste")
+    }
+}

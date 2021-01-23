@@ -23,23 +23,44 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.command.permissions
 
-import de.nycode.bankobot.command.permissions.PermissionHandler
+import de.nycode.bankobot.command.AbstractKordPrecondition
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.command.CommandBuilder
+import dev.kord.x.commands.model.precondition.Precondition
 import dev.kord.x.commands.model.command.CommandEvent
 import dev.kord.x.commands.model.metadata.Metadata
-import dev.kord.x.commands.model.precondition.Precondition
-import dev.kord.x.commands.model.processor.ProcessorContext
 
+/**
+ * Indicator on who can use a command.
+ *
+ * @see Command.permission
+ * @see permission
+ */
 enum class PermissionLevel {
+    /**
+     * Default for all commands.
+     * Everyone can run the command
+     */
     ALL,
+
+    /**
+     * Only moderators and above can execute the command.
+     */
     MODERATOR,
+
+    /**
+     * Only server admins can use the co
+     */
     ADMIN,
+
+    /**
+     * Only bot developers can run the command.
+     */
     BOT_OWNER
 }
 
@@ -57,9 +78,13 @@ val Command<*>.permission: PermissionLevel
  * Sets the permission of a command to [permission].
  * @see Command.permission
  */
-fun <S, A, COMMANDCONTEXT : CommandEvent> CommandBuilder<S, A, COMMANDCONTEXT>.permission(permission: PermissionLevel): Unit =
+fun <S, A, COMMANDCONTEXT : CommandEvent>
+        CommandBuilder<S, A, COMMANDCONTEXT>.permission(permission: PermissionLevel): Unit =
     metaData.set(PermissionData, permission)
 
+/**
+ * Abstract implementation that acts as a bridge between [PermissionHandler] and [Precondition]
+ */
 abstract class AbstractPermissionHandler : AbstractKordPrecondition(), PermissionHandler {
     override suspend fun invoke(event: KordCommandEvent): Boolean {
         val member = event.event.member ?: error("Missing member")
@@ -75,5 +100,4 @@ abstract class AbstractPermissionHandler : AbstractKordPrecondition(), Permissio
         )
         return false
     }
-
 }

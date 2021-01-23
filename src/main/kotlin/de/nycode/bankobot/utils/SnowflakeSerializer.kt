@@ -23,13 +23,21 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.utils
 
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.common.entity.Snowflake
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-@ModuleName(GeneralModule)
-@AutoWired
-fun tagCommand() {
+object SnowflakeSerializer : KSerializer<Snowflake> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
 
+    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
+
+    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
 }

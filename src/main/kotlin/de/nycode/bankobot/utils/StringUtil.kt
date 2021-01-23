@@ -23,16 +23,16 @@
  *
  */
 
-@file:Suppress("TopLevelPropertyNaming")
-
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.utils
 
 /**
- * Name for the general module.
+ * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
  */
-const val GeneralModule: String = "General"
+fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
+    substring(0, maxLength - truncate.length) + truncate
+} else {
+    this
+}
 
-/**
- * Name for moderation module.
- */
-const val ModerationModule: String = "Moderation"
+fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
+    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)

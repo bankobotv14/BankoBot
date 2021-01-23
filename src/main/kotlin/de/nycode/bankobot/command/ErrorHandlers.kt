@@ -26,14 +26,15 @@
 package de.nycode.bankobot.command
 
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.createMessage
-import de.nycode.bankobot.utils.Emotes
+import de.nycode.bankobot.utils.Embeds.createEmbed
 import de.nycode.bankobot.utils.HastebinUtil
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.TextChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
+import dev.kord.x.commands.kord.model.processor.KordErrorHandler
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.processor.CommandProcessor
 import dev.kord.x.commands.model.processor.ErrorHandler
@@ -42,14 +43,32 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.coroutines.coroutineContext
 
-object DebugErrorHandler : ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> {
+private val kordHandler = KordErrorHandler()
+
+const val ERROR_MARKER = "[ERROR]"
+
+@Suppress("UnnecessaryAbstractClass")
+abstract class AbstractErrorHandler :
+    ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by kordHandler {
+    override suspend fun CommandProcessor.rejectArgument(
+        rejection: ErrorHandler.RejectedArgument<MessageCreateEvent,
+                MessageCreateEvent,
+                KordCommandEvent>,
+    ) {
+        if (rejection.message == "Expected more input but reached end.") {
+            rejection.event.message.channel.createEmbed(Embeds.command(rejection.command, this))
+        } else with(kordHandler) { rejectArgument(rejection) }
+    }
+}
+
+object DebugErrorHandler : AbstractErrorHandler() {
 
     override suspend fun CommandProcessor.exceptionThrown(
         event: MessageCreateEvent,
         command: Command<KordCommandEvent>,
-        exception: Exception
+        exception: Exception,
     ) {
-        event.message.channel.createMessage("An error occurred please read the logs")
+        event.message.channel.createMessage("$ERROR_MARKER An error occurred please read the logs")
     }
 }
 
@@ -61,14 +80,25 @@ object HastebinErrorHandler :
     override suspend fun CommandProcessor.exceptionThrown(
         event: MessageCreateEvent,
         command: Command<KordCommandEvent>,
-        exception: Exception
+        exception: Exception,
     ) {
-        event.message.channel.createMessage(Embeds.loading(
+        event.message.channel.createMessage {
+            // Pingy ping!
+            content =
+                "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
+            embed = Embeds.loading(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte warte einen Augenblick, während ich versuche mehr Informationen über den Fehler herauszufinden"
-        )).edit {
+            )
+        }.edit {
             val hastebinLink =
-                HastebinUtil.postToHastebin(collectErrorInformation(exception, event.message, Thread.currentThread()))
+                HastebinUtil.postToHastebin(
+                    collectErrorInformation(
+                        exception,
+                        event.message,
+                        Thread.currentThread()
+                    )
+                )
             embed = Embeds.error(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
@@ -88,7 +118,8 @@ object HastebinErrorHandler :
         information.append("Guild: ").append(guild.name).append('(').append(guild.id.value)
             .appendLine(')')
         val executor = context.author
-        information.append("Executor: ").append('@').append(executor?.tag).append('(').append(executor?.id?.value)
+        information.append("Executor: ").append('@').append(executor?.tag).append('(')
+            .append(executor?.id?.value)
             .appendLine(')')
         val selfMember = guild.getMember(context.kord.selfId)
         information.append("Permissions: ").appendLine(selfMember.getPermissions().code)

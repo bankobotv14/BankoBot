@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
     steps:
       - uses: actions/checkout@v2
       - name: Setup JDK
@@ -23,4 +24,4 @@ jobs:
             ~/build
             ~/.gradle
       - name: Build with Gradle
-        run: ./gradlew compileKotlin
+        run: ./gradlew compileKotlin detektMain

@@ -32,10 +32,16 @@ import dev.kord.x.commands.model.eventFilter.EventFilter
 import dev.kord.x.commands.model.precondition.Precondition
 import dev.kord.x.commands.model.processor.ProcessorContext
 
+/**
+ * Abstract implementation of [EventFilter] for Kord.
+ */
 abstract class AbstractKordFilter : EventFilter<MessageCreateEvent> {
     override val context: ProcessorContext<MessageCreateEvent, *, *> = KordContext
 }
 
+/**
+ * Abstract implementation of [Precondition] for Kord.
+ */
 abstract class AbstractKordPrecondition : Precondition<KordCommandEvent> {
     override val context: ProcessorContext<*, *, KordCommandEvent> = KordContext
 }

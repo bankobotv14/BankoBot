@@ -25,16 +25,30 @@
 
 package de.nycode.bankobot.command
 
+import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.event.message.MessageCreateEvent
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-object BlacklistEnforcer : AbstractKordFilter() {
+/**
+ * Entry in the blacklist.
+ *
+ * @property userId [Snowflake] of the user represented by this entry
+ */
+@Serializable
+data class BlacklistEntry(@SerialName("_id") @Contextual val userId: Snowflake)
+
+internal object BlacklistEnforcer : AbstractKordFilter() {
     override suspend fun invoke(event: MessageCreateEvent): Boolean {
-        if(Config.ENVIRONMENT == Environment.PRODUCTION) {
-            TODO()
+        return if (Config.ENVIRONMENT != Environment.PRODUCTION) {
+            val id = event.member?.id ?: return false
+            BankoBot.repositories.blacklist.findOneById(id) == null
         } else {
-            return false // debug mode disabled playlist
+            true // debug mode disabled blacklist
         }
     }
 }

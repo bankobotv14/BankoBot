@@ -23,22 +23,42 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.docdex
 
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
-import dev.kord.x.commands.kord.model.processor.KordContextConverter
-import dev.kord.x.commands.model.processor.ContextConverter
-import kotlinx.coroutines.runBlocking
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.config.Config
+import io.ktor.client.request.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-object BankoBotContextConverter :
-    ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
-    override fun MessageCreateEvent.toArgumentContext(): MessageCreateEvent {
-        // This request has to finish before anything else happens
-        // Otherwise we might respond with a message and have to wait
-        // for the send typing timeout
-        // hence the runBlocking
-        runBlocking { message.channel.type() }
-        return this
+object DocDex {
+
+    /**
+     * Retrieves a list of all available javadocs.
+     */
+    suspend fun allJavadocs(): List<JavaDoc> = BankoBot.httpClient.get(Config.DOCDEX_URL) {
+        url {
+            path("javadocs")
+        }
     }
+
+    /**
+     * Retrieves a list of [DocumentedElements][DocumentedElement] from the [javadoc].
+     */
+    suspend fun search(javadoc: String, query: String): List<DocumentedElement> =
+        BankoBot.httpClient.get(Config.DOCDEX_URL) {
+            url {
+                path("index")
+                parameter("javadoc", javadoc)
+                parameter("query", query)
+            }
+        }
 }
+
+@Serializable
+class JavaDoc(
+    val names: List<String>,
+    val link: String,
+    @SerialName("actual_link")
+    val actualLink: String
+)

@@ -28,12 +28,17 @@ package de.nycode.bankobot.command
 import dev.kord.x.commands.model.prefix.PrefixBuilder
 import dev.kord.x.commands.model.prefix.PrefixRule
 
+/**
+ * [PrefixRule] which requires the literal string [prefix] to be present in front of the command.
+ * This matches against the prefix being at the beginning of the line and ignores an unlimited amount
+ * of spaces between the prefix and the command. (Regex "^$prefix\s*")
+ */
 @Suppress("unused") // it is supposed to be only invoked on PrefixBuilder even if PrefixBuilder is unused
 fun PrefixBuilder.literal(prefix: String): PrefixRule<Any?> =
     LiteralPrefixRule(prefix)
 
 private class LiteralPrefixRule(prefix: String) : PrefixRule<Any?> {
-    private val regex = "^$prefix\\s*".toRegex()
+    private val regex = "^$prefix\\s*".toRegex(RegexOption.IGNORE_CASE)
 
     override suspend fun consume(message: String, context: Any?): PrefixRule.Result {
         val match = regex.find(message) ?: return PrefixRule.Result.Denied
