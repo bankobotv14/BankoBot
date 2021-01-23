@@ -33,10 +33,7 @@ import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.Message
 import dev.kord.core.supplier.EntitySupplier
 import dev.kord.x.commands.kord.model.KordEvent
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -58,8 +55,8 @@ suspend fun MessageChannelBehavior.doExpensiveTask(
     statusDescription: String? = null,
     task: suspend MessageBehavior.() -> Unit,
 ) {
-    val message = kord.async { createEmbed(Embeds.loading(statusTitle, statusDescription)) }
-    kord.launch {
+    coroutineScope {
+        val message = kord.async { createEmbed(Embeds.loading(statusTitle, statusDescription)) }
         task(AsyncMessageChannelBehavior(kord,
             supplier,
             this@doExpensiveTask.id,
