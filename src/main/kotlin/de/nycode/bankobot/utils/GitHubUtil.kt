@@ -47,7 +47,6 @@ object GitHubUtil {
         }
     }
 
-
     const val GITHUB_REPO = "bankobotv14/bankobot"
     private val API_BASE = Url("https://api.github.com")
     private const val GET_CONTRIBUTORS_ENDPOINT = "repos/$GITHUB_REPO/contributors"
