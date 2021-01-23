@@ -31,6 +31,7 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.GitHubUtil
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -40,7 +41,7 @@ import dev.kord.x.commands.kord.model.KordEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
-private const val GITHUB_BASE = "https://github.com/NyCodeGHG/BankoBot"
+private const val GITHUB_BASE = "https://github.com/${GitHubUtil.GITHUB_REPO}"
 private const val GITHUB_FILE_APPENDIX = "/tree/main/src/main/kotlin/"
 
 @PublishedApi

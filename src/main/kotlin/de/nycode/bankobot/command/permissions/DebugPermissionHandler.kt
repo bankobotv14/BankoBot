@@ -46,5 +46,5 @@ object DebugPermissionHandler : AbstractPermissionHandler() {
 
     // TODO: Fix this
     override suspend fun isCovered(member: Member, permission: PermissionLevel): Boolean =
-        true
+        member.id in authorizedMembers
 }
