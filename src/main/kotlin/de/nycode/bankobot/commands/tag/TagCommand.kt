@@ -44,6 +44,7 @@ import dev.kord.x.commands.argument.extension.optional
 import dev.kord.x.commands.argument.primitive.IntArgument
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.argument.text.WordArgument
+import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import org.litote.kmongo.contains
@@ -62,7 +63,7 @@ internal fun tagCommand(): CommandSet = command("tag") {
         if (tag == null) {
             respondEmbed(notFound())
         } else {
-            respond(tag.toString())
+            respond(tag.text)
         }
     }
 }
@@ -197,14 +198,73 @@ internal fun listTagsCommand(): CommandSet = command("list-tags") {
     invoke(IntArgument.named("page").optional(1), IntArgument.named("pageSize").optional(8)) { page, pageSize ->
         val tagCount = BankoBot.repositories.tag.countDocuments().toInt()
 
-        LazyItemProvider(tagCount) { start, end ->
+        LazyItemProvider(tagCount) { start, _ ->
             BankoBot.repositories.tag.find()
-                .skip(start)
-                .limit(end - start)
-                .toList()
-                .map { it.name }
+                .paginate(start, pageSize) {
+                    it.name
+                }
         }.paginate(message.channel, "Tags") {
             firstPage = page
+            itemsPerPage = pageSize
+        }
+    }
+}
+
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun editTagCommand(): CommandSet = command("edit-tag") {
+    description("Einen Tag editieren")
+
+    invoke(WordArgument.named("tag"), StringArgument.named("newtext")) { tagName, newText ->
+        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+
+        if (tag == null) {
+            respondEmbed(notFound())
+            return@invoke
+        }
+
+        if (tag.text == newText) {
+            respondEmbed(
+                Embeds
+                    .error("Text stimmt überein", "Der angegebene Text stimmt mit dem aktuellen Text des Tags überein!")
+            )
+            return@invoke
+        }
+
+        doExpensiveTask("Tag wird editiert") {
+            val newTag = tag.copy(text = newText)
+            BankoBot.repositories.tag.save(newTag)
+            editEmbed(Embeds.success("Tag wurde editiert!", "Der Tag wurde erfolgreich aktualisiert!"))
+        }
+    }
+}
+
+@Suppress("MagicNumber")
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun tagsFromUserCommand(): CommandSet = command("from-user") {
+    alias("from")
+
+    invoke(MemberArgument) { member ->
+
+        val tagCount = BankoBot.repositories.tag.countDocuments(TagEntry::author eq member.id).toInt()
+
+        if (tagCount == 0) {
+            respondEmbed(Embeds.error("Keine Tags gefunden!", "${member.mention} hat keine Tags erstellt!"))
+            return@invoke
+        }
+
+        val pageSize = 8
+
+        LazyItemProvider(tagCount) { start, _ ->
+            BankoBot.repositories.tag
+                .find(TagEntry::author eq member.id)
+                .paginate(start, pageSize) {
+                    it.name
+                }
+        }.paginate(message.channel, "Tags von ${member.displayName}") {
             itemsPerPage = pageSize
         }
     }

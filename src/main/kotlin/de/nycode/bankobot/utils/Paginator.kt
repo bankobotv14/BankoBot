@@ -45,6 +45,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.litote.kmongo.coroutine.CoroutineFindPublisher
 import kotlin.math.ceil
 import kotlin.math.min
 import kotlin.properties.Delegates
@@ -287,3 +288,19 @@ private class Paginator constructor(
         }
     }
 }
+
+/**
+ * Queries a sub-list of the entries used for pagination
+ * @param start where to start the query
+ * @param pageSize the size of a single page
+ * @param result function to map the result to a [String]
+ */
+suspend fun <T : Any> CoroutineFindPublisher<T>.paginate(
+    start: Int,
+    pageSize: Int = 8,
+    result: (T) -> String
+) =
+    skip(start)
+        .limit(pageSize)
+        .toList()
+        .map(result)
