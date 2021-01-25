@@ -48,9 +48,9 @@ application {
 }
 
 dependencies {
+    runtimeOnly(kotlin("scripting-jsr223"))
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-
 
     implementation("dev.kord", "kord-core", "0.7.0-SNAPSHOT")
     implementation("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")

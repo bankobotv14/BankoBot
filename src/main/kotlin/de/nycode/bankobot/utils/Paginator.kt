@@ -181,7 +181,7 @@ suspend fun ItemProvider.paginate(
             Paginator(asMessage().live(), ::renderEmbed, options).paginate(options.firstPage)
         }
     } else {
-        channel.createEmbed(renderEmbed(this.subList(0, length - 1), 1))
+        channel.createEmbed(renderEmbed(this.subList(0, length), 1))
     }
 }
 

@@ -34,6 +34,7 @@ import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.docdex.DocDex
 import de.nycode.bankobot.docdex.DocumentationModule
+import de.nycode.bankobot.listeners.autoUploadListener
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.utils.SnowflakeSerializer
 import dev.kord.core.Kord
@@ -137,6 +138,7 @@ object BankoBot : CoroutineScope {
             // listeners
             kord.apply {
                 selfMentionListener()
+                autoUploadListener()
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
                 }
