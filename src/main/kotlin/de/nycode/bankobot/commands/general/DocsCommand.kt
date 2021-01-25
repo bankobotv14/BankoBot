@@ -51,7 +51,7 @@ private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
     if (doc in BankoBot.availableDocs) {
         FilterResult.Pass
     } else {
-        FilterResult.Fail("Dieses doc is unbekannt. (Siehe `xd list-docs`)")
+        FilterResult.Fail("Dieses Doc is unbekannt. (Siehe `xd list-docs`)")
     }
 }
 
