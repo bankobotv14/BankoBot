@@ -34,51 +34,56 @@ object DocsGoogle {
     private val levenshtein = Levenshtein()
 
     /**
-     * Finds the most suitable [DocumentedElement] for the requested [Reference].
+     * Calculates a score for [element] on how good it servers the [query]
      */
     @Suppress("MagicNumber")
+    fun calculateScore(element: DocumentedElement, query: Reference): Double {
+        val notClass = query.method != null
+        val obj = element.`object`
+        var penalty = 0.0
+
+        if (notClass != obj is DocumentedMethodObject) {
+            penalty += 10
+        }
+
+        if (query.`package` != null) {
+            penalty += levenshtein.distance(
+                query.`package`.toLowerCase(),
+                obj.`package`.toLowerCase()
+            )
+        }
+
+        if (query.clazz != null) {
+            penalty += levenshtein.distance(
+                query.clazz.toLowerCase(),
+                if (obj is DocumentedMethodObject) obj.metadata.owner.toLowerCase() else obj.name.toLowerCase()
+            ) * 0.3
+            // this has a very low value since sometimes you refer
+            // to a method from an interface by a common implementation
+            // e.g Player#sendMessage(String) is actually CommandSender#sendMessage()
+        }
+
+        if (query.method != null) {
+            if (obj !is DocumentedMethodObject) {
+                penalty += 100
+            } else {
+                penalty += levenshtein.distance(
+                    query.method.toLowerCase(),
+                    obj.name.toLowerCase()
+                ) * 20 // This has a very high value, see explanation for className above
+            }
+        }
+
+        return penalty
+    }
+
+    /**
+     * Finds the most suitable [DocumentedElement] for the requested [Reference].
+     */
     fun findMostSuitable(
         options: List<DocumentedElement>,
         reference: Reference,
     ): DocumentedElement {
-        val notClass = reference.method != null
-        return options.minByOrNull {
-            val obj = it.`object`
-            var penalty = 0.0
-
-            if (notClass != obj is DocumentedMethodObject) {
-                penalty += 10
-            }
-
-            if (reference.`package` != null) {
-                penalty += levenshtein.distance(
-                    reference.`package`.toLowerCase(),
-                    obj.`package`.toLowerCase()
-                )
-            }
-
-            if (reference.clazz != null) {
-                penalty += levenshtein.distance(
-                    reference.clazz.toLowerCase(),
-                    if (obj is DocumentedMethodObject) obj.metadata.owner.toLowerCase() else obj.name.toLowerCase()
-                ) * 0.3
-                // this has a very low value since sometimes you refer
-                // to a method from an interface by a common implementation
-                // e.g Player#sendMessage(String) is actually CommandSender#sendMessage()
-            }
-
-            if (reference.method != null) {
-                if (obj !is DocumentedMethodObject) {
-                    penalty += 100
-                } else {
-                    penalty += levenshtein.distance(
-                        reference.method.toLowerCase(),
-                        obj.name.toLowerCase()
-                    ) * 20 // This has a very high value, see explanation for className above
-                }
-            }
-
-            penalty
-        } ?: options.first()
+        return options.minByOrNull { calculateScore(it, reference) } ?: options.first()
     }
 }

@@ -73,12 +73,13 @@ data class MethodMetadata(
 
     @Serializable(with = MethodParameter.Companion::class)
     data class MethodParameter(val annotations: List<String>, val type: String, val name: String) {
+
         companion object : KSerializer<MethodParameter> {
             override val descriptor: SerialDescriptor =
                 PrimitiveSerialDescriptor("MethodParameter", PrimitiveKind.STRING)
 
             override fun serialize(encoder: Encoder, value: MethodParameter) = with(value) {
-                encoder.encodeString("$type $name")
+                encoder.encodeString("${annotations.joinToString(" ")} $type $name")
             }
 
             override fun deserialize(decoder: Decoder): MethodParameter {

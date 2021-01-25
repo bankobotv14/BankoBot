@@ -25,16 +25,17 @@
 
 package de.nycode.bankobot.utils
 
-/**
- * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
- */
-fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
-    substring(0, maxLength - truncate.length) + truncate
-} else {
-    this
+import org.intellij.lang.annotations.Language
+
+// https://regex101.com/r/euvYm9/3
+@Language("RegExp")
+private val REGEX = """```(?:(?:([a-zA-Z]+)\s)|\s)?((?:[\s\S])+?(?=```))```""".toRegex()
+
+fun String.toCodeBlock(): CodeBlock? {
+    val match = REGEX.find(this) ?: return null
+    val (_, language, code) = match.groupValues
+
+    return CodeBlock(language.asNullable(), code)
 }
 
-fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
-    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
-
-fun String.asNullable(): String? = if (isBlank()) null else this
+data class CodeBlock(val language: String?, val code: String)

@@ -23,7 +23,7 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
@@ -36,13 +36,64 @@ import dev.kord.core.behavior.MessageBehavior
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.Argument
+import dev.kord.x.commands.argument.extension.filter
 import dev.kord.x.commands.argument.extension.named
+import dev.kord.x.commands.argument.result.extension.FilterResult
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
 @Suppress("TopLevelPropertyNaming")
 const val DocsModule = "Documentation"
+
+private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
+    if (doc in BankoBot.availableDocs) {
+        FilterResult.Pass
+    } else {
+        FilterResult.Fail("Dieses Doc is unbekannt. (Siehe `xd list-docs`)")
+    }
+}
+
+private val JavaDocArgument = WordArgument.named("javadoc-name").docsFilter()
+private val QueryArgument = ReferenceArgument.named("query")
+
+@AutoWired
+@ModuleName(DocsModule)
+fun docsSearchCommand() = command("docs-search") {
+    description("Sucht nach Javadocs")
+    alias("ds", "docssearch")
+
+    invoke(JavaDocArgument, QueryArgument) { doc, query ->
+        doExpensiveTask {
+            val results = DocDex.search(doc, query.toDocDexQuery())
+                .asSequence()
+                .sortedBy {
+                    DocsGoogle.calculateScore(it, query)
+                }.map {
+                    val obj = it.`object`
+                    val reference = StringBuilder()
+                    reference.append(obj.`package`).append('.')
+                    if (obj is DocumentedClassObject) {
+                        reference.append(obj.name)
+                    } else if (obj is DocumentedMethodObject) {
+                        reference.append(obj.metadata.owner) // class
+                        reference.append('#').append(obj.name) // method
+                        reference.append('(') // parameters
+                            .append(obj.metadata.parameters
+                                .joinToString { parameter -> "${parameter.type} ${parameter.name}" })
+                            .append(')')
+                    }
+
+                    "[$reference](${obj.link})"
+                }
+                .toList()
+
+            delete()
+            results.paginate(channel, "Suchergebnisse")
+        }
+    }
+}
 
 @AutoWired
 @ModuleName(DocsModule)
@@ -65,18 +116,9 @@ fun docsCommand() = command("docs") {
     alias("doc", "d")
 
     invoke(
-        WordArgument.named("javadoc-name"),
+        JavaDocArgument,
         ReferenceArgument.named("query")
     ) { doc, query ->
-        if (doc !in BankoBot.availableDocs) {
-            respondEmbed(
-                Embeds.error(
-                    "Unbekannte docs!",
-                    "Diese Docs kenn ich leider nicht."
-                )
-            )
-            return@invoke
-        }
         docs(doc, query)
     }
 }
@@ -258,4 +300,3 @@ private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuild
 }
 
 private const val EMBED_DESCRIPTION_MAX_LENGTH = 2048
-private const val EMBED_TITLE_MAX_LENGTH = 1024

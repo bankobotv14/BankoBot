@@ -26,15 +26,6 @@
 package de.nycode.bankobot.utils
 
 /**
- * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
+ * Max length for embed title.
  */
-fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
-    substring(0, maxLength - truncate.length) + truncate
-} else {
-    this
-}
-
-fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
-    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
-
-fun String.asNullable(): String? = if (isBlank()) null else this
+const val EMBED_TITLE_MAX_LENGTH = 1024

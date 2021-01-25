@@ -113,6 +113,7 @@ object HastebinErrorHandler :
         thread: Thread,
     ): String {
         val information = StringBuilder()
+        information.append("Input: ").append(context.content)
         val channel = context.channel.asChannel()
         val guild = context.getGuild()
         information.append("Guild: ").append(guild.name).append('(').append(guild.id.value)

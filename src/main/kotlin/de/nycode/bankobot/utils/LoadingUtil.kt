@@ -32,6 +32,7 @@ import dev.kord.core.behavior.MessageBehavior
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.Message
 import dev.kord.core.supplier.EntitySupplier
+import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.kord.model.KordEvent
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -45,7 +46,17 @@ suspend fun KordEvent.doExpensiveTask(
     statusTitle: String = "Bitte warten!",
     statusDescription: String? = null,
     task: suspend MessageBehavior.() -> Unit,
-): Unit = channel.doExpensiveTask(statusTitle, statusDescription, task)
+) = channel.doExpensiveTask(statusTitle, statusDescription, task)
+
+/**
+ * Helper function that runs an expensive [task] in a coroutine and sends a loading message in [KordEvent.channel].
+ *
+ * @see MessageChannelBehavior.doExpensiveTask
+ */
+suspend fun KordEvent.doExpensiveTask(
+    loadingEmbedBuilder: EmbedBuilder,
+    task: suspend MessageBehavior.() -> Unit,
+): Unit = channel.doExpensiveTask(loadingEmbedBuilder, task)
 
 /**
  * Helper function that runs an expensive [task] in a coroutine and sends a loading message in this channel.
@@ -54,14 +65,24 @@ suspend fun MessageChannelBehavior.doExpensiveTask(
     statusTitle: String = "Bitte warten!",
     statusDescription: String? = null,
     task: suspend MessageBehavior.() -> Unit,
+) = doExpensiveTask(Embeds.loading(statusTitle, statusDescription), task)
+
+/**
+ * Helper function that runs an expensive [task] in a coroutine and sends a loading message in this channel.
+ */
+suspend fun MessageChannelBehavior.doExpensiveTask(
+    loadingEmbedBuilder: EmbedBuilder,
+    task: suspend MessageBehavior.() -> Unit,
 ) {
     coroutineScope {
-        val message = kord.async { createEmbed(Embeds.loading(statusTitle, statusDescription)) }
-        task(AsyncMessageChannelBehavior(kord,
-            supplier,
-            this@doExpensiveTask.id,
-            message,
-            coroutineContext))
+        val message = async { createEmbed(loadingEmbedBuilder) }
+        launch {
+            task(AsyncMessageChannelBehavior(kord,
+                supplier,
+                this@doExpensiveTask.id,
+                message,
+                coroutineContext))
+        }
     }
 }
 

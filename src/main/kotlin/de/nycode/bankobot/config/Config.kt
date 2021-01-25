@@ -42,7 +42,7 @@ object Config {
     }
     val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
 
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
+    val HASTE_HOST: String by getEnv(default = "https://pasta.with-rice.by.devs-from.asia/")
 
     val SENTRY_TOKEN: String? by getEnv().optional()
     val DISCORD_TOKEN: String by getEnv()
