@@ -25,6 +25,10 @@
 
 package de.nycode.bankobot.commands.tag
 
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Projections
+import com.mongodb.client.model.Sorts
+import com.mongodb.client.model.TextSearchOptions
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
@@ -47,9 +51,10 @@ import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
-import org.litote.kmongo.contains
-import org.litote.kmongo.eq
-import org.litote.kmongo.or
+import org.bson.Document
+import org.litote.kmongo.*
+import org.litote.kmongo.MongoOperator.search
+import org.litote.kmongo.coroutine.aggregate
 
 @PublishedApi
 @AutoWired
@@ -268,4 +273,40 @@ internal fun tagsFromUserCommand(): CommandSet = command("from-user") {
             itemsPerPage = pageSize
         }
     }
+}
+
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun searchTagsCommand(): CommandSet = command("search") {
+    alias("s")
+
+    invoke(WordArgument) { search ->
+        val tags = searchTags(search)
+        LazyItemProvider(tags.size) { start, end ->
+            tags.subList(start, end + 1)
+                .map { it.name }
+        }.paginate(message.channel, "Tag-Suche \"$search\"")
+    }
+}
+
+@Suppress("MagicNumber")
+internal suspend fun searchTags(searchTerm: String): List<TagEntry> {
+    return BankoBot.repositories.tag.aggregate<TagEntry>(
+        """[
+  {
+    $search: {
+        index: 'default',
+        text: {
+            fuzzy: {
+                maxEdits: 2
+            },
+        query: '$searchTerm',
+        path: 'name'
+        }
+    }
+  }
+]"""
+    )
+        .toList()
 }
