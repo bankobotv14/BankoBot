@@ -25,21 +25,14 @@
 
 package de.nycode.bankobot.commands.tag
 
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.Projections
-import com.mongodb.client.model.Sorts
-import com.mongodb.client.model.TextSearchOptions
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.permissions.PermissionLevel
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
-import de.nycode.bankobot.utils.LazyItemProvider
-import de.nycode.bankobot.utils.doExpensiveTask
-import de.nycode.bankobot.utils.paginate
 import dev.kord.core.entity.Member
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -51,7 +44,7 @@ import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
-import org.bson.Document
+import io.ktor.client.request.*
 import org.litote.kmongo.*
 import org.litote.kmongo.MongoOperator.search
 import org.litote.kmongo.coroutine.aggregate
@@ -309,4 +302,23 @@ internal suspend fun searchTags(searchTerm: String): List<TagEntry> {
 ]"""
     )
         .toList()
+}
+
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun tagInfoCommand(): CommandSet = command("tag-info") {
+    alias("ti")
+
+    invoke(WordArgument) { tagName ->
+        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+
+        if (tag == null) {
+            respondEmbed(notFound())
+            return@invoke
+        }
+
+        val url = HastebinUtil.postToHastebin(tag.text)
+        respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
+    }
 }

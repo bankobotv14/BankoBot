@@ -28,7 +28,6 @@ package de.nycode.bankobot
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.IndexOptions
-import com.mongodb.client.model.Indexes
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
@@ -64,7 +63,6 @@ import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.serialization.registerSerializer
-import org.litote.kmongo.text
 import kotlin.coroutines.CoroutineContext
 
 object BankoBot : CoroutineScope {
@@ -126,7 +124,7 @@ object BankoBot : CoroutineScope {
 
         repositories.blacklist = database.getCollection("blacklist")
         repositories.tag = database.getCollection("tag")
-        repositories.tag.ensureIndex("name", IndexOptions().unique(true))
+        repositories.tag.ensureIndex(TagEntry::name, indexOptions = IndexOptions().unique(true))
     }
 
     @OptIn(KordPreview::class)
