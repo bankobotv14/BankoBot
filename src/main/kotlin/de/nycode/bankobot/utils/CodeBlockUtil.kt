@@ -29,10 +29,10 @@ import org.intellij.lang.annotations.Language
 
 // https://regex101.com/r/euvYm9/3
 @Language("RegExp")
-private val REGEX = """```(?:(?:([a-zA-Z]+)\s)|\s)?((?:[\s\S])+?(?=```))```""".toRegex()
+val CODEBLOCK_REGEX = """```(?:(?:([a-zA-Z]+)\s)|\s)?((?:[\s\S])+?(?=```))```""".toRegex()
 
 fun String.toCodeBlock(): CodeBlock? {
-    val match = REGEX.find(this) ?: return null
+    val match = CODEBLOCK_REGEX.find(this) ?: return null
     val (_, language, code) = match.groupValues
 
     return CodeBlock(language.asNullable(), code)
