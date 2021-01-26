@@ -25,7 +25,45 @@
 
 package de.nycode.bankobot.commands.tag
 
+import dev.kord.common.entity.Snowflake
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TagChange(val field: String, val old: String, val new: String)
+sealed class TagChange {
+    abstract val field: String
+}
+
+@Serializable
+data class AuthorChange(
+    @Contextual
+    val oldAuthor: Snowflake,
+    @Contextual
+    val newAuthor: Snowflake
+) : TagChange() {
+    override val field = "author"
+}
+
+@Serializable
+data class NameChange(
+    val oldName: String,
+    val newName: String
+) : TagChange() {
+    override val field = "name"
+}
+
+@Serializable
+data class TextChange(
+    val oldText: String,
+    val newText: String
+) : TagChange() {
+    override val field = "text"
+}
+
+@Serializable
+data class AliasesChange(
+    val oldAliases: List<String>,
+    val newAliases: List<String>
+) : TagChange() {
+    override val field = "aliases"
+}

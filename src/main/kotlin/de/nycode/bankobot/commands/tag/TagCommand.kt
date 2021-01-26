@@ -46,12 +46,16 @@ import dev.kord.x.commands.kord.model.KordEvent
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import io.ktor.client.request.*
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.litote.kmongo.*
 import org.litote.kmongo.MongoOperator.search
 import org.litote.kmongo.coroutine.aggregate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @PublishedApi
 @AutoWired
@@ -102,6 +106,16 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
                     )
                 )
                 BankoBot.repositories.tag.save(entry)
+
+                val createAction = CreateAction(
+                    message.author!!.id,
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                    entry.id,
+                    entry.name,
+                    entry.text
+                )
+                BankoBot.repositories.tagActions.save(createAction)
+
                 editEmbed(
                     Embeds.success(
                         "Tag wurde erstellt",
@@ -181,15 +195,27 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
             return@invoke
         }
 
-        val loadingMessage = respondEmbed(Embeds.loading("Alias wird erstellt", null))
+        doExpensiveTask("Alias wird erstellt...", null) {
+            val newTag = tag.copy(aliases = tag.aliases.toMutableList().apply {
+                add(aliasName.trim())
+            }.toList())
 
-        val newTag = tag.copy(aliases = tag.aliases.toMutableList().apply {
-            add(aliasName.trim())
-        }.toList())
+            BankoBot.repositories.tag.save(newTag)
 
-        BankoBot.repositories.tag.save(newTag)
+            val changes = tag calculateChangesTo newTag
+            val editAction = EditAction(
+                message.author!!.id,
+                Clock.System
+                    .now()
+                    .toLocalDateTime(
+                        TimeZone.currentSystemDefault(),
+                    ),
+                changes
+            )
+            BankoBot.repositories.tagActions.save(editAction)
 
-        loadingMessage.editEmbed(Embeds.success("Alias wurde erstellt!", "Du hast den Alias **$aliasName** erstellt!"))
+            editEmbed(Embeds.success("Alias wurde erstellt!", "Du hast den Alias **$aliasName** erstellt!"))
+        }
     }
 }
 
@@ -237,9 +263,41 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
         doExpensiveTask("Tag wird editiert") {
             val newTag = tag.copy(text = newText)
             BankoBot.repositories.tag.save(newTag)
+
+            val changes = tag calculateChangesTo newTag
+            val editAction =
+                EditAction(
+                    message.author!!.id,
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                    changes
+                )
+            BankoBot.repositories.tagActions.save(editAction)
+
             editEmbed(Embeds.success("Tag wurde editiert!", "Der Tag wurde erfolgreich aktualisiert!"))
         }
     }
+}
+
+private infix fun TagEntry.calculateChangesTo(newTag: TagEntry): List<TagChange> {
+    val changes = mutableListOf<TagChange>()
+
+    if (this.author != newTag.author) {
+        changes += AuthorChange(this.author, newTag.author)
+    }
+
+    if (this.name != newTag.name) {
+        changes += NameChange(this.name, newTag.name)
+    }
+
+    if (this.text != newTag.text) {
+        changes += TextChange(this.text, newTag.text)
+    }
+
+    if (this.aliases != newTag.aliases) {
+        changes += AliasesChange(this.aliases, newTag.aliases)
+    }
+
+    return changes
 }
 
 @Suppress("MagicNumber")
@@ -322,6 +380,8 @@ internal fun tagRawCommand(): CommandSet = command("tag-raw") {
     }
 }
 
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
+
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
@@ -334,9 +394,11 @@ internal fun tagInfoCommand(): CommandSet = command("tag-info") {
         val author = kord.getUser(tag.author)
         val authorName = author?.username ?: "User nicht gefunden!"
 
+        val rank = tag.getRank()
+
         respondEmbed(Embeds.info("Tag-Informationen") {
             author {
-                icon = author?.avatar?.defaultUrl
+                icon = author?.avatar?.url
                 name = authorName
             }
             field {
@@ -349,8 +411,38 @@ internal fun tagInfoCommand(): CommandSet = command("tag-info") {
                 value = "$uses"
                 inline = true
             }
+            field {
+                name = "Rang"
+                value = "$rank"
+                inline = true
+            }
+            field {
+                name = "Erstellt"
+                value = tag.createdOn.toJavaLocalDateTime().format(dateTimeFormatter)
+            }
+            if (tag.aliases.isNotEmpty()) {
+                field {
+                    name = "Aliase"
+                    value = tag.aliases.joinToString()
+                }
+            }
         })
     }
+}
+
+@Suppress("MagicNumber")
+private suspend fun TagEntry.getRank(): Int {
+
+    val uses = BankoBot.repositories.tagActions.countDocuments(UseAction::tagId eq this.id)
+
+    return BankoBot.repositories.tag.find()
+        .toList()
+        .filter { it.getUses() > uses }
+        .count() + 1
+}
+
+private suspend fun TagEntry.getUses(): Int {
+    return BankoBot.repositories.tagActions.countDocuments(UseAction::tagId eq this.id).toInt()
 }
 
 private suspend fun KordEvent.findTag(tagName: String): TagEntry? {
