@@ -67,7 +67,7 @@ private suspend fun KordCommandEvent.executeViaJDoodle(argument: CodeBlock) {
                 editEmbed(Embeds.error("Heute leider nicht!", descriptionString))
             }
             JDOODLE_LANGUAGE_INVALID_CODE -> {
-                val descriptionString = "JDoodle sagt nein, du hast leider unterstützte keine Sprache angegeben."
+                val descriptionString = "JDoodle sagt nein, du hast leider keine unterstützte Sprache angegeben."
                 editEmbed(Embeds.error("Heute leider nicht!", descriptionString))
             }
             JDOODLE_CREDITS_USED_INVALID_CODE -> {
