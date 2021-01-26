@@ -29,3 +29,6 @@ package de.nycode.bankobot.utils
  * Max length for embed title.
  */
 const val EMBED_TITLE_MAX_LENGTH = 1024
+
+const val JDOODLE_LANGUAGE_INVALID_CODE = -100
+const val JDOODLE_CREDITS_USED_INVALID_CODE = -200

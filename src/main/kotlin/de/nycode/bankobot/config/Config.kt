@@ -55,6 +55,10 @@ object Config {
     val GOOGLE_API_KEY: String by getEnv()
     val GOOGLE_CX_CODE: String by getEnv()
 
+    val JDOODLE_SECRET: String by getEnv()
+    val JDOODLE_ID: String by getEnv()
+    val JDOODLE_REQUESTS_MAX: Int by getEnv(default = 200) { it.toInt() }
+
     val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
     val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
 }
