@@ -42,9 +42,13 @@ import dev.kord.x.commands.argument.primitive.IntArgument
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.argument.MemberArgument
+import dev.kord.x.commands.kord.model.KordEvent
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import io.ktor.client.request.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.litote.kmongo.*
 import org.litote.kmongo.MongoOperator.search
 import org.litote.kmongo.coroutine.aggregate
@@ -57,12 +61,17 @@ internal fun tagCommand(): CommandSet = command("tag") {
     description("Einen Tag anzeigen")
 
     invoke(WordArgument.named("tag")) { tagName ->
-        val tag = BankoBot.repositories.tag.findOne(or(TagEntry::name eq tagName, TagEntry::aliases contains tagName))
-        if (tag == null) {
-            respondEmbed(notFound())
-        } else {
-            respond(tag.text)
-        }
+        val tag = findTag(tagName) ?: return@invoke
+        respond(tag.text)
+
+        val useAction = UseAction(
+            author = message.author?.id ?: return@invoke,
+            date = Clock.System
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault()),
+            tagId = tag.id
+        )
+        BankoBot.repositories.tagActions.save(useAction)
     }
 }
 
@@ -74,6 +83,7 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
 
     invoke(WordArgument.named("tag"), StringArgument.named("text")) { tagName, tagText ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+
         if (tag != null) {
             respondEmbed(
                 Embeds.error(
@@ -83,7 +93,14 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
             )
         } else {
             doExpensiveTask("Tag wird erstellt", "Erstelle den Tag '${tagName.trim()}'!") {
-                val entry = TagEntry(author = author.id, name = tagName.trim(), text = tagText)
+                val entry = TagEntry(
+                    author = author.id,
+                    name = tagName.trim(),
+                    text = tagText,
+                    createdOn = Clock.System.now().toLocalDateTime(
+                        TimeZone.currentSystemDefault()
+                    )
+                )
                 BankoBot.repositories.tag.save(entry)
                 editEmbed(
                     Embeds.success(
@@ -104,28 +121,25 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
     alias("remove-tag")
 
     invoke(WordArgument.named("tag")) { tagName ->
-        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-        if (tag != null) {
-            if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
-                respondEmbed(
-                    Embeds.error(
-                        "Du bist nicht der Autor.",
-                        "Du darfst diesen Tag nicht löschen, da du ihn nicht erstellt hast!"
+        val tag = findTag(tagName) ?: return@invoke
+
+        if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
+            respondEmbed(
+                Embeds.error(
+                    "Du bist nicht der Autor.",
+                    "Du darfst diesen Tag nicht löschen, da du ihn nicht erstellt hast!"
+                )
+            )
+        } else {
+            doExpensiveTask("Tag wird gelöscht") {
+                BankoBot.repositories.tag.deleteOneById(tag.id)
+                editEmbed(
+                    Embeds.success(
+                        "Tag wurde gelöscht!",
+                        "Du hast den Tag **${tagName.trim()}** erfolgreich gelöscht!"
                     )
                 )
-            } else {
-                doExpensiveTask("Tag wird gelöscht") {
-                    BankoBot.repositories.tag.deleteOneById(tag.id)
-                    editEmbed(
-                        Embeds.success(
-                            "Tag wurde gelöscht!",
-                            "Du hast den Tag **${tagName.trim()}** erfolgreich gelöscht!"
-                        )
-                    )
-                }
             }
-        } else {
-            respondEmbed(notFound())
         }
     }
 }
@@ -142,12 +156,7 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
     description("Alias erstellen.")
 
     invoke(WordArgument.named("tag"), WordArgument.named("alias")) { tagName, aliasName ->
-        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-
-        if (tag == null) {
-            respondEmbed(notFound())
-            return@invoke
-        }
+        val tag = findTag(tagName) ?: return@invoke
 
         val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
         if (aliasTag != null) {
@@ -215,12 +224,7 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
     description("Einen Tag editieren")
 
     invoke(WordArgument.named("tag"), StringArgument.named("newtext")) { tagName, newText ->
-        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-
-        if (tag == null) {
-            respondEmbed(notFound())
-            return@invoke
-        }
+        val tag = findTag(tagName) ?: return@invoke
 
         if (tag.text == newText) {
             respondEmbed(
@@ -311,14 +315,49 @@ internal fun tagRawCommand(): CommandSet = command("tag-raw") {
     alias("raw")
 
     invoke(WordArgument) { tagName ->
-        val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-
-        if (tag == null) {
-            respondEmbed(notFound())
-            return@invoke
-        }
+        val tag = findTag(tagName) ?: return@invoke
 
         val url = HastebinUtil.postToHastebin(tag.text)
         respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
     }
+}
+
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun tagInfoCommand(): CommandSet = command("tag-info") {
+
+    invoke(WordArgument) { tagName ->
+        val tag = findTag(tagName) ?: return@invoke
+        val uses = BankoBot.repositories.tagActions.countDocuments(UseAction::tagId eq tag.id).toInt()
+
+        val author = kord.getUser(tag.author)
+        val authorName = author?.username ?: "User nicht gefunden!"
+
+        respondEmbed(Embeds.info("Tag-Informationen") {
+            author {
+                icon = author?.avatar?.defaultUrl
+                name = authorName
+            }
+            field {
+                name = "Erstellt von"
+                value = authorName
+                inline = true
+            }
+            field {
+                name = "Benutzungen"
+                value = "$uses"
+                inline = true
+            }
+        })
+    }
+}
+
+private suspend fun KordEvent.findTag(tagName: String): TagEntry? {
+    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+
+    if (tag == null) {
+        respondEmbed(notFound())
+    }
+    return tag
 }

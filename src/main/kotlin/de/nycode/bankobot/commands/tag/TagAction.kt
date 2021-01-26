@@ -22,27 +22,61 @@
  * SOFTWARE.
  *
  */
+@file:Suppress("TopLevelPropertyNaming")
 
 package de.nycode.bankobot.commands.tag
 
 import dev.kord.common.entity.Snowflake
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.litote.kmongo.Id
-import org.litote.kmongo.newId
 
 @Serializable
-data class TagEntry(
-    @SerialName("_id")
+sealed class TagAction {
     @Contextual
-    val id: Id<TagEntry> = newId(),
+    abstract val author: Snowflake
+
     @Contextual
-    val author: Snowflake,
+    abstract val date: LocalDateTime
+}
+
+@Serializable
+data class UseAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    @Contextual
+    val tagId: Id<TagEntry>
+) : TagAction()
+
+@Serializable
+class CreateAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    @Contextual
+    val tagId: Id<TagEntry>,
     val name: String,
-    val text: String,
+    val text: String
+) : TagAction()
+
+@Serializable
+class DeleteAction(
     @Contextual
-    val createdOn: LocalDateTime,
-    val aliases: List<String> = emptyList()
-)
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    val name: String
+) : TagAction()
+
+@Serializable
+class EditAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    val changes: List<TagChange>
+) : TagAction()

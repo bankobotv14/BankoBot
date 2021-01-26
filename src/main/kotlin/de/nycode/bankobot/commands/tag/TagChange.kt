@@ -25,24 +25,7 @@
 
 package de.nycode.bankobot.commands.tag
 
-import dev.kord.common.entity.Snowflake
-import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.litote.kmongo.Id
-import org.litote.kmongo.newId
 
 @Serializable
-data class TagEntry(
-    @SerialName("_id")
-    @Contextual
-    val id: Id<TagEntry> = newId(),
-    @Contextual
-    val author: Snowflake,
-    val name: String,
-    val text: String,
-    @Contextual
-    val createdOn: LocalDateTime,
-    val aliases: List<String> = emptyList()
-)
+data class TagChange(val field: String, val old: String, val new: String)
