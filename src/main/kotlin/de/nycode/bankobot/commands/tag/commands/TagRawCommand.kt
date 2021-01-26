@@ -23,48 +23,30 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag
+package de.nycode.bankobot.commands.tag.commands
 
-import dev.kord.common.entity.Snowflake
-import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.litote.kmongo.Id
-import org.litote.kmongo.newId
+import de.nycode.bankobot.command.command
+import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.findTag
+import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.HastebinUtil
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.text.WordArgument
+import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.CommandSet
 
-@Serializable
-data class TagEntry(
-    @SerialName("_id")
-    @Contextual
-    val id: Id<TagEntry> = newId(),
-    @Contextual
-    val author: Snowflake,
-    val name: String,
-    val text: String,
-    @Contextual
-    val createdOn: LocalDateTime,
-    val aliases: List<String> = emptyList()
-)
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun tagRawCommand(): CommandSet = command("tag-raw") {
+    alias("raw")
 
-infix fun TagEntry.calculateChangesTo(newTag: TagEntry): List<TagChange> {
-    val changes = mutableListOf<TagChange>()
+    invoke(WordArgument) { tagName ->
+        val tag = findTag(tagName) ?: return@invoke
 
-    if (this.author != newTag.author) {
-        changes += AuthorChange(this.author, newTag.author)
+        val url = HastebinUtil.postToHastebin(tag.text)
+        respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
     }
-
-    if (this.name != newTag.name) {
-        changes += NameChange(this.name, newTag.name)
-    }
-
-    if (this.text != newTag.text) {
-        changes += TextChange(this.text, newTag.text)
-    }
-
-    if (this.aliases != newTag.aliases) {
-        changes += AliasesChange(this.aliases, newTag.aliases)
-    }
-
-    return changes
 }
