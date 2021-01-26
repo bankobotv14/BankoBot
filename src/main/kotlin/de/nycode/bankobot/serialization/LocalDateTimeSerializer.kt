@@ -23,9 +23,9 @@
  *
  */
 
-package de.nycode.bankobot.utils
+package de.nycode.bankobot.serialization
 
-import dev.kord.common.entity.Snowflake
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -33,11 +33,15 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object SnowflakeSerializer : KSerializer<Snowflake> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
+object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.datetime.LocalDateTime", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
+    override fun deserialize(decoder: Decoder): LocalDateTime {
+        return LocalDateTime.parse(decoder.decodeString())
+    }
 
-    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
+    override fun serialize(encoder: Encoder, value: LocalDateTime) {
+        encoder.encodeString(value.toString())
+    }
 }
