@@ -52,7 +52,7 @@ data class UseAction(
 ) : TagAction()
 
 @Serializable
-class CreateAction(
+data class CreateAction(
     @Contextual
     override val author: Snowflake,
     @Contextual
@@ -64,7 +64,7 @@ class CreateAction(
 ) : TagAction()
 
 @Serializable
-class DeleteAction(
+data class DeleteAction(
     @Contextual
     override val author: Snowflake,
     @Contextual
@@ -73,7 +73,7 @@ class DeleteAction(
 ) : TagAction()
 
 @Serializable
-class EditAction(
+data class EditAction(
     @Contextual
     override val author: Snowflake,
     @Contextual
