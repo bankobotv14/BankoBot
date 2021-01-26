@@ -29,6 +29,7 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.*
 import de.nycode.bankobot.commands.tag.findTag
 import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.utils.Embeds
@@ -41,6 +42,9 @@ import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @PublishedApi
 @AutoWired
@@ -62,6 +66,17 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
         } else {
             doExpensiveTask("Tag wird gelöscht") {
                 BankoBot.repositories.tag.deleteOneById(tag.id)
+
+                val deleteAction = DeleteAction(
+                    message.author!!.id,
+                    Clock.System.now()
+                        .toLocalDateTime(
+                            TimeZone.currentSystemDefault(),
+                        ),
+                    tag.name
+                )
+                BankoBot.repositories.tagActions.save(deleteAction)
+
                 editEmbed(
                     Embeds.success(
                         "Tag wurde gelöscht!",
