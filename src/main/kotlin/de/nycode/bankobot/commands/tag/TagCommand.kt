@@ -307,8 +307,8 @@ internal suspend fun searchTags(searchTerm: String): List<TagEntry> {
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
-internal fun tagInfoCommand(): CommandSet = command("tag-info") {
-    alias("ti")
+internal fun tagRawCommand(): CommandSet = command("tag-raw") {
+    alias("raw")
 
     invoke(WordArgument) { tagName ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
