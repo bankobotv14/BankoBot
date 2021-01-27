@@ -29,7 +29,6 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import dev.kord.common.entity.Snowflake
-import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName

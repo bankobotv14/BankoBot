@@ -25,7 +25,6 @@
 
 package de.nycode.bankobot.command.slashcommands
 
-import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.command.CommandBuilder
 import dev.kord.x.commands.model.metadata.Metadata
 

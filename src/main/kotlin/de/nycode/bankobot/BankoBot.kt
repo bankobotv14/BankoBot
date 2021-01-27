@@ -31,9 +31,9 @@ import com.mongodb.client.model.IndexOptions
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
+import de.nycode.bankobot.command.slashcommands.*
 import de.nycode.bankobot.commands.tag.TagAction
 import de.nycode.bankobot.commands.tag.TagEntry
-import de.nycode.bankobot.command.slashcommands.*
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.docdex.DocDex
@@ -48,7 +48,6 @@ import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
 import dev.kord.x.commands.kord.model.processor.KordContext
-import dev.kord.x.commands.model.command.AliasInfo
 import dev.kord.x.commands.model.module.forEachModule
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
