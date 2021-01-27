@@ -274,7 +274,6 @@ private class Paginator constructor(
     }
 
     private suspend fun close() {
-        println("Cancel")
         message.message.deleteAllReactions()
         if (canceller.isActive) canceller.cancel()
         listener.cancel()

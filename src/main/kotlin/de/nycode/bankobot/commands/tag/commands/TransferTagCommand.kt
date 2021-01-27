@@ -30,33 +30,41 @@ import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.common.annotation.KordPreview
+import dev.kord.core.entity.Member
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.live.live
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.kord.argument.MemberArgument
+import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import dev.kord.x.emoji.Emojis
 import dev.kord.x.emoji.addReaction
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
-@OptIn(KordPreview::class)
+@OptIn(KordPreview::class, ExperimentalTime::class)
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "MagicNumber")
 internal fun transferTagCommand(): CommandSet = command("transfer") {
     invoke(
         TagArgument,
@@ -87,40 +95,52 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
         }.apply {
             addReaction(Emojis.whiteCheckMark)
             addReaction(Emojis.x)
-            val reactionEvent = live().events.filterIsInstance<ReactionAddEvent>()
-                .filter { it.user.id == member.id }
-                .filter { it.emoji.name in arrayOf(Emojis.x.unicode, Emojis.whiteCheckMark.unicode) }
-                .take(1)
-                .single()
+            try {
+                withTimeout(45.seconds) {
+                    val reactionEvent = live().events.filterIsInstance<ReactionAddEvent>()
+                        .filter { it.user.id == member.id }
+                        .filter { it.emoji.name in arrayOf(Emojis.x.unicode, Emojis.whiteCheckMark.unicode) }
+                        .take(1)
+                        .single()
 
-            when (reactionEvent.emoji.name) {
-                Emojis.x.unicode -> {
-                    deleteAllReactions()
-                    editEmbed(
-                        Embeds.error(
-                            "Abgelehnt", "Die Transferierung des Tags" +
-                                    " \"${tag.name}\" von ${message.author?.mention}" +
-                                    " zu ${member.mention} wurde abgebrochen!"
-                        )
-                    )
+                    when (reactionEvent.emoji.name) {
+                        Emojis.x.unicode -> {
+                            deleteAllReactions()
+                            editEmbed(cancelMessage(tag, member))
+                        }
+                        Emojis.whiteCheckMark.unicode -> {
+                            deleteAllReactions()
+                            val newTag = tag.copy(author = member.id)
+                            BankoBot.repositories.tag.save(newTag)
+
+                            tag.saveChanges(newTag, author = message.author?.id)
+
+                            editEmbed(
+                                Embeds.success(
+                                    "Transfer erfolgreich!",
+                                    "Der Tag \"${tag.name}\" wurde erfolgreich von ${message.author?.mention}" +
+                                            " zu ${member.mention} transferiert!"
+                                )
+                            )
+                        }
+                        else -> throw IllegalStateException("Invalid emoji")
+                    }
                 }
-                Emojis.whiteCheckMark.unicode -> {
+            } catch (exception: TimeoutCancellationException) {
+                kord.launch {
                     deleteAllReactions()
-                    val newTag = tag.copy(author = member.id)
-                    BankoBot.repositories.tag.save(newTag)
-
-                    tag.saveChanges(newTag, author = message.author?.id)
-
-                    editEmbed(
-                        Embeds.success(
-                            "Transfer erfolgreich!",
-                            "Der Tag \"${tag.name}\" wurde erfolgreich von ${message.author?.mention}" +
-                                    " zu ${member.mention} transferiert!"
-                        )
-                    )
+                    editEmbed(cancelMessage(tag, member))
                 }
-                else -> throw IllegalStateException("Invalid emoji")
             }
         }
     }
 }
+
+private fun KordCommandEvent.cancelMessage(
+    tag: TagEntry,
+    member: Member
+) = Embeds.error(
+    "Abgelehnt", "Die Transferierung des Tags" +
+            " \"${tag.name}\" von ${message.author?.mention}" +
+            " zu ${member.mention} wurde abgebrochen!"
+)
