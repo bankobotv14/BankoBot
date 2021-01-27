@@ -23,21 +23,47 @@
  *
  */
 
-package de.nycode.bankobot.utils
+package de.nycode.bankobot.commands.tag
 
 import dev.kord.common.entity.Snowflake
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
-object SnowflakeSerializer : KSerializer<Snowflake> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
+@Serializable
+sealed class TagChange {
+    abstract val field: String
+}
 
-    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
+@Serializable
+data class AuthorChange(
+    @Contextual
+    val oldAuthor: Snowflake,
+    @Contextual
+    val newAuthor: Snowflake
+) : TagChange() {
+    override val field = "author"
+}
 
-    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
+@Serializable
+data class NameChange(
+    val oldName: String,
+    val newName: String
+) : TagChange() {
+    override val field = "name"
+}
+
+@Serializable
+data class TextChange(
+    val oldText: String,
+    val newText: String
+) : TagChange() {
+    override val field = "text"
+}
+
+@Serializable
+data class AliasesChange(
+    val oldAliases: List<String>,
+    val newAliases: List<String>
+) : TagChange() {
+    override val field = "aliases"
 }

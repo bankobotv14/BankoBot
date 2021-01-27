@@ -33,6 +33,7 @@ import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import dev.kord.common.entity.Snowflake
 import io.ktor.http.*
 
+@Suppress("MagicNumber")
 object Config {
 
     val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
@@ -61,6 +62,8 @@ object Config {
 
     val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
     val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
+
+    val DEV_GUILD_ID: Snowflake by getEnv(default = Snowflake(803209056730349568L)) { Snowflake(it) }
 }
 
 /**

@@ -86,7 +86,7 @@ private suspend fun KordCommandEvent.allCommands() {
         commands
             .mapValues { (_, it) ->
                 it.filter {
-                    it.aliasInfo is AliasInfo.Parent &&
+                    it.aliasInfo !is AliasInfo.Child &&
                             it.preconditions.all { precondition ->
                                 @Suppress("UNCHECKED_CAST")
                                 (precondition as Precondition<KordCommandEvent>).invoke(

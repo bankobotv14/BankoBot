@@ -23,26 +23,21 @@
  *
  */
 
-@file:Suppress("TopLevelPropertyNaming")
+package de.nycode.bankobot.serialization
 
-package de.nycode.bankobot.commands
+import dev.kord.common.entity.Snowflake
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-/**
- * Name for the general module.
- */
-const val GeneralModule: String = "General"
+object SnowflakeSerializer : KSerializer<Snowflake> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
 
-/**
- * Name for moderation module.
- */
-const val ModerationModule: String = "Moderation"
+    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
 
-/**
- * Name for the tag module.
- */
-const val TagModule: String = "Tag"
-
-/**
- * Name for the bot owner module
- */
-const val BotOwnerModule: String = "BotOwner"
+    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
+}

@@ -63,7 +63,7 @@ private fun Command.buildCommandString(): String {
     builder.append(name) // invoke
     if (options.isNotEmpty()) {
         builder.append(
-            options.values.joinToString(prefix = " ") { it.value.toString() } // arguments
+            options.values.joinToString(prefix = " ", separator = " ") { it.value.toString() } // arguments
         )
     }
     return builder.toString()

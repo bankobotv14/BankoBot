@@ -78,7 +78,7 @@ private object QueryArgument :
     ) {
     @OptIn(KordPreview::class)
     override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description)
+        string(name, description, required())
     }
 }
 

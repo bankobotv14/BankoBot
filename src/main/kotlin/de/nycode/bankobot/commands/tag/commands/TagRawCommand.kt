@@ -23,26 +23,27 @@
  *
  */
 
-@file:Suppress("TopLevelPropertyNaming")
+package de.nycode.bankobot.commands.tag.commands
 
-package de.nycode.bankobot.commands
+import de.nycode.bankobot.command.command
+import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.HastebinUtil
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.CommandSet
 
-/**
- * Name for the general module.
- */
-const val GeneralModule: String = "General"
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun tagRawCommand(): CommandSet = command("tag-raw") {
+    alias("raw")
 
-/**
- * Name for moderation module.
- */
-const val ModerationModule: String = "Moderation"
-
-/**
- * Name for the tag module.
- */
-const val TagModule: String = "Tag"
-
-/**
- * Name for the bot owner module
- */
-const val BotOwnerModule: String = "BotOwner"
+    invoke(TagArgument) { tag ->
+        val url = HastebinUtil.postToHastebin(tag.text)
+        respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
+    }
+}

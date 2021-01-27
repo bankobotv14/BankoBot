@@ -43,9 +43,14 @@ abstract class AbstractSlashCommandArgument<T, CONTEXT>(
         get() = !delegate.toString().contains("optional")
 
     @OptIn(KordPreview::class)
+    protected fun required(): OptionsBuilder.() -> Unit = {
+        required = this@AbstractSlashCommandArgument.required
+    }
+
+    @OptIn(KordPreview::class)
     protected fun <T : OptionsBuilder> (T.() -> Unit).applyRequired(): T.() -> Unit {
         return {
-            required = this@AbstractSlashCommandArgument.required
+            required()(this)
             invoke(this)
         }
     }
