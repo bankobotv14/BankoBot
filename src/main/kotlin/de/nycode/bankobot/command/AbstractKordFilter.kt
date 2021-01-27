@@ -25,9 +25,9 @@
 
 package de.nycode.bankobot.command
 
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
-import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.core.event.Event
+import dev.kord.x.commands.model.command.CommandEvent
+import dev.kord.x.commands.model.context.CommonContext
 import dev.kord.x.commands.model.eventFilter.EventFilter
 import dev.kord.x.commands.model.precondition.Precondition
 import dev.kord.x.commands.model.processor.ProcessorContext
@@ -35,13 +35,13 @@ import dev.kord.x.commands.model.processor.ProcessorContext
 /**
  * Abstract implementation of [EventFilter] for Kord.
  */
-abstract class AbstractKordFilter : EventFilter<MessageCreateEvent> {
-    override val context: ProcessorContext<MessageCreateEvent, *, *> = KordContext
+abstract class AbstractKordFilter : EventFilter<Event> {
+    override val context: ProcessorContext<Event, *, *> = CommonContext
 }
 
 /**
  * Abstract implementation of [Precondition] for Kord.
  */
-abstract class AbstractKordPrecondition : Precondition<KordCommandEvent> {
-    override val context: ProcessorContext<*, *, KordCommandEvent> = KordContext
+abstract class AbstractKordPrecondition : Precondition<CommandEvent> {
+    override val context: ProcessorContext<*, *, CommandEvent> = CommonContext
 }
