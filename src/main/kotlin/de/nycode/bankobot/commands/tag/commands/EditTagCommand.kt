@@ -23,40 +23,53 @@
  *
  */
 
-package de.nycode.bankobot.commands.dev
+package de.nycode.bankobot.commands.tag.commands
 
+import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
-import de.nycode.bankobot.command.permissions.PermissionLevel
-import de.nycode.bankobot.command.permissions.permission
-import de.nycode.bankobot.command.slashcommands.disableSlashCommands
-import de.nycode.bankobot.command.slashcommands.registerSlashCommands
-import de.nycode.bankobot.commands.BotOwnerModule
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
+import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
+import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
-import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.extension.named
+import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.CommandSet
 
+@PublishedApi
 @AutoWired
-@ModuleName(BotOwnerModule)
-@OptIn(KordPreview::class)
-fun updateSlashCommandsCommand() = command("update-slash-commands") {
-    permission(PermissionLevel.BOT_OWNER)
-    description("Registriert alle Slash command erneut")
-    disableSlashCommands()
+@ModuleName(TagModule)
+internal fun editTagCommand(): CommandSet = command("edit-tag") {
+    description("Einen Tag editieren")
 
-    invoke {
-        doExpensiveTask {
-//            kord.slashCommands
-//                .getGlobalApplicationCommands()
-//                .toList()
-//                .forEach { it.delete() }
-            processor.registerSlashCommands(kord)
+    invoke(
+        TagArgument,
+        StringArgument.named("new-text").asSlashArgument("Neuer Inhalt")
+    ) { tag, newText ->
+        if (tag.text == newText) {
+            respondEmbed(
+                Embeds.error(
+                    "Text stimmt überein",
+                    "Der angegebene Text stimmt mit dem aktuellen Text des Tags überein!"
+                )
+            )
+            return@invoke
+        }
 
-            editEmbed(Embeds.success("DONE"))
+        doExpensiveTask("Tag wird editiert") {
+            val newTag = tag.copy(text = newText)
+            BankoBot.repositories.tag.save(newTag)
+
+            tag.saveChanges(newTag, message.author?.id)
+
+            editEmbed(Embeds.success("Tag wurde editiert!", "Der Tag wurde erfolgreich aktualisiert!"))
         }
     }
 }

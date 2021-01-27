@@ -39,6 +39,12 @@ val Command<*>.description: String?
     get() = data.metadata[CommandDescription]
 
 /**
+ * The description of a command.
+ */
+val CommandBuilder<*, *, *>.description: String?
+    get() = metaData[CommandDescription]
+
+/**
  * Sets the description of a command to [description].
  */
 fun <S, A, COMMANDCONTEXT : CommandEvent> CommandBuilder<S, A, COMMANDCONTEXT>.description(description: String): Unit =

@@ -23,35 +23,35 @@
  *
  */
 
-package de.nycode.bankobot.command.slashcommands
+package de.nycode.bankobot.commands.tag
 
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.config.Config
-import de.nycode.bankobot.config.Environment
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
 import dev.kord.common.annotation.KordPreview
-import dev.kord.core.Kord
-import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
-import dev.kord.x.commands.model.command.CommandBuilder
+import dev.kord.rest.builder.interaction.BaseApplicationBuilder
+import dev.kord.x.commands.argument.Argument
+import dev.kord.x.commands.argument.extension.named
+import dev.kord.x.commands.argument.extension.tryMap
+import dev.kord.x.commands.argument.result.extension.MapResult
+import dev.kord.x.commands.argument.text.WordArgument
+import org.litote.kmongo.eq
 
-/**
- * Registers [command] as a Slash Command for this kord instance.
- */
+val TagArgument: Argument<TagEntry, Any?> = InternalTagArgument()
+
 @OptIn(KordPreview::class)
-suspend fun Kord.registerCommand(command: CommandBuilder<*, *, *>) {
-    val description = command.description ?: "<unknown description>"
-    val creator: ApplicationCommandCreateBuilder.() -> Unit = {
-        command.arguments.forEach {
-            if (it is SlashArgument<*, *>) {
-                with(it) {
-                    applyArgument()
-                }
-            } else error("Command ${command.name} does use incompatible arguments for slashCommands: $it")
-        }
+internal class InternalTagArgument(
+    description: String = "Der Tag"
+) : AbstractSlashCommandArgument<TagEntry, Any?>(description, WordArgument.named("tag").tagMap()) {
+    override fun BaseApplicationBuilder.applyArgument() {
+        string(name, description, required())
     }
+}
 
-    if (Config.ENVIRONMENT == Environment.DEVELOPMENT) {
-        slashCommands.createGuildApplicationCommand(Config.DEV_GUILD_ID, command.name, description, creator)
+private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
+    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+    if (tag != null) {
+        MapResult.Pass(tag)
     } else {
-        slashCommands.createGlobalApplicationCommand(command.name, description, creator)
+        MapResult.Fail("Tag not found")
     }
 }

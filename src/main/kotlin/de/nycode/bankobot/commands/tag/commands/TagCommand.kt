@@ -23,35 +23,38 @@
  *
  */
 
-package de.nycode.bankobot.command.slashcommands
+package de.nycode.bankobot.commands.tag.commands
 
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
-import de.nycode.bankobot.config.Config
-import de.nycode.bankobot.config.Environment
-import dev.kord.common.annotation.KordPreview
-import dev.kord.core.Kord
-import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
-import dev.kord.x.commands.model.command.CommandBuilder
+import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.commands.tag.UseAction
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.CommandSet
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
-/**
- * Registers [command] as a Slash Command for this kord instance.
- */
-@OptIn(KordPreview::class)
-suspend fun Kord.registerCommand(command: CommandBuilder<*, *, *>) {
-    val description = command.description ?: "<unknown description>"
-    val creator: ApplicationCommandCreateBuilder.() -> Unit = {
-        command.arguments.forEach {
-            if (it is SlashArgument<*, *>) {
-                with(it) {
-                    applyArgument()
-                }
-            } else error("Command ${command.name} does use incompatible arguments for slashCommands: $it")
-        }
-    }
+@PublishedApi
+@AutoWired
+@ModuleName(TagModule)
+internal fun tagCommand(): CommandSet = command("tag") {
+    alias("t")
+    description("Einen Tag anzeigen")
 
-    if (Config.ENVIRONMENT == Environment.DEVELOPMENT) {
-        slashCommands.createGuildApplicationCommand(Config.DEV_GUILD_ID, command.name, description, creator)
-    } else {
-        slashCommands.createGlobalApplicationCommand(command.name, description, creator)
+    invoke(TagArgument) { tag ->
+        respond(tag.text)
+
+        val useAction = UseAction(
+            author = message.author?.id ?: return@invoke,
+            date = Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault()),
+            tagId = tag.id
+        )
+        BankoBot.repositories.tagActions.save(useAction)
     }
 }

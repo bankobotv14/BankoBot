@@ -22,33 +22,61 @@
  * SOFTWARE.
  *
  */
+@file:Suppress("TopLevelPropertyNaming")
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.commands.tag
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.config.Config
-import de.nycode.bankobot.config.Environment
 import dev.kord.common.entity.Snowflake
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Contextual
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.litote.kmongo.Id
 
-/**
- * Entry in the blacklist.
- *
- * @property userId [Snowflake] of the user represented by this entry
- */
 @Serializable
-data class BlacklistEntry(@SerialName("_id") @Contextual val userId: Snowflake)
+sealed class TagAction {
+    @Contextual
+    abstract val author: Snowflake
 
-internal object BlacklistEnforcer : AbstractKordPrecondition() {
-    override suspend fun invoke(event: KordCommandEvent): Boolean {
-        return if (Config.ENVIRONMENT != Environment.PRODUCTION) {
-            val id = event.message.author?.id ?: return false
-            BankoBot.repositories.blacklist.findOneById(id) == null
-        } else {
-            true // debug mode disabled blacklist
-        }
-    }
+    @Contextual
+    abstract val date: LocalDateTime
 }
+
+@Serializable
+data class UseAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    @Contextual
+    val tagId: Id<TagEntry>
+) : TagAction()
+
+@Serializable
+data class CreateAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    @Contextual
+    val tagId: Id<TagEntry>,
+    val name: String,
+    val text: String
+) : TagAction()
+
+@Serializable
+data class DeleteAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    val name: String
+) : TagAction()
+
+@Serializable
+data class EditAction(
+    @Contextual
+    override val author: Snowflake,
+    @Contextual
+    override val date: LocalDateTime,
+    val changes: List<TagChange>
+) : TagAction()

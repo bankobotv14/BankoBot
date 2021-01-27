@@ -65,10 +65,10 @@ private val JavaDocArgument = WordArgument
     .named("javadoc-name")
     .docsFilter()
     .asSlashArgument("Das Javadoc in dem gesucht werden soll") {
-        choice("jdk11", "JDK 11 Dokumentation")
-        choice("jdk8", "JDK 8 Dokumentation")
-        choice("spigot1165", "Spigot 1.16.5 Dokumentation")
-        choice("paper", "Paper Spigot dokumentation")
+        choice("JDK 11 Dokumentation", "jdk11")
+        choice("JDK 8 Dokumentation", "jdk8")
+        choice("Spigot 1.16.5 Dokumentation", "spigot1165")
+        choice("Paper Spigot dokumentation", "paper")
     }
 
 private object QueryArgument :
@@ -78,7 +78,7 @@ private object QueryArgument :
     ) {
     @OptIn(KordPreview::class)
     override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description)
+        string(name, description, required())
     }
 }
 

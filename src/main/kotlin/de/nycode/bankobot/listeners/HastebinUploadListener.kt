@@ -27,6 +27,7 @@ package de.nycode.bankobot.listeners
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.*
@@ -46,7 +47,7 @@ import io.ktor.http.*
 @AutoWired
 @ModuleName(GeneralModule)
 fun hastebinCommand() = command("hastebin") {
-    invoke(StringArgument.optional()) {
+    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) {
         respond(autoUpload(message))
     }
 }
@@ -85,4 +86,5 @@ private fun makeEmbed(url: String = Emotes.LOADING) = Embeds.warn(
     "Uff das ist aber viel",
     """soviel text gedacht.| Benutze am besten einen paste Dienst wie ${Config.HASTE_HOST}.
             | Hier ich mache das mal schnell für dich: $url
-            |""".trimMargin())
+            |""".trimMargin()
+)

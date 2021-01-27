@@ -23,26 +23,25 @@
  *
  */
 
-@file:Suppress("TopLevelPropertyNaming")
+package de.nycode.bankobot.serialization
 
-package de.nycode.bankobot.commands
+import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-/**
- * Name for the general module.
- */
-const val GeneralModule: String = "General"
+object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.datetime.LocalDateTime", PrimitiveKind.STRING)
 
-/**
- * Name for moderation module.
- */
-const val ModerationModule: String = "Moderation"
+    override fun deserialize(decoder: Decoder): LocalDateTime {
+        return LocalDateTime.parse(decoder.decodeString())
+    }
 
-/**
- * Name for the tag module.
- */
-const val TagModule: String = "Tag"
-
-/**
- * Name for the bot owner module
- */
-const val BotOwnerModule: String = "BotOwner"
+    override fun serialize(encoder: Encoder, value: LocalDateTime) {
+        encoder.encodeString(value.toString())
+    }
+}
