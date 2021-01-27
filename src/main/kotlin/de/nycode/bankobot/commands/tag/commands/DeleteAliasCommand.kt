@@ -27,6 +27,7 @@ package de.nycode.bankobot.commands.tag.commands
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.*
 import de.nycode.bankobot.utils.Embeds
@@ -35,6 +36,7 @@ import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -44,7 +46,7 @@ import org.litote.kmongo.contains
 @AutoWired
 @ModuleName(TagModule)
 internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
-    invoke(WordArgument) { aliasName ->
+    invoke(WordArgument.named("alias").asSlashArgument("Der Alias den du löschen willst")) { aliasName ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
 
         if (tag == null) {

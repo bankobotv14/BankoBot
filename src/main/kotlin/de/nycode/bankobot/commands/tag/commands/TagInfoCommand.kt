@@ -28,6 +28,7 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.UseAction
 import de.nycode.bankobot.commands.tag.findTag
@@ -49,8 +50,7 @@ private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
 @ModuleName(TagModule)
 internal fun tagInfoCommand(): CommandSet = command("tag-info") {
 
-    invoke(WordArgument) { tagName ->
-        val tag = findTag(tagName) ?: return@invoke
+    invoke(TagArgument()) { tag ->
         val uses = BankoBot.repositories.tagActions.countDocuments(UseAction::tagId eq tag.id).toInt()
 
         val author = kord.getUser(tag.author)

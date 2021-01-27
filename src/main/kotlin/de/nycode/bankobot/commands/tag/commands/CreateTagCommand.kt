@@ -28,6 +28,7 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.saveCreation
@@ -53,7 +54,12 @@ import org.litote.kmongo.eq
 internal fun createTagCommand(): CommandSet = command("create-tag") {
     description("Tag erstellen")
 
-    invoke(WordArgument.named("tag"), StringArgument.named("text")) { tagName, tagText ->
+    invoke(
+        WordArgument.named("tag")
+            .asSlashArgument("Den Namen des Tags"),
+        StringArgument.named("text")
+            .asSlashArgument("Den Inhalt des Tags")
+    ) { tagName, tagText ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
 
         if (tag != null) {

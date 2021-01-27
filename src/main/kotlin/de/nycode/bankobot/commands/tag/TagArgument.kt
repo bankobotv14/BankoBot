@@ -23,27 +23,33 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag.commands
+package de.nycode.bankobot.commands.tag
 
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.TagArgument
-import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
-import de.nycode.bankobot.utils.HastebinUtil
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.model.command.invoke
-import dev.kord.x.commands.model.module.CommandSet
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
+import dev.kord.common.annotation.KordPreview
+import dev.kord.rest.builder.interaction.BaseApplicationBuilder
+import dev.kord.x.commands.argument.Argument
+import dev.kord.x.commands.argument.extension.named
+import dev.kord.x.commands.argument.extension.tryMap
+import dev.kord.x.commands.argument.result.extension.MapResult
+import dev.kord.x.commands.argument.text.WordArgument
+import org.litote.kmongo.eq
 
-@PublishedApi
-@AutoWired
-@ModuleName(TagModule)
-internal fun tagRawCommand(): CommandSet = command("tag-raw") {
-    alias("raw")
+@OptIn(KordPreview::class)
+class TagArgument<CONTEXT>(
+    description: String = "Der Tag"
+) : AbstractSlashCommandArgument<TagEntry, CONTEXT>(description, WordArgument.named("tag").tagMap()) {
+    override fun BaseApplicationBuilder.applyArgument() {
+        string(name, description)
+    }
+}
 
-    invoke(TagArgument()) { tag ->
-        val url = HastebinUtil.postToHastebin(tag.text)
-        respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
+private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
+    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+    if (tag != null) {
+        MapResult.Pass(tag)
+    } else {
+        MapResult.Fail("Tag not found")
     }
 }

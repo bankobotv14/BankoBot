@@ -29,15 +29,15 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.*
+import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.commands.tag.hasDeletePermission
+import de.nycode.bankobot.commands.tag.saveDeletion
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 
@@ -48,9 +48,7 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
     description("Tag löschen")
     alias("remove-tag")
 
-    invoke(WordArgument.named("tag")) { tagName ->
-        val tag = findTag(tagName) ?: return@invoke
-
+    invoke(TagArgument("Der Tag den du löschen möchtest")) { tag ->
         if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
             respondEmbed(
                 Embeds.error(
@@ -67,7 +65,7 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
                 editEmbed(
                     Embeds.success(
                         "Tag wurde gelöscht!",
-                        "Du hast den Tag **${tagName.trim()}** erfolgreich gelöscht!"
+                        "Du hast den Tag **${tag.name.trim()}** erfolgreich gelöscht!"
                     )
                 )
             }

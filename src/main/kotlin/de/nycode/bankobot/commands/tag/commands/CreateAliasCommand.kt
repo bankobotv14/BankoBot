@@ -28,10 +28,9 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.EditAction
-import de.nycode.bankobot.commands.tag.TagEntry
-import de.nycode.bankobot.commands.tag.calculateChangesTo
+import de.nycode.bankobot.commands.tag.*
 import de.nycode.bankobot.commands.tag.findTag
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
@@ -55,9 +54,11 @@ import org.litote.kmongo.eq
 internal fun createAliasCommand(): CommandSet = command("create-alias") {
     description("Alias erstellen.")
 
-    invoke(WordArgument.named("tag"), WordArgument.named("alias")) { tagName, aliasName ->
-        val tag = findTag(tagName) ?: return@invoke
-
+    invoke(
+        TagArgument(),
+        WordArgument.named("alias").asSlashArgument("Der Alias")
+    )
+    { tag, aliasName ->
         val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
         if (aliasTag != null) {
             respondEmbed(

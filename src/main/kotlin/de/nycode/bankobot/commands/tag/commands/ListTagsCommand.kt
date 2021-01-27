@@ -28,6 +28,7 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.utils.LazyItemProvider
 import de.nycode.bankobot.utils.paginate
@@ -46,7 +47,10 @@ import dev.kord.x.commands.model.module.CommandSet
 internal fun listTagsCommand(): CommandSet = command("list-tags") {
     description("Alle Tags anzeigen")
 
-    invoke(IntArgument.named("page").optional(1), IntArgument.named("pageSize").optional(8)) { page, pageSize ->
+    invoke(
+        IntArgument.named("page").optional(1).asSlashArgument("Die Seite"),
+        IntArgument.named("pageSize").optional(8).asSlashArgument("Die Seitengröße")
+    ) { page, pageSize ->
         val tagCount = BankoBot.repositories.tag.countDocuments().toInt()
 
         LazyItemProvider(tagCount) { start, _ ->

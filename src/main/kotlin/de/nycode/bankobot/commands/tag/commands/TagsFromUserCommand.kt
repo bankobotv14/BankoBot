@@ -27,6 +27,7 @@ package de.nycode.bankobot.commands.tag.commands
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.utils.Embeds
@@ -35,6 +36,7 @@ import de.nycode.bankobot.utils.LazyItemProvider
 import de.nycode.bankobot.utils.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -47,7 +49,10 @@ import org.litote.kmongo.eq
 internal fun tagsFromUserCommand(): CommandSet = command("from-user") {
     alias("from")
 
-    invoke(MemberArgument) { member ->
+    invoke(
+        MemberArgument.named("Der User")
+            .asSlashArgument("User")
+    ) { member ->
 
         val tagCount = BankoBot.repositories.tag.countDocuments(TagEntry::author eq member.id).toInt()
 

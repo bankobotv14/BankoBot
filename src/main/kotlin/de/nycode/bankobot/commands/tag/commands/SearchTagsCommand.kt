@@ -26,12 +26,14 @@
 package de.nycode.bankobot.commands.tag.commands
 
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.searchTags
 import de.nycode.bankobot.utils.LazyItemProvider
 import de.nycode.bankobot.utils.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -39,10 +41,10 @@ import dev.kord.x.commands.model.module.CommandSet
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
-internal fun searchTagsCommand(): CommandSet = command("search") {
+internal fun searchTagsCommand(): CommandSet = command("search-tag") {
     alias("s")
 
-    invoke(WordArgument) { search ->
+    invoke(WordArgument.named("Suchbegriff").asSlashArgument("Der Suchbegriff")) { search ->
         val tags = searchTags(search)
         LazyItemProvider(tags.size) { start, end ->
             tags.subList(start, end + 1)

@@ -29,12 +29,10 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
+import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.UseAction
-import de.nycode.bankobot.commands.tag.findTag
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import kotlinx.datetime.Clock
@@ -48,8 +46,7 @@ internal fun tagCommand(): CommandSet = command("tag") {
     alias("t")
     description("Einen Tag anzeigen")
 
-    invoke(WordArgument.named("tag")) { tagName ->
-        val tag = findTag(tagName) ?: return@invoke
+    invoke(TagArgument("tag")) { tag ->
         respond(tag.text)
 
         val useAction = UseAction(

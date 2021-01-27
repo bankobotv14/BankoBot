@@ -27,8 +27,9 @@ package de.nycode.bankobot.commands.tag.commands
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.findTag
+import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
@@ -39,7 +40,7 @@ import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.live.live
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.text.WordArgument
+import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.command.invoke
@@ -55,9 +56,13 @@ import kotlinx.coroutines.flow.take
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
+@Suppress("LongMethod")
 internal fun transferTagCommand(): CommandSet = command("transfer") {
-    invoke(WordArgument, MemberArgument) { tagName, member ->
-        val tag = findTag(tagName) ?: return@invoke
+    invoke(
+        TagArgument(),
+        MemberArgument.named("Der neue Besitzer des Tags")
+            .asSlashArgument("Der neue Besitzer des Tags")
+    ) { tag, member ->
 
         if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
             respondEmbed(
