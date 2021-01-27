@@ -60,7 +60,6 @@ object InteractionContext :
 @OptIn(KordPreview::class)
 private fun Command.buildCommandString(): String {
     val builder = StringBuilder()
-    builder.append("xd") // prefix
     builder.append(name) // invoke
     if (options.isNotEmpty()) {
         builder.append(

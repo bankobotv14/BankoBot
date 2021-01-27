@@ -34,5 +34,10 @@ import dev.kord.x.commands.model.prefix.PrefixRule
  * Adds a prefix to [InteractionContext] (slash command context)
  */
 @OptIn(KordPreview::class)
-inline fun PrefixBuilder.interaction(supplier: () -> PrefixRule<InteractionCreateEvent>) =
-    add(InteractionContext, supplier())
+fun PrefixBuilder.interaction() =
+    add(InteractionContext, object : PrefixRule<InteractionCreateEvent> {
+        override suspend fun consume(
+            message: String,
+            context: InteractionCreateEvent,
+        ): PrefixRule.Result = PrefixRule.Result.Accepted("")
+    })
