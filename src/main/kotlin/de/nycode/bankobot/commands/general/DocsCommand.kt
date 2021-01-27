@@ -28,11 +28,16 @@ package de.nycode.bankobot.commands.general
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.docdex.*
 import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.MessageBehavior
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.rest.builder.interaction.BaseApplicationBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -55,43 +60,25 @@ private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
     }
 }
 
-private val JavaDocArgument = WordArgument.named("javadoc-name").docsFilter()
-private val QueryArgument = ReferenceArgument.named("query")
+@OptIn(KordPreview::class)
+private val JavaDocArgument = WordArgument
+    .named("javadoc-name")
+    .docsFilter()
+    .asSlashArgument("Das Javadoc in dem gesucht werden soll") {
+        choice("jdk11", "JDK 11 Dokumentation")
+        choice("jdk8", "JDK 8 Dokumentation")
+        choice("spigot1165", "Spigot 1.16.5 Dokumentation")
+        choice("paper", "Paper Spigot dokumentation")
+    }
 
-@AutoWired
-@ModuleName(DocsModule)
-fun docsSearchCommand() = command("docs-search") {
-    description("Sucht nach Javadocs")
-    alias("ds", "docssearch")
-
-    invoke(JavaDocArgument, QueryArgument) { doc, query ->
-        doExpensiveTask {
-            val results = DocDex.search(doc, query.toDocDexQuery())
-                .asSequence()
-                .sortedBy {
-                    DocsGoogle.calculateScore(it, query)
-                }.map {
-                    val obj = it.`object`
-                    val reference = StringBuilder()
-                    reference.append(obj.`package`).append('.')
-                    if (obj is DocumentedClassObject) {
-                        reference.append(obj.name)
-                    } else if (obj is DocumentedMethodObject) {
-                        reference.append(obj.metadata.owner) // class
-                        reference.append('#').append(obj.name) // method
-                        reference.append('(') // parameters
-                            .append(obj.metadata.parameters
-                                .joinToString { parameter -> "${parameter.type} ${parameter.name}" })
-                            .append(')')
-                    }
-
-                    "[$reference](${obj.link})"
-                }
-                .toList()
-
-            delete()
-            results.paginate(channel, "Suchergebnisse")
-        }
+private object QueryArgument :
+    AbstractSlashCommandArgument<Reference, MessageCreateEvent>(
+        "Die Referenz zum Doc Eintrag nach dem gesucht werden soll",
+        ReferenceArgument.named("query")
+    ) {
+    @OptIn(KordPreview::class)
+    override fun BaseApplicationBuilder.applyArgument() {
+        string(name, description)
     }
 }
 
@@ -117,7 +104,7 @@ fun docsCommand() = command("docs") {
 
     invoke(
         JavaDocArgument,
-        ReferenceArgument.named("query")
+        QueryArgument
     ) { doc, query ->
         docs(doc, query)
     }

@@ -27,6 +27,7 @@ package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
@@ -40,13 +41,15 @@ import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
+private val QueryArgument = StringArgument.named("Text").asSlashArgument("Die Succh-Query nach der gesucht werden soll")
+
 @AutoWired
 @ModuleName(GeneralModule)
 fun searchCommand() = command("google") {
     alias("find", "search", "duckduckgo")
     description("Sucht dir deinen Scheiß aus dem Internet zusammen.")
 
-    invoke(StringArgument.named("Text")) { argument ->
+    invoke(QueryArgument) { argument ->
         search(argument)
     }
 }

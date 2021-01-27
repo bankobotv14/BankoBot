@@ -27,9 +27,11 @@ package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -41,6 +43,11 @@ import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import dev.kord.x.commands.model.precondition.Precondition
 
+@OptIn(KordPreview::class)
+private val CommandArgument = WordArgument.named("command")
+    .optional()
+    .asSlashArgument("Der spezifische Befehl für den Hilfe angezeigt werden soll")
+
 @PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
@@ -48,7 +55,7 @@ internal fun helpCommand(): CommandSet = command("help") {
     alias("h", "hilfe", "idunnowhattodo", "tech-support", "whodoyouwork")
     description("Zeigt die eine Liste aller Befehle oder Informationen zu einem spezifischem Befehl")
 
-    invoke(WordArgument.named("command").optional()) { commandName ->
+    invoke(CommandArgument) { commandName ->
         if (commandName.isNullOrBlank()) {
             allCommands()
         } else {
@@ -89,9 +96,11 @@ private suspend fun KordCommandEvent.allCommands() {
                 }
             }
             .forEach { (module, commands) ->
-                field {
-                    name = module
-                    value = commands.joinToString("`, `", "`", "`") { it.name }
+                if (commands.isNotEmpty()) {
+                    field {
+                        name = module
+                        value = commands.joinToString("`, `", "`", "`") { it.name }
+                    }
                 }
             }
     }
