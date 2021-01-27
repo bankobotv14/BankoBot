@@ -29,7 +29,6 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.CreateAction
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.saveCreation
 import de.nycode.bankobot.utils.Embeds

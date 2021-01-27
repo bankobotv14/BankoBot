@@ -29,7 +29,6 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.*
-import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
@@ -39,9 +38,6 @@ import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.litote.kmongo.contains
 
 @PublishedApi
@@ -61,7 +57,7 @@ internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
             return@invoke
         }
 
-        if (tag.author != message.author?.id && !message.getAuthorAsMember()!!.hasDeletePermission()) {
+        if (tag.author != message.author?.id && message.getAuthorAsMember()?.hasDeletePermission()?.not() == true) {
             respondEmbed(
                 Embeds.error(
                     "Du bist nicht der Autor.",
