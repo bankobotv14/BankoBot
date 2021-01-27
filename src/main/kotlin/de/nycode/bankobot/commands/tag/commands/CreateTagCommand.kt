@@ -31,6 +31,7 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.CreateAction
 import de.nycode.bankobot.commands.tag.TagEntry
+import de.nycode.bankobot.commands.tag.saveCreation
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
@@ -75,14 +76,7 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
                 )
                 BankoBot.repositories.tag.save(entry)
 
-                val createAction = CreateAction(
-                    message.author!!.id,
-                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-                    entry.id,
-                    entry.name,
-                    entry.text
-                )
-                BankoBot.repositories.tagActions.save(createAction)
+                entry.saveCreation(message.author?.id)
 
                 editEmbed(
                     Embeds.success(

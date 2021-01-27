@@ -25,8 +25,12 @@
 
 package de.nycode.bankobot.commands.tag
 
+import de.nycode.bankobot.BankoBot
 import dev.kord.common.entity.Snowflake
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -67,4 +71,33 @@ infix fun TagEntry.calculateChangesTo(newTag: TagEntry): List<TagChange> {
     }
 
     return changes
+}
+
+suspend fun TagEntry.saveChanges(newTag: TagEntry, author: Snowflake?) {
+    author ?: return
+
+    val changes = this calculateChangesTo newTag
+    val editAction =
+        EditAction(
+            author,
+            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+            changes
+        )
+    BankoBot.repositories.tagActions.save(editAction)
+}
+
+suspend fun TagEntry.saveCreation(author: Snowflake?) {
+    author ?: return
+
+    val time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val createAction = CreateAction(author, time, this.id, this.name, this.text)
+    BankoBot.repositories.tagActions.save(createAction)
+}
+
+suspend fun TagEntry.saveDeletion(author: Snowflake?) {
+    author ?: return
+
+    val time = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val deleteAction = DeleteAction(author, time, name)
+    BankoBot.repositories.tagActions.save(deleteAction)
 }

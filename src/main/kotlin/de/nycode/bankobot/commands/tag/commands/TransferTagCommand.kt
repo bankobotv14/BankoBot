@@ -30,6 +30,7 @@ import de.nycode.bankobot.command.command
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.findTag
 import de.nycode.bankobot.commands.tag.hasDeletePermission
+import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
@@ -102,10 +103,14 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
                     deleteAllReactions()
                     val newTag = tag.copy(author = member.id)
                     BankoBot.repositories.tag.save(newTag)
+
+                    tag.saveChanges(newTag, author = message.author?.id)
+
                     editEmbed(
                         Embeds.success(
                             "Transfer erfolgreich!",
-                            "Der Tag \"${tag.name}\" wurde erfolgreich von ${message.author?.mention} zu ${member.mention} transferiert!"
+                            "Der Tag \"${tag.name}\" wurde erfolgreich von ${message.author?.mention}" +
+                                    " zu ${member.mention} transferiert!"
                         )
                     )
                 }

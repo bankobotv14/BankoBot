@@ -88,16 +88,18 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
 
             BankoBot.repositories.tag.save(newTag)
 
-            val changes = tag calculateChangesTo newTag
-            val editAction = EditAction(
-                message.author!!.id,
-                Clock.System.now()
-                    .toLocalDateTime(
-                        TimeZone.currentSystemDefault(),
-                    ),
-                changes
-            )
-            BankoBot.repositories.tagActions.save(editAction)
+            message.author?.let { user ->
+                val changes = tag calculateChangesTo newTag
+                val editAction = EditAction(
+                    user.id,
+                    Clock.System.now()
+                        .toLocalDateTime(
+                            TimeZone.currentSystemDefault(),
+                        ),
+                    changes
+                )
+                BankoBot.repositories.tagActions.save(editAction)
+            }
 
             editEmbed(Embeds.success("Alias wurde erstellt!", "Du hast den Alias **$aliasName** erstellt!"))
         }

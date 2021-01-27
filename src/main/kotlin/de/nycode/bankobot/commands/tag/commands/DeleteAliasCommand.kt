@@ -28,9 +28,7 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.EditAction
-import de.nycode.bankobot.commands.tag.TagEntry
-import de.nycode.bankobot.commands.tag.calculateChangesTo
+import de.nycode.bankobot.commands.tag.*
 import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
@@ -79,16 +77,7 @@ internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
                     })
                 BankoBot.repositories.tag.save(newTag)
 
-                val changes = tag calculateChangesTo newTag
-                val editAction = EditAction(
-                    message.author!!.id,
-                    Clock.System.now()
-                        .toLocalDateTime(
-                            TimeZone.currentSystemDefault(),
-                        ),
-                    changes
-                )
-                BankoBot.repositories.tagActions.save(editAction)
+                tag.saveChanges(newTag, message.author?.id)
 
                 editEmbed(
                     Embeds.success(

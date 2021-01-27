@@ -29,9 +29,8 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.EditAction
-import de.nycode.bankobot.commands.tag.calculateChangesTo
 import de.nycode.bankobot.commands.tag.findTag
+import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
@@ -43,9 +42,6 @@ import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 @PublishedApi
 @AutoWired
@@ -70,14 +66,7 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
             val newTag = tag.copy(text = newText)
             BankoBot.repositories.tag.save(newTag)
 
-            val changes = tag calculateChangesTo newTag
-            val editAction =
-                EditAction(
-                    message.author!!.id,
-                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-                    changes
-                )
-            BankoBot.repositories.tagActions.save(editAction)
+            tag.saveChanges(newTag, message.author?.id)
 
             editEmbed(Embeds.success("Tag wurde editiert!", "Der Tag wurde erfolgreich aktualisiert!"))
         }

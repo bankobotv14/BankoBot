@@ -67,15 +67,7 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
             doExpensiveTask("Tag wird gelöscht") {
                 BankoBot.repositories.tag.deleteOneById(tag.id)
 
-                val deleteAction = DeleteAction(
-                    message.author!!.id,
-                    Clock.System.now()
-                        .toLocalDateTime(
-                            TimeZone.currentSystemDefault(),
-                        ),
-                    tag.name
-                )
-                BankoBot.repositories.tagActions.save(deleteAction)
+                tag.saveDeletion(message.author?.id)
 
                 editEmbed(
                     Embeds.success(
