@@ -45,7 +45,7 @@ abstract class AbstractSlashCommandArgument<T, CONTEXT>(
     @OptIn(KordPreview::class)
     protected fun <T : OptionsBuilder> (T.() -> Unit).applyRequired(): T.() -> Unit {
         return {
-            required = required
+            required = this@AbstractSlashCommandArgument.required
             invoke(this)
         }
     }
