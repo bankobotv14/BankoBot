@@ -28,7 +28,6 @@ package de.nycode.bankobot.command.slashcommands.arguments
 import de.nycode.bankobot.command.slashcommands.SlashArgument
 import dev.kord.common.annotation.KordPreview
 import dev.kord.rest.builder.interaction.BaseApplicationBuilder
-import dev.kord.rest.builder.interaction.ChannelBuilder
 import dev.kord.rest.builder.interaction.IntChoiceBuilder
 import dev.kord.x.commands.argument.Argument
 import dev.kord.x.commands.argument.primitive.IntArgument

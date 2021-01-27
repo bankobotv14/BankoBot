@@ -126,15 +126,11 @@ object BankoBot : CoroutineScope {
         bot(kord) {
             configure() // add annotation processed commands
             prefix {
-                val prefixSupplier = {
-                    literal("xd") or literal("!")
-                }
-
                 kord {
-                    prefixSupplier() or mention()
+                    literal("xd") or literal("!") or mention()
                 }
 
-                interaction(prefixSupplier)
+                interaction()
             }
 
             eventFilters.add(BlacklistEnforcer)

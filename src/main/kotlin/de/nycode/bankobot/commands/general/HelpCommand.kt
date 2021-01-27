@@ -48,7 +48,6 @@ private val CommandArgument = WordArgument.named("command")
     .optional()
     .asSlashArgument("Der spezifische Befehl für den Hilfe angezeigt werden soll")
 
-
 @PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)

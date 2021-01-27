@@ -120,7 +120,11 @@ object InteractionContextConverter :
 object KordInteractionErrorHandler :
     ErrorHandler<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent> {
 
-    override suspend fun CommandProcessor.rejectArgument(rejection: ErrorHandler.RejectedArgument<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent>) {
+    override suspend fun CommandProcessor.rejectArgument(
+        rejection: ErrorHandler.RejectedArgument<InteractionCreateEvent,
+                MessageCreateEvent,
+                KordCommandEvent>,
+    ) {
         rejection.event.interaction.channel.createMessage(rejection.message)
     }
 

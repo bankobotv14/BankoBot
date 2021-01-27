@@ -39,7 +39,6 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
-import kotlinx.coroutines.flow.toList
 
 @AutoWired
 @ModuleName(BotOwnerModule)
