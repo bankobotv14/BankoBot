@@ -31,7 +31,6 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.*
-import de.nycode.bankobot.commands.tag.findTag
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
@@ -55,10 +54,9 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
     description("Alias erstellen.")
 
     invoke(
-        TagArgument(),
-        WordArgument.named("alias").asSlashArgument("Der Alias")
-    )
-    { tag, aliasName ->
+        TagArgument,
+        WordArgument.named("Alias").asSlashArgument("Alias")
+    ) { tag, aliasName ->
         val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
         if (aliasTag != null) {
             respondEmbed(

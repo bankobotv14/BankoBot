@@ -55,10 +55,10 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
     description("Tag erstellen")
 
     invoke(
-        WordArgument.named("tag")
-            .asSlashArgument("Den Namen des Tags"),
-        StringArgument.named("text")
-            .asSlashArgument("Den Inhalt des Tags")
+        WordArgument.named("Name")
+            .asSlashArgument("Name des Tags"),
+        StringArgument.named("Text")
+            .asSlashArgument("Text des Tags")
     ) { tagName, tagText ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
 

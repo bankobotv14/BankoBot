@@ -46,7 +46,7 @@ internal fun tagCommand(): CommandSet = command("tag") {
     alias("t")
     description("Einen Tag anzeigen")
 
-    invoke(TagArgument("tag")) { tag ->
+    invoke(TagArgument) { tag ->
         respond(tag.text)
 
         val useAction = UseAction(

@@ -46,7 +46,7 @@ import org.litote.kmongo.contains
 @AutoWired
 @ModuleName(TagModule)
 internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
-    invoke(WordArgument.named("alias").asSlashArgument("Der Alias den du löschen willst")) { aliasName ->
+    invoke(WordArgument.named("Alias").asSlashArgument("Alias")) { aliasName ->
         val tag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
 
         if (tag == null) {

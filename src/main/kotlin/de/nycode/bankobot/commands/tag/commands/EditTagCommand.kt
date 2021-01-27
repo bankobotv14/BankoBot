@@ -31,7 +31,6 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
-import de.nycode.bankobot.commands.tag.findTag
 import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
@@ -41,7 +40,6 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.StringArgument
-import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 
@@ -52,8 +50,8 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
     description("Einen Tag editieren")
 
     invoke(
-        TagArgument("Der Tag den du editieren willst"),
-        StringArgument.named("newtext").asSlashArgument("Der neue Inhalt")
+        TagArgument,
+        StringArgument.named("new-text").asSlashArgument("Neuer Inhalt")
     ) { tag, newText ->
         if (tag.text == newText) {
             respondEmbed(

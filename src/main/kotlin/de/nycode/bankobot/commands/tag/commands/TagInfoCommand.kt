@@ -31,12 +31,10 @@ import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.UseAction
-import de.nycode.bankobot.commands.tag.findTag
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import kotlinx.datetime.toJavaLocalDateTime
@@ -50,7 +48,7 @@ private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
 @ModuleName(TagModule)
 internal fun tagInfoCommand(): CommandSet = command("tag-info") {
 
-    invoke(TagArgument()) { tag ->
+    invoke(TagArgument) { tag ->
         val uses = BankoBot.repositories.tagActions.countDocuments(UseAction::tagId eq tag.id).toInt()
 
         val author = kord.getUser(tag.author)

@@ -50,8 +50,7 @@ internal fun tagsFromUserCommand(): CommandSet = command("from-user") {
     alias("from")
 
     invoke(
-        MemberArgument.named("Der User")
-            .asSlashArgument("User")
+        MemberArgument.named("User").asSlashArgument("User")
     ) { member ->
 
         val tagCount = BankoBot.repositories.tag.countDocuments(TagEntry::author eq member.id).toInt()

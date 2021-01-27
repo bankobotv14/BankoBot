@@ -59,9 +59,9 @@ import kotlinx.coroutines.flow.take
 @Suppress("LongMethod")
 internal fun transferTagCommand(): CommandSet = command("transfer") {
     invoke(
-        TagArgument(),
-        MemberArgument.named("Der neue Besitzer des Tags")
-            .asSlashArgument("Der neue Besitzer des Tags")
+        TagArgument,
+        MemberArgument.named("Neuer-Besitzer")
+            .asSlashArgument("Neuer-Besitzer")
     ) { tag, member ->
 
         if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {

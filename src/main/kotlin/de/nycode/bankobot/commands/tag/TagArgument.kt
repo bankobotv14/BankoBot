@@ -36,12 +36,14 @@ import dev.kord.x.commands.argument.result.extension.MapResult
 import dev.kord.x.commands.argument.text.WordArgument
 import org.litote.kmongo.eq
 
+val TagArgument: Argument<TagEntry, Any?> = InternalTagArgument()
+
 @OptIn(KordPreview::class)
-class TagArgument<CONTEXT>(
+internal class InternalTagArgument(
     description: String = "Der Tag"
-) : AbstractSlashCommandArgument<TagEntry, CONTEXT>(description, WordArgument.named("tag").tagMap()) {
+) : AbstractSlashCommandArgument<TagEntry, Any?>(description, WordArgument.named("tag").tagMap()) {
     override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description)
+        string(name, description, required())
     }
 }
 

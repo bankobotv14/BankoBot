@@ -42,7 +42,7 @@ import dev.kord.x.commands.model.module.CommandSet
 internal fun tagRawCommand(): CommandSet = command("tag-raw") {
     alias("raw")
 
-    invoke(TagArgument()) { tag ->
+    invoke(TagArgument) { tag ->
         val url = HastebinUtil.postToHastebin(tag.text)
         respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
     }

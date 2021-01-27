@@ -26,8 +26,11 @@
 package de.nycode.bankobot.command.slashcommands
 
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.config.Config
+import de.nycode.bankobot.config.Environment
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
+import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
 import dev.kord.x.commands.model.command.AliasInfo
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.command.CommandEvent
@@ -41,7 +44,7 @@ import dev.kord.x.commands.model.processor.CommandProcessor
 suspend fun CommandProcessor.registerSlashCommands(kord: Kord) {
     commands.values
         .asSequence()
-        .filter { it.aliasInfo is AliasInfo.Parent }
+        .filter { it.aliasInfo !is AliasInfo.Child }
         .filter { it.supportsSlashCommands }
         .forEach { kord.registerCommand(it) }
 }
@@ -51,8 +54,8 @@ suspend fun CommandProcessor.registerSlashCommands(kord: Kord) {
  */
 @OptIn(KordPreview::class)
 private suspend fun Kord.registerCommand(command: Command<out CommandEvent>) {
-    slashCommands.createGlobalApplicationCommand(command.name,
-        command.description ?: "<unknown description>") {
+    val description = command.description ?: "<unknown description>"
+    val creator: ApplicationCommandCreateBuilder.() -> Unit = {
         command.arguments.forEach {
             if (it is SlashArgument<*, *>) {
                 with(it) {
@@ -60,5 +63,11 @@ private suspend fun Kord.registerCommand(command: Command<out CommandEvent>) {
                 }
             } else error("Command ${command.name} does use incompatible arguments for slashCommands: $it")
         }
+    }
+
+    if (Config.ENVIRONMENT == Environment.DEVELOPMENT) {
+        slashCommands.createGuildApplicationCommand(Config.DEV_GUILD_ID, command.name, description, creator)
+    } else {
+        slashCommands.createGlobalApplicationCommand(command.name, description, creator)
     }
 }

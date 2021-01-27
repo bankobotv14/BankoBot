@@ -28,6 +28,7 @@ package de.nycode.bankobot.commands.dev
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.permissions.PermissionLevel
 import de.nycode.bankobot.command.permissions.permission
+import de.nycode.bankobot.command.slashcommands.disableSlashCommands
 import de.nycode.bankobot.commands.BotOwnerModule
 import de.nycode.bankobot.utils.EMBED_TITLE_MAX_LENGTH
 import de.nycode.bankobot.utils.Embeds
@@ -73,6 +74,7 @@ private class TimeMarker(private val start: TimeMark) {
 @ModuleName(BotOwnerModule)
 fun evalCommand() = command("ev") {
     permission(PermissionLevel.BOT_OWNER)
+    disableSlashCommands()
 
     invoke(StringArgument) { code ->
         doExpensiveTask {
@@ -84,7 +86,8 @@ fun evalCommand() = command("ev") {
             engine.put("ctx_capture", this@invoke)
             val res = try {
                 //language=kotlin
-                engine.eval("""
+                engine.eval(
+                    """
                     import dev.kord.common.entity.*
                     import de.nycode.bankobot.*
                     import de.nycode.bankobot.utils.*
@@ -101,7 +104,8 @@ fun evalCommand() = command("ev") {
                             $code
                         }
                     }
-                """.trimIndent())
+                """.trimIndent()
+                )
             } catch (e: ScriptException) {
                 e.stackTraceToString()
             }
@@ -119,10 +123,12 @@ fun evalCommand() = command("ev") {
                 "${Emojis.stopwatch} Compilation failed after $compileTime"
             }
 
-            editEmbed(Embeds.info(
-                timeInfo,
-                output?.uploadIfToLong()
-            ))
+            editEmbed(
+                Embeds.info(
+                    timeInfo,
+                    output?.uploadIfToLong()
+                )
+            )
         }
     }
 }

@@ -48,7 +48,7 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
     description("Tag löschen")
     alias("remove-tag")
 
-    invoke(TagArgument("Der Tag den du löschen möchtest")) { tag ->
+    invoke(TagArgument) { tag ->
         if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
             respondEmbed(
                 Embeds.error(
