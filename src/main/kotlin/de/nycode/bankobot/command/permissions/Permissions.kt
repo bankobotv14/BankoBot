@@ -86,7 +86,8 @@ fun <S, A, COMMANDCONTEXT : CommandEvent>
  * Abstract implementation that acts as a bridge between [PermissionHandler] and [Precondition]
  */
 abstract class AbstractPermissionHandler : AbstractKordPrecondition(), PermissionHandler {
-    override suspend fun invoke(event: KordCommandEvent): Boolean {
+    override suspend fun invoke(event: CommandEvent): Boolean {
+        require(event is KordCommandEvent)
         val member = event.event.member ?: error("Missing member")
         val command = event.command
         val permission = command.permission

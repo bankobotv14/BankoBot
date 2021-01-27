@@ -141,11 +141,9 @@ object BankoBot : CoroutineScope {
                 kord {
                     literal("xd") or literal("!") or mention()
                 }
-
-                interaction()
             }
 
-            preconditions.add(BlacklistEnforcer)
+            eventFilters.add(BlacklistEnforcer)
             preconditions.add(permissionHandler)
             eventHandlers[KordContext] = BaseEventHandler(
                 KordContext,
@@ -155,11 +153,7 @@ object BankoBot : CoroutineScope {
 
             eventSources += InteractionEventSource(kord)
 
-            eventHandlers[InteractionContext] = BaseEventHandler(
-                InteractionContext,
-                InteractionContextConverter,
-                KordInteractionErrorHandler
-            )
+            eventHandlers[InteractionContext] = InteractionEventHandler
 
             moduleModifiers += forEachModule {
                 commands.values
