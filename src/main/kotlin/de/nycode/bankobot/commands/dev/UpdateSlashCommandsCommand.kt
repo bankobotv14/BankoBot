@@ -23,48 +23,41 @@
  *
  */
 
-package de.nycode.bankobot.commands.moderation
+package de.nycode.bankobot.commands.dev
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.BlacklistEntry
 import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
-import de.nycode.bankobot.commands.ModerationModule
+import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.permissions.PermissionLevel
+import de.nycode.bankobot.command.permissions.permission
+import de.nycode.bankobot.command.slashcommands.disableSlashCommands
+import de.nycode.bankobot.command.slashcommands.registerSlashCommands
+import de.nycode.bankobot.commands.BotOwnerModule
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.Embeds.editEmbed
+import de.nycode.bankobot.utils.doExpensiveTask
+import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.model.command.invoke
+import kotlinx.coroutines.flow.toList
 
-private val TargetArgument =
-    MemberArgument.asSlashArgument("Der User der auf die Blacklist gesetzt/von der Blacklist entfernt werden soll")
-
-@PublishedApi
 @AutoWired
-@ModuleName(ModerationModule)
-internal fun blacklistCommand() = command("blacklist") {
-    alias("bl", "schwarzeliste", "schwarze-liste")
+@ModuleName(BotOwnerModule)
+@OptIn(KordPreview::class)
+fun updateSlashCommandsCommand() = command("update-slash-commands") {
+    permission(PermissionLevel.BOT_OWNER)
+    description("Registriert alle Slash command erneut")
+    disableSlashCommands()
 
-    invoke(TargetArgument) { member ->
-        val entry = BankoBot.repositories.blacklist.findOneById(member.id.value)
-        if (entry == null) {
-            val newEntry = BlacklistEntry(member.id)
-            BankoBot.repositories.blacklist.save(newEntry)
+    invoke {
+        doExpensiveTask {
+//            kord.slashCommands
+//                .getGlobalApplicationCommands()
+//                .toList()
+//                .forEach { it.delete() }
+            processor.registerSlashCommands(kord)
 
-            respondEmbed(
-                Embeds.success(
-                    "Hinzugefügt",
-                    "${member.mention} wurde erfolgreich auf die Blacklist gesetzt."
-                )
-            )
-        } else {
-            BankoBot.repositories.blacklist.deleteOneById(entry.userId)
-
-            respondEmbed(Embeds.success(
-                "Entfernt",
-                "${member.mention} wurde erfolgreich von der Blacklist entfernt."
-            ))
+            editEmbed(Embeds.success("DONE"))
         }
     }
 }

@@ -27,9 +27,13 @@ package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
+import dev.kord.common.annotation.KordPreview
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.rest.builder.interaction.BaseApplicationBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -42,7 +46,16 @@ import dev.kord.x.emoji.Emojis
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
-private val JDoodleArgument = CodeBlockArgument.named("Code Block")
+private object JDoodleArgument :
+    AbstractSlashCommandArgument<CodeBlock, MessageCreateEvent>(
+        "Der Code der ausgeführt werden soll in einem CodeBlock",
+        CodeBlockArgument.named("Code-Block")
+    ) {
+    @OptIn(KordPreview::class)
+    override fun BaseApplicationBuilder.applyArgument() {
+        string(name, description)
+    }
+}
 
 @AutoWired
 @ModuleName(GeneralModule)
@@ -67,11 +80,13 @@ private suspend fun KordCommandEvent.executeViaJDoodle(argument: CodeBlock) {
                 editEmbed(Embeds.error("Heute leider nicht!", descriptionString))
             }
             JDOODLE_LANGUAGE_INVALID_CODE -> {
-                val descriptionString = "JDoodle sagt nein, du hast leider keine unterstützte Sprache angegeben."
+                val descriptionString =
+                    "JDoodle sagt nein, du hast leider keine unterstützte Sprache angegeben."
                 editEmbed(Embeds.error("Heute leider nicht!", descriptionString))
             }
             JDOODLE_CREDITS_USED_INVALID_CODE -> {
-                val descriptionString = "JDoodle sagt nein, alle Requests sind für heute genutzt worden."
+                val descriptionString =
+                    "JDoodle sagt nein, alle Requests sind für heute genutzt worden."
                 editEmbed(Embeds.error("Heute leider nicht!", descriptionString))
             }
             else -> {

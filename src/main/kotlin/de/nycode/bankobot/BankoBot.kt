@@ -30,6 +30,7 @@ import com.mongodb.MongoClientSettings
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
+import de.nycode.bankobot.command.slashcommands.*
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.docdex.DocDex
@@ -37,6 +38,7 @@ import de.nycode.bankobot.docdex.DocumentationModule
 import de.nycode.bankobot.listeners.autoUploadListener
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.utils.SnowflakeSerializer
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
@@ -68,6 +70,7 @@ object BankoBot : CoroutineScope {
 
     lateinit var availableDocs: List<String>
         private set
+
     @OptIn(KtorExperimentalAPI::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
@@ -118,13 +121,20 @@ object BankoBot : CoroutineScope {
         repositories.blacklist = database.getCollection("blacklist")
     }
 
+    @OptIn(KordPreview::class)
     private suspend fun initializeKord() {
         bot(kord) {
             configure() // add annotation processed commands
             prefix {
-                kord {
-                    mention() or literal("xd") or literal("!")
+                val prefixSupplier = {
+                    literal("xd") or literal("!")
                 }
+
+                kord {
+                    prefixSupplier() or mention()
+                }
+
+                interaction(prefixSupplier)
             }
 
             eventFilters.add(BlacklistEnforcer)
@@ -133,6 +143,14 @@ object BankoBot : CoroutineScope {
                 KordContext,
                 BankoBotContextConverter,
                 if (Config.ENVIRONMENT == Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
+            )
+
+            eventSources += InteractionEventSource(kord)
+
+            eventHandlers[InteractionContext] = BaseEventHandler(
+                InteractionContext,
+                InteractionContextConverter,
+                KordInteractionErrorHandler
             )
 
             // listeners
