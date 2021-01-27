@@ -30,6 +30,7 @@ import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -42,10 +43,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BlacklistEntry(@SerialName("_id") @Contextual val userId: Snowflake)
 
-internal object BlacklistEnforcer : AbstractKordFilter() {
-    override suspend fun invoke(event: MessageCreateEvent): Boolean {
+internal object BlacklistEnforcer : AbstractKordPrecondition() {
+    override suspend fun invoke(event: KordCommandEvent): Boolean {
         return if (Config.ENVIRONMENT != Environment.PRODUCTION) {
-            val id = event.member?.id ?: return false
+            val id = event.message.author?.id ?: return false
             BankoBot.repositories.blacklist.findOneById(id) == null
         } else {
             true // debug mode disabled blacklist

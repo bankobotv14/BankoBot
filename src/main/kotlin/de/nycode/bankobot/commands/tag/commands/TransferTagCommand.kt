@@ -66,6 +66,7 @@ import kotlin.time.seconds
 @ModuleName(TagModule)
 @Suppress("LongMethod", "MagicNumber")
 internal fun transferTagCommand(): CommandSet = command("transfer") {
+    val currentlyTransferring = mutableSetOf<String>()
     invoke(
         TagArgument,
         MemberArgument.named("Neuer-Besitzer")
@@ -78,6 +79,25 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
                     "Du bist nicht der Autor.",
                     "Du darfst diesen Tag nicht transferieren, da du ihn nicht erstellt hast!"
                 )
+            )
+            return@invoke
+        }
+
+        if (member.id == message.author?.id) {
+            respondEmbed(
+                Embeds
+                    .error("Nicht möglich!", "Du kannst den Tag nicht zu dir selbst transferieren!")
+            )
+            return@invoke
+        }
+
+        if (!currentlyTransferring.add(tag.name)) {
+            respondEmbed(
+                Embeds
+                    .error(
+                        "Wird bereits transferiert!",
+                        "Dieser Tag wird gerade transferiert! Bitte warte bis dies abgeschlossen ist!"
+                    )
             )
             return@invoke
         }
@@ -132,6 +152,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
                     editEmbed(cancelMessage(tag, member))
                 }
             }
+            currentlyTransferring.remove(tag.name)
         }
     }
 }

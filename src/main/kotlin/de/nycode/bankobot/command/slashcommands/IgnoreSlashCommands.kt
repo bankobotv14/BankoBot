@@ -34,8 +34,8 @@ private object IgnoreAsSlashCommand : Metadata.Key<Boolean>
 /**
  * Whether a Command supports slash commands or not
  */
-val Command<*>.supportsSlashCommands: Boolean
-    get() = data.metadata[IgnoreAsSlashCommand] != true
+val CommandBuilder<*, *, *>.supportsSlashCommands: Boolean
+    get() = metaData[IgnoreAsSlashCommand] != true
 
 /**
  * Disables slash commands for this command.

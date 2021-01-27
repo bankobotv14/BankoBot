@@ -31,29 +31,13 @@ import de.nycode.bankobot.config.Environment
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
-import dev.kord.x.commands.model.command.AliasInfo
-import dev.kord.x.commands.model.command.Command
-import dev.kord.x.commands.model.command.CommandEvent
-import dev.kord.x.commands.model.processor.CommandProcessor
-
-/**
- * Registers all registered command (except the ones using [disableSlashCommands]) to this [kord] instance.
- *
- * @see disableSlashCommands
- */
-suspend fun CommandProcessor.registerSlashCommands(kord: Kord) {
-    commands.values
-        .asSequence()
-        .filter { it.aliasInfo !is AliasInfo.Child }
-        .filter { it.supportsSlashCommands }
-        .forEach { kord.registerCommand(it) }
-}
+import dev.kord.x.commands.model.command.CommandBuilder
 
 /**
  * Registers [command] as a Slash Command for this kord instance.
  */
 @OptIn(KordPreview::class)
-private suspend fun Kord.registerCommand(command: Command<out CommandEvent>) {
+suspend fun Kord.registerCommand(command: CommandBuilder<*, *, *>) {
     val description = command.description ?: "<unknown description>"
     val creator: ApplicationCommandCreateBuilder.() -> Unit = {
         command.arguments.forEach {

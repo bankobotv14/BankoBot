@@ -48,6 +48,8 @@ import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
 import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.model.command.AliasInfo
+import dev.kord.x.commands.model.module.forEachModule
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
 import io.ktor.client.*
@@ -144,7 +146,7 @@ object BankoBot : CoroutineScope {
                 interaction()
             }
 
-            eventFilters.add(BlacklistEnforcer)
+            preconditions.add(BlacklistEnforcer)
             preconditions.add(permissionHandler)
             eventHandlers[KordContext] = BaseEventHandler(
                 KordContext,
@@ -159,6 +161,13 @@ object BankoBot : CoroutineScope {
                 InteractionContextConverter,
                 KordInteractionErrorHandler
             )
+
+            moduleModifiers += forEachModule {
+                commands.values
+                    .asSequence()
+                    .filter { it.supportsSlashCommands }
+                    .forEach { kord.registerCommand(it) }
+            }
 
             // listeners
             kord.apply {
