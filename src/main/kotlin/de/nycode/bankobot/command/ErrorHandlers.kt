@@ -62,7 +62,6 @@ abstract class AbstractErrorHandler :
 }
 
 object DebugErrorHandler : AbstractErrorHandler() {
-
     override suspend fun CommandProcessor.exceptionThrown(
         event: MessageCreateEvent,
         command: Command<KordCommandEvent>,
@@ -75,8 +74,7 @@ object DebugErrorHandler : AbstractErrorHandler() {
 /**
  * Implementation of [ErrorHandler] that reports an error log to hastebin.
  */
-object HastebinErrorHandler :
-    ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> {
+object HastebinErrorHandler : AbstractErrorHandler() {
     override suspend fun CommandProcessor.exceptionThrown(
         event: MessageCreateEvent,
         command: Command<KordCommandEvent>,
