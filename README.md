@@ -9,7 +9,9 @@
 - [Twitch API application](https://dev.twitch.tv/console) (Optional: Required for stream status feature)  
 - HTTPS Reverse Proxy (Optional: needed for Twitch)
 
-# Env config: https://github.com/bankobotv14/BankoBot/tree/main/src/main/kotlin/de/nycode/bankobot/config
+# Env config
+
+Example Config can be found [here](https://github.com/bankobotv14/BankoBot/blob/main/.env.example).
 
 # Build
 ```bash
