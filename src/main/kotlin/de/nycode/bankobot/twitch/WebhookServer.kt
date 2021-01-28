@@ -46,37 +46,38 @@ import io.ktor.util.*
 @OptIn(KtorExperimentalAPI::class)
 internal fun Kord.launchServer() = embeddedServer(CIO) {
     install(Routing) {
-
-        get {
-            when {
-                call.parameters.contains("hub.challenge") -> {
-                    call.respondText(call.parameters["hub.challenge"] ?: "lösch dich")
-                }
-                call.parameters.contains("hub.reason") -> {
-                    println("Could not create subscription: ${call.parameters["hub.reason"]}")
-                    call.respond(HttpStatusCode.OK)
-                }
-                else -> {
-                    call.respond(HttpStatusCode.OK, "Lösch dich")
-                }
-            }
-        }
-
-        post {
-            if (Config.ENVIRONMENT == Environment.PRODUCTION) {
-                val signature = call.request.header("X-Hub-Signature")
-                if (Config.WEBHOOK_SECRET.sha256() != signature) {
-                    call.respond(HttpStatusCode.BadRequest)
-                    return@post
+        route("twitch") {
+            get {
+                when {
+                    call.parameters.contains("hub.challenge") -> {
+                        call.respondText(call.parameters["hub.challenge"] ?: "lösch dich")
+                    }
+                    call.parameters.contains("hub.reason") -> {
+                        println("Could not create subscription: ${call.parameters["hub.reason"]}")
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    else -> {
+                        call.respond(HttpStatusCode.OK, "Lösch dich")
+                    }
                 }
             }
 
-            val stream = call.receive<TwitchStreamsResponse>()
-                .data
-                .firstOrNull()
-                ?: TwitchStream()
-            updatePresence(stream)
-            call.respond(HttpStatusCode.OK)
+            post {
+                if (Config.ENVIRONMENT == Environment.PRODUCTION) {
+                    val signature = call.request.header("X-Hub-Signature")
+                    if (Config.WEBHOOK_SECRET.sha256() != signature) {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@post
+                    }
+                }
+
+                val stream = call.receive<TwitchStreamsResponse>()
+                    .data
+                    .firstOrNull()
+                    ?: TwitchStream()
+                updatePresence(stream)
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
     install(ContentNegotiation) {

@@ -51,7 +51,6 @@ internal fun Kord.twitchIntegration() = this.launch {
     val stream = user.fetchStream(token)
     updatePresence(stream)
     subscribe(user.id, token)
-
 }
 
 /**

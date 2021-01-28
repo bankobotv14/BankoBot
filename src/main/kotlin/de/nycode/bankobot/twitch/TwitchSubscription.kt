@@ -38,6 +38,7 @@ import io.ktor.http.*
  * @param mode either "subscribe" or "unsubscribe"
  * @param token the twitch app access token to use
  */
+@Suppress("MagicNumber")
 internal suspend fun HttpClient.updateSubscription(userId: Int, mode: String, token: TwitchAccessTokenResponse) =
     post<HttpResponse>("https://api.twitch.tv/helix/webhooks/hub") {
         body = TwitchSubscriptionRequest {
