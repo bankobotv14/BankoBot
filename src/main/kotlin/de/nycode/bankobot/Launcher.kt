@@ -29,11 +29,12 @@ import ch.qos.logback.classic.Logger
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import io.sentry.Sentry
+import io.sentry.SentryOptions
 import org.slf4j.LoggerFactory
 
 suspend fun main() {
-    initializeLogging()
     initializeSentry()
+    initializeLogging()
     BankoBot()
 }
 
@@ -43,9 +44,12 @@ private fun initializeLogging() {
 }
 
 private fun initializeSentry() {
-    if (Config.ENVIRONMENT != Environment.DEVELOPMENT) {
-        Sentry.init { it.dsn = Config.SENTRY_TOKEN }
-    } else {
-        Sentry.init { it.dsn = "" }
-    }
+    val configure: (SentryOptions) -> Unit =
+        if (Config.ENVIRONMENT != Environment.DEVELOPMENT) {
+            { it.dsn = Config.SENTRY_TOKEN; }
+        } else {
+            { it.dsn = "" }
+        }
+
+    Sentry.init(configure)
 }
