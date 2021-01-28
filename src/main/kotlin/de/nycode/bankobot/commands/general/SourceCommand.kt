@@ -87,6 +87,6 @@ private suspend fun KordCommandEvent.specificCommand(name: String) {
 private suspend fun KordEvent.github() = respondEmbed(
     Embeds.info(
         "Source code",
-        "Dieser Bot ist Open Source du findest ihn auf [GitHub](https://github.com/NyCodeGHG/BankoBot/)"
+        "Dieser Bot ist Open Source du findest ihn auf [GitHub]($GITHUB_BASE)"
     )
 )
