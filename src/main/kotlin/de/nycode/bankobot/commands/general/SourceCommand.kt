@@ -79,7 +79,7 @@ private suspend fun KordCommandEvent.specificCommand(name: String) {
     respondEmbed(
         Embeds.info(
             "Source code",
-            "Den code zu diesem command findest du hier: [${stack.fileName}]($url)"
+            "Den Code zu diesem Command findest du hier: [${stack.fileName}]($url)"
         )
     )
 }
