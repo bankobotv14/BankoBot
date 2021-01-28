@@ -64,6 +64,13 @@ object Config {
     val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
 
     val DEV_GUILD_ID: Snowflake by getEnv(default = Snowflake(803209056730349568L)) { Snowflake(it) }
+
+    val TWITCH_CLIENT_ID: String by getEnv()
+    val TWITCH_CLIENT_SECRET: String by getEnv()
+    val TWITCH_CHANNEL: String by getEnv()
+
+    val WEBHOOK_URL: String by getEnv()
+    val WEBHOOK_SECRET: String by getEnv()
 }
 
 /**

@@ -23,31 +23,30 @@
  *
  */
 
-package de.nycode.bankobot.utils
+package de.nycode.bankobot.twitch
 
-import java.security.MessageDigest
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.config.Config
+import io.ktor.client.request.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
- * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
+ * Fetches an app access token from the Twitch API
  */
-fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
-    substring(0, maxLength - truncate.length) + truncate
-} else {
-    this
-}
+internal suspend fun fetchAccessToken(): TwitchAccessTokenResponse =
+    BankoBot.httpClient.post(TOKEN_URL) {
+        parameter(CLIENT_ID, Config.TWITCH_CLIENT_ID)
+        parameter(CLIENT_SECRET, Config.TWITCH_CLIENT_SECRET)
+        parameter(GRANT_TYPE, CLIENT_CREDENTIALS)
+    }
 
-fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
-    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
-
-fun String.asNullable(): String? = if (isBlank()) null else this
-
-fun String.sha256(): String {
-    return hashString(this, "SHA-256")
-}
-
-private fun hashString(input: String, algorithm: String): String {
-    return MessageDigest
-        .getInstance(algorithm)
-        .digest(input.toByteArray())
-        .fold("", { str, it -> str + "%02x".format(it) })
-}
+@Serializable
+data class TwitchAccessTokenResponse(
+    @SerialName("access_token")
+    val accessToken: String,
+    @SerialName("expires_in")
+    val expiresIn: Int,
+    @SerialName("token_type")
+    val tokenType: String
+)

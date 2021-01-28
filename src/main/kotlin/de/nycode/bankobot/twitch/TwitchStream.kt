@@ -23,31 +23,20 @@
  *
  */
 
-package de.nycode.bankobot.utils
+package de.nycode.bankobot.twitch
 
-import java.security.MessageDigest
+import kotlinx.serialization.Serializable
 
-/**
- * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
- */
-fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
-    substring(0, maxLength - truncate.length) + truncate
-} else {
-    this
-}
+@Serializable
+data class TwitchStreamsResponse(
+    val data: List<TwitchStream>
+)
 
-fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
-    joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
-
-fun String.asNullable(): String? = if (isBlank()) null else this
-
-fun String.sha256(): String {
-    return hashString(this, "SHA-256")
-}
-
-private fun hashString(input: String, algorithm: String): String {
-    return MessageDigest
-        .getInstance(algorithm)
-        .digest(input.toByteArray())
-        .fold("", { str, it -> str + "%02x".format(it) })
+@Serializable
+data class TwitchStream(
+    val type: String = "",
+    val title: String = ""
+) {
+    val isLive: Boolean
+        get() = type == "live"
 }
