@@ -37,9 +37,7 @@ import io.ktor.http.*
 object Config {
 
     val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(
-            it
-        )
+        Environment.valueOf(it)
     }
     val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
 

@@ -47,10 +47,11 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
-// Because we cannot opt in to kotlin experimental time
-// we need this wrapper
+/**
+ * Wrapper class to measure time in scripts
+ */
 @OptIn(ExperimentalTime::class)
-private class TimeMarker(private val start: TimeMark) {
+class TimeMarker(private val start: TimeMark) {
     private var end: Duration? = null
 
     @Suppress("unused") // Called in scripts
@@ -92,6 +93,7 @@ fun evalCommand() = command("ev") {
                     import de.nycode.bankobot.*
                     import de.nycode.bankobot.utils.*
                     import de.nycode.bankobot.command.*
+                    import de.nycode.bankobot.commands.dev.TimeMarker
                     import kotlinx.coroutines.runBlocking
 
                     timeMarker.markCompileEnd()
