@@ -1,0 +1,14 @@
+version: "3.1"
+
+services:
+  bot:
+    container_name: devcordbot
+    image: ghcr.io/bankobotv14/bankobot/bot
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - ./logs:/user/app/logs
+    env_file:
+      - .env
+    ports:
+      - 127.0.0.1:8085:80
