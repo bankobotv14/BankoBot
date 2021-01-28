@@ -8,8 +8,7 @@ services:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
       - ./logs:/user/app/logs
-      - ./.env:/usr/app/.env
-    env_file:
+    .env_file:
       - .env
     ports:
       - 127.0.0.1:8045:80

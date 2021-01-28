@@ -126,8 +126,7 @@ object BankoBot : CoroutineScope {
                 .uuidRepresentation(UuidRepresentation.STANDARD)
                 .applyConnectionString(ConnectionString(Config.MONGO_URL))
                 .build()
-        )
-            .coroutine
+        ).coroutine
         database = client.getDatabase(Config.MONGO_DATABASE)
 
         repositories.blacklist = database.getCollection("blacklist")
