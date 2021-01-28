@@ -64,7 +64,7 @@ internal suspend fun Kord.updatePresence(stream: TwitchStream) {
         }
     } else {
         editPresence {
-            playing("/help")
+            watching("/help")
         }
     }
 }
