@@ -23,26 +23,64 @@
  *
  */
 
-package de.nycode.bankobot.commands
+package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.docdex.*
 import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.MessageBehavior
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.rest.builder.interaction.BaseApplicationBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.Argument
+import dev.kord.x.commands.argument.extension.filter
 import dev.kord.x.commands.argument.extension.named
+import dev.kord.x.commands.argument.result.extension.FilterResult
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
 @Suppress("TopLevelPropertyNaming")
 const val DocsModule = "Documentation"
+
+private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
+    if (doc in BankoBot.availableDocs) {
+        FilterResult.Pass
+    } else {
+        FilterResult.Fail("Dieses Doc is unbekannt. (Siehe `xd list-docs`)")
+    }
+}
+
+@OptIn(KordPreview::class)
+private val JavaDocArgument = WordArgument
+    .named("javadoc-name")
+    .docsFilter()
+    .asSlashArgument("Das Javadoc in dem gesucht werden soll") {
+        choice("JDK 11 Dokumentation", "jdk11")
+        choice("JDK 8 Dokumentation", "jdk8")
+        choice("Spigot 1.16.5 Dokumentation", "spigot1165")
+        choice("Paper Spigot dokumentation", "paper")
+    }
+
+private object QueryArgument :
+    AbstractSlashCommandArgument<Reference, MessageCreateEvent>(
+        "Die Referenz zum Doc Eintrag nach dem gesucht werden soll",
+        ReferenceArgument.named("query")
+    ) {
+    @OptIn(KordPreview::class)
+    override fun BaseApplicationBuilder.applyArgument() {
+        string(name, description, required())
+    }
+}
 
 @AutoWired
 @ModuleName(DocsModule)
@@ -65,18 +103,9 @@ fun docsCommand() = command("docs") {
     alias("doc", "d")
 
     invoke(
-        WordArgument.named("javadoc-name"),
-        ReferenceArgument.named("query")
+        JavaDocArgument,
+        QueryArgument
     ) { doc, query ->
-        if (doc !in BankoBot.availableDocs) {
-            respondEmbed(
-                Embeds.error(
-                    "Unbekannte docs!",
-                    "Diese Docs kenn ich leider nicht."
-                )
-            )
-            return@invoke
-        }
         docs(doc, query)
     }
 }
@@ -258,4 +287,3 @@ private fun Embeds.doc(doc: DocumentedObject, creator: EmbedCreator): EmbedBuild
 }
 
 private const val EMBED_DESCRIPTION_MAX_LENGTH = 2048
-private const val EMBED_TITLE_MAX_LENGTH = 1024

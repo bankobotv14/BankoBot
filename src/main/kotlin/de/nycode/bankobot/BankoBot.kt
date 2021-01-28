@@ -27,20 +27,31 @@ package de.nycode.bankobot
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
+import com.mongodb.client.model.IndexOptions
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
+import de.nycode.bankobot.command.slashcommands.*
+import de.nycode.bankobot.commands.tag.TagAction
+import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.docdex.DocDex
 import de.nycode.bankobot.docdex.DocumentationModule
+import de.nycode.bankobot.listeners.autoUploadListener
 import de.nycode.bankobot.listeners.selfMentionListener
-import de.nycode.bankobot.utils.SnowflakeSerializer
+import de.nycode.bankobot.serialization.LocalDateTimeSerializer
+import de.nycode.bankobot.serialization.SnowflakeSerializer
+import de.nycode.bankobot.twitch.twitchIntegration
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
+import dev.kord.core.event.gateway.ReadyEvent
+import dev.kord.core.on
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
 import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.model.module.forEachModule
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
 import io.ktor.client.*
@@ -67,11 +78,13 @@ object BankoBot : CoroutineScope {
 
     lateinit var availableDocs: List<String>
         private set
+
     @OptIn(KtorExperimentalAPI::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
             val json = kotlinx.serialization.json.Json {
                 serializersModule = DocumentationModule
+                ignoreUnknownKeys = true
             }
             serializer = KotlinxSerializer(json)
         }
@@ -87,6 +100,8 @@ object BankoBot : CoroutineScope {
 
     class Repositories internal constructor() {
         lateinit var blacklist: CoroutineCollection<BlacklistEntry>
+        lateinit var tag: CoroutineCollection<TagEntry>
+        lateinit var tagActions: CoroutineCollection<TagAction>
     }
 
     suspend operator fun invoke() {
@@ -101,8 +116,10 @@ object BankoBot : CoroutineScope {
         initializeKord()
     }
 
-    private fun initializeDatabase() {
+    @Suppress("MagicNumber")
+    private suspend fun initializeDatabase() {
         registerSerializer(SnowflakeSerializer)
+        registerSerializer(LocalDateTimeSerializer)
 
         val client = KMongo.createClient(
             MongoClientSettings.builder()
@@ -114,14 +131,18 @@ object BankoBot : CoroutineScope {
         database = client.getDatabase(Config.MONGO_DATABASE)
 
         repositories.blacklist = database.getCollection("blacklist")
+        repositories.tag = database.getCollection("tag")
+        repositories.tag.ensureIndex(TagEntry::name, indexOptions = IndexOptions().unique(true))
+        repositories.tagActions = database.getCollection("tagActions")
     }
 
+    @OptIn(KordPreview::class)
     private suspend fun initializeKord() {
         bot(kord) {
             configure() // add annotation processed commands
             prefix {
                 kord {
-                    mention() or literal("xd") or literal("!")
+                    literal("xd") or literal("!") or mention()
                 }
             }
 
@@ -133,11 +154,26 @@ object BankoBot : CoroutineScope {
                 if (Config.ENVIRONMENT == Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
             )
 
+            eventSources += InteractionEventSource(kord)
+
+            eventHandlers[InteractionContext] = InteractionEventHandler
+
+            moduleModifiers += forEachModule {
+                commands.values
+                    .asSequence()
+                    .filter { it.supportsSlashCommands }
+                    .forEach { kord.registerCommand(it) }
+            }
+
             // listeners
             kord.apply {
                 selfMentionListener()
+                autoUploadListener()
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
+                }
+                on<ReadyEvent> {
+                    twitchIntegration()
                 }
             }
         }

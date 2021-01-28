@@ -25,6 +25,8 @@
 
 package de.nycode.bankobot.utils
 
+import java.security.MessageDigest
+
 /**
  * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
  */
@@ -36,3 +38,16 @@ fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLen
 
 fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
     joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
+
+fun String.asNullable(): String? = if (isBlank()) null else this
+
+fun String.sha256(): String {
+    return hashString(this, "SHA-256")
+}
+
+private fun hashString(input: String, algorithm: String): String {
+    return MessageDigest
+        .getInstance(algorithm)
+        .digest(input.toByteArray())
+        .fold("", { str, it -> str + "%02x".format(it) })
+}

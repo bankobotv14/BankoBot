@@ -28,6 +28,7 @@ package de.nycode.bankobot.commands.moderation
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.BlacklistEntry
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.ModerationModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
@@ -36,13 +37,16 @@ import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.kord.argument.MemberArgument
 import dev.kord.x.commands.model.command.invoke
 
+private val TargetArgument =
+    MemberArgument.asSlashArgument("Der User der auf die Blacklist gesetzt/von der Blacklist entfernt werden soll")
+
 @PublishedApi
 @AutoWired
 @ModuleName(ModerationModule)
 internal fun blacklistCommand() = command("blacklist") {
     alias("bl", "schwarzeliste", "schwarze-liste")
 
-    invoke(MemberArgument) { member ->
+    invoke(TargetArgument) { member ->
         val entry = BankoBot.repositories.blacklist.findOneById(member.id.value)
         if (entry == null) {
             val newEntry = BlacklistEntry(member.id)

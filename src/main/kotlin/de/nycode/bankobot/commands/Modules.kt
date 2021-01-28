@@ -36,3 +36,13 @@ const val GeneralModule: String = "General"
  * Name for moderation module.
  */
 const val ModerationModule: String = "Moderation"
+
+/**
+ * Name for the tag module.
+ */
+const val TagModule: String = "Tag"
+
+/**
+ * Name for the bot owner module
+ */
+const val BotOwnerModule: String = "BotOwner"

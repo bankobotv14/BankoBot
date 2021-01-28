@@ -23,21 +23,20 @@
  *
  */
 
-package de.nycode.bankobot.utils
+package de.nycode.bankobot.twitch
 
-import dev.kord.common.entity.Snowflake
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.Serializable
 
-object SnowflakeSerializer : KSerializer<Snowflake> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("Kord.Snowflake", PrimitiveKind.LONG)
+@Serializable
+data class TwitchStreamsResponse(
+    val data: List<TwitchStream>
+)
 
-    override fun deserialize(decoder: Decoder): Snowflake = Snowflake(decoder.decodeLong())
-
-    override fun serialize(encoder: Encoder, value: Snowflake) = encoder.encodeLong(value.value)
+@Serializable
+data class TwitchStream(
+    val type: String = "",
+    val title: String = ""
+) {
+    val isLive: Boolean
+        get() = type == "live"
 }

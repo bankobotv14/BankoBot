@@ -33,6 +33,7 @@ import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import dev.kord.common.entity.Snowflake
 import io.ktor.http.*
 
+@Suppress("MagicNumber")
 object Config {
 
     val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
@@ -42,7 +43,7 @@ object Config {
     }
     val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
 
-    val HASTE_HOST: String by getEnv(default = "https://paste.helpch.at/")
+    val HASTE_HOST: String by getEnv(default = "https://pasta.with-rice.by.devs-from.asia/")
 
     val SENTRY_TOKEN: String? by getEnv().optional()
     val DISCORD_TOKEN: String by getEnv()
@@ -52,8 +53,24 @@ object Config {
     val MONGO_DATABASE: String by getEnv()
     val MONGO_URL: String by getEnv()
 
+    val GOOGLE_API_KEY: String by getEnv()
+    val GOOGLE_CX_CODE: String by getEnv()
+
+    val JDOODLE_SECRET: String by getEnv()
+    val JDOODLE_ID: String by getEnv()
+    val JDOODLE_REQUESTS_MAX: Int by getEnv(default = 200) { it.toInt() }
+
     val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
     val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
+
+    val DEV_GUILD_ID: Snowflake by getEnv(default = Snowflake(803209056730349568L)) { Snowflake(it) }
+
+    val TWITCH_CLIENT_ID: String by getEnv()
+    val TWITCH_CLIENT_SECRET: String by getEnv()
+    val TWITCH_CHANNEL: String by getEnv()
+
+    val WEBHOOK_URL: String by getEnv()
+    val WEBHOOK_SECRET: String by getEnv()
 }
 
 /**

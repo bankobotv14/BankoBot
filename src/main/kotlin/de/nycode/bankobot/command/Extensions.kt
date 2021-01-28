@@ -27,8 +27,8 @@ package de.nycode.bankobot.command
 
 import de.nycode.bankobot.commands.general.sourceCommand
 import dev.kord.x.commands.kord.model.command.KordCommandBuilder
-import dev.kord.x.commands.kord.model.processor.KordContext
 import dev.kord.x.commands.model.command.Command
+import dev.kord.x.commands.model.context.CommonContext
 import dev.kord.x.commands.model.metadata.Metadata
 import dev.kord.x.commands.model.module.CommandSet
 
@@ -46,7 +46,7 @@ val Command<*>.callback: CommandExecutionCallback
  */
 fun command(
     name: String,
-    builder: KordCommandBuilder.() -> Unit
+    builder: KordCommandBuilder.() -> Unit,
 ): CommandSet {
     val stack = Exception().stackTrace[1]
     val fileName = builder.javaClass.name.substringBefore("Kt$")
@@ -54,5 +54,5 @@ fun command(
         metaData[CallbackData] = CommandExecutionCallback(stack, fileName)
         builder(this)
     }
-    return dev.kord.x.commands.model.module.command(KordContext, name, configure)
+    return dev.kord.x.commands.model.module.command(CommonContext, name, configure)
 }
