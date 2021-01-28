@@ -42,8 +42,11 @@ import de.nycode.bankobot.listeners.autoUploadListener
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
 import de.nycode.bankobot.serialization.SnowflakeSerializer
+import de.nycode.bankobot.twitch.twitchIntegration
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
+import dev.kord.core.event.gateway.ReadyEvent
+import dev.kord.core.on
 import dev.kord.x.commands.kord.bot
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
@@ -168,6 +171,9 @@ object BankoBot : CoroutineScope {
                 autoUploadListener()
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
+                }
+                on<ReadyEvent> {
+                    twitchIntegration()
                 }
             }
         }
