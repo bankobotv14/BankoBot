@@ -45,5 +45,3 @@ internal suspend fun KordEvent.checkEmpty(tag: Tag, name: String? = null): Boole
 }
 
 internal fun Tag.isEmpty() = this is EmptyTag
-
-internal fun Tag.isNotEmpty() = this.isEmpty().not()
