@@ -56,7 +56,8 @@ private val LOG = KotlinLogging.logger {}
 data class InteractionErrorEvent constructor(
     val response: InteractionResponseBehavior,
     val interaction: Interaction,
-    override val kord: Kord, override val shard: Int,
+    override val kord: Kord,
+    override val shard: Int
 ) : Event
 
 @OptIn(KordPreview::class)

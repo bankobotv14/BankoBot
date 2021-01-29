@@ -32,7 +32,6 @@ import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.reje
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.HastebinUtil
 import dev.kord.common.annotation.KordPreview
-import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.followUp
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
@@ -103,7 +102,8 @@ object KordInteractionErrorHandler :
                     "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
                 embeds.add(Embeds.loading(
                     "Ein Fehler ist aufgetreten!",
-                    "Bitte warte einen Augenblick, während ich versuche mehr Informationen über den Fehler herauszufinden"
+                    "Bitte warte einen Augenblick, während ich versuche mehr Informationen" +
+                            " über den Fehler herauszufinden"
                 ).toRequest())
             }
 

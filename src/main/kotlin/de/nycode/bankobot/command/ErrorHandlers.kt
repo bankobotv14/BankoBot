@@ -99,6 +99,7 @@ object HastebinErrorHandler : AbstractErrorHandler() {
                         event.message.content,
                         event.message.channel,
                         event.message.getGuild(),
+                        @Suppress("UnsafeCallOnNullableType") // slash commands will always have a member
                         event.message.getAuthorAsMember()!!,
                         Thread.currentThread()
                     )
@@ -110,7 +111,8 @@ object HastebinErrorHandler : AbstractErrorHandler() {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext") // How is StringBuilder#append() blocking?!
+    @Suppress("BlockingMethodInNonBlockingContext",
+        "LongParameterList") // How is StringBuilder#append() blocking?!
     suspend fun collectErrorInformation(
         e: Exception,
         content: String,
@@ -118,7 +120,7 @@ object HastebinErrorHandler : AbstractErrorHandler() {
         guild: Guild,
         executor: Member,
         thread: Thread,
-        coroutine: CoroutineContext? = null
+        coroutine: CoroutineContext? = null,
     ): String {
         val coroutineContext = coroutine ?: coroutineContext
         val kord = channel.kord
