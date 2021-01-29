@@ -28,9 +28,11 @@ package de.nycode.bankobot.command
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.createEmbed
 import de.nycode.bankobot.utils.HastebinUtil
+import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
-import dev.kord.core.entity.Message
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.Member
 import dev.kord.core.entity.channel.TextChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
@@ -41,6 +43,7 @@ import dev.kord.x.commands.model.processor.ErrorHandler
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 private val kordHandler = KordErrorHandler()
@@ -93,7 +96,11 @@ object HastebinErrorHandler : AbstractErrorHandler() {
                 HastebinUtil.postToHastebin(
                     collectErrorInformation(
                         exception,
-                        event.message,
+                        event.message.content,
+                        event.message.channel,
+                        event.message.getGuild(),
+                        @Suppress("UnsafeCallOnNullableType") // slash commands will always have a member
+                        event.message.getAuthorAsMember()!!,
                         Thread.currentThread()
                     )
                 )
@@ -104,23 +111,27 @@ object HastebinErrorHandler : AbstractErrorHandler() {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext") // How is StringBuilder#append() blocking?!
-    private suspend fun collectErrorInformation(
+    @Suppress("BlockingMethodInNonBlockingContext",
+        "LongParameterList") // How is StringBuilder#append() blocking?!
+    suspend fun collectErrorInformation(
         e: Exception,
-        context: Message,
+        content: String,
+        channel: MessageChannelBehavior,
+        guild: Guild,
+        executor: Member,
         thread: Thread,
+        coroutine: CoroutineContext? = null,
     ): String {
+        val coroutineContext = coroutine ?: coroutineContext
+        val kord = channel.kord
         val information = StringBuilder()
-        information.append("Input: ").append(context.content)
-        val channel = context.channel.asChannel()
-        val guild = context.getGuild()
+        information.append("Input: ").append(content).appendLine()
         information.append("Guild: ").append(guild.name).append('(').append(guild.id.value)
             .appendLine(')')
-        val executor = context.author
-        information.append("Executor: ").append('@').append(executor?.tag).append('(')
-            .append(executor?.id?.value)
+        information.append("Executor: ").append('@').append(executor.tag).append('(')
+            .append(executor.id.value)
             .appendLine(')')
-        val selfMember = guild.getMember(context.kord.selfId)
+        val selfMember = guild.getMember(kord.selfId)
         information.append("Permissions: ").appendLine(selfMember.getPermissions().code)
 
         if (channel is TextChannel) {
