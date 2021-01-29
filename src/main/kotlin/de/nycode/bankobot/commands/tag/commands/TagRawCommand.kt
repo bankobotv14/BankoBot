@@ -28,6 +28,8 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.commands.tag.TagEntry
+import de.nycode.bankobot.commands.tag.checkEmpty
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.HastebinUtil
@@ -43,6 +45,13 @@ internal fun tagRawCommand(): CommandSet = command("tag-raw") {
     alias("raw")
 
     invoke(TagArgument) { tag ->
+
+        if (checkEmpty(tag)) {
+            return@invoke
+        }
+
+        tag as TagEntry
+
         val url = HastebinUtil.postToHastebin(tag.text)
         respondEmbed(Embeds.info("Raw-Inhalt", "Den Raw-Inhalt vom Tag \"${tag.name}\" findest du [hier]($url)"))
     }

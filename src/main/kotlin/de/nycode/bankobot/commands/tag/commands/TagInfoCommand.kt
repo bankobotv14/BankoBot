@@ -31,6 +31,7 @@ import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.UseAction
+import de.nycode.bankobot.commands.tag.checkEmpty
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.annotation.AutoWired
@@ -49,6 +50,12 @@ private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
 internal fun tagInfoCommand(): CommandSet = command("tag-info") {
 
     invoke(TagArgument) { tag ->
+        if (checkEmpty(tag)) {
+            return@invoke
+        }
+
+        tag as TagEntry
+
         val uses = BankoBot.repositories.tagActions.countDocuments(UseAction::tagId eq tag.id).toInt()
 
         val author = kord.getUser(tag.author)
