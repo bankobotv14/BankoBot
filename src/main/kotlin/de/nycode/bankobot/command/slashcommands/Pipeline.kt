@@ -32,7 +32,6 @@ import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.reje
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.HastebinUtil
 import dev.kord.common.annotation.KordPreview
-import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.followUp
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
