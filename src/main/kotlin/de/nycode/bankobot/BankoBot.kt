@@ -171,8 +171,10 @@ object BankoBot : CoroutineScope {
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
                 }
-                on<ReadyEvent> {
-                    twitchIntegration()
+                if (Config.ENVIRONMENT == Environment.PRODUCTION) {
+                    on<ReadyEvent> {
+                        twitchIntegration()
+                    }
                 }
             }
         }
