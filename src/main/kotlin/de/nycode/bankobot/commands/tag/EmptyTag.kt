@@ -25,29 +25,23 @@
 
 package de.nycode.bankobot.commands.tag
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
-import dev.kord.common.annotation.KordPreview
-import dev.kord.rest.builder.interaction.BaseApplicationBuilder
-import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.tryMap
-import dev.kord.x.commands.argument.result.extension.MapResult
-import dev.kord.x.commands.argument.text.WordArgument
-import org.litote.kmongo.eq
+import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.Embeds.respondEmbed
+import dev.kord.x.commands.kord.model.KordEvent
 
-val TagArgument: Argument<Tag, Any?> = InternalTagArgument()
+object EmptyTag : Tag
 
-@OptIn(KordPreview::class)
-internal class InternalTagArgument(
-    description: String = "Der Tag"
-) : AbstractSlashCommandArgument<Tag, Any?>(description, WordArgument.named("tag").tagMap()) {
-    override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description, required())
+internal suspend fun KordEvent.checkEmpty(tag: Tag, name: String? = null): Boolean {
+    val isEmpty = tag.isEmpty()
+
+    if (isEmpty) {
+        if (name == null) {
+            respondEmbed(Embeds.error("Tag nicht gefunden!", "Der Tag konnte nicht gefunden werden!"))
+        } else {
+            respondEmbed(Embeds.error("Tag nicht gefunden!", "Der Tag \"$name\" konnte nicht gefunden werden!"))
+        }
     }
+    return isEmpty
 }
 
-private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
-    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-    MapResult.Pass(tag ?: EmptyTag)
-}
+internal fun Tag.isEmpty() = this is EmptyTag

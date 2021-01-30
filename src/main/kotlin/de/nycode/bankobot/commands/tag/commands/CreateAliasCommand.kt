@@ -57,6 +57,13 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
         TagArgument,
         WordArgument.named("Alias").asSlashArgument("Alias")
     ) { tag, aliasName ->
+
+        if (checkEmpty(tag)) {
+            return@invoke
+        }
+
+        tag as TagEntry
+
         val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
         if (aliasTag != null) {
             respondEmbed(
