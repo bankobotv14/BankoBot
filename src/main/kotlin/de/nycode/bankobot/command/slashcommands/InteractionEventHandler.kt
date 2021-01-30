@@ -32,9 +32,13 @@ import dev.kord.common.entity.optional.Optional
 import dev.kord.common.entity.optional.OptionalSnowflake
 import dev.kord.common.entity.optional.optional
 import dev.kord.common.entity.optional.optionalSnowflake
+import dev.kord.core.Kord
+import dev.kord.core.behavior.InteractionResponseBehavior
 import dev.kord.core.cache.data.MessageData
 import dev.kord.core.cache.data.ReactionData
 import dev.kord.core.entity.Message
+import dev.kord.core.entity.interaction.Interaction
+import dev.kord.core.event.Event
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.argument.Argument
@@ -49,6 +53,14 @@ import mu.KotlinLogging
 private val LOG = KotlinLogging.logger {}
 
 @OptIn(KordPreview::class)
+data class InteractionErrorEvent constructor(
+    val response: InteractionResponseBehavior,
+    val interaction: Interaction,
+    override val kord: Kord,
+    override val shard: Int
+) : Event
+
+@OptIn(KordPreview::class)
 object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
     override val context: ProcessorContext<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent>
         get() = InteractionContext
@@ -59,12 +71,13 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
 
         val interaction = event.interaction
 
-        interaction.acknowledge(true)
+        val ack = interaction.acknowledge(true)
+        val errorEvent by lazy { InteractionErrorEvent(ack, interaction, event.kord, event.shard) }
 
         val commandName = interaction.command.name
         val command = getCommand(context, commandName) ?: return with(KordInteractionErrorHandler) {
             notFound(
-                event,
+                errorEvent,
                 commandName
             )
         }
@@ -85,6 +98,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         @Suppress("UNCHECKED_CAST")
         val arguments =
             command.arguments as List<Argument<*, MessageCreateEvent>>
+        val invoke by lazy { interaction.buildInvokeString() }
 
         val result =
             parseArguments(interaction.command, arguments, messageCreate)
@@ -93,8 +107,8 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
             is ArgumentsResult.Failure -> return with(KordInteractionErrorHandler) {
                 val rejection = ErrorHandler.RejectedArgument(
                     command,
-                    event,
-                    "<slash command invocation>",
+                    errorEvent,
+                    invoke,
                     result.atChar,
                     result.argument,
                     result.failure.reason
@@ -108,7 +122,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
             command.invoke(commandEvent, items)
         } catch (exception: Exception) {
             LOG.catching(exception)
-            with(KordInteractionErrorHandler) { exceptionThrown(event, command, exception) }
+            with(KordInteractionErrorHandler) { exceptionThrown(errorEvent, command, exception) }
         }
     }
 
@@ -118,12 +132,18 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         event: MessageCreateEvent,
     ): ArgumentsResult<MessageCreateEvent> {
         val items = mutableListOf<Any?>()
+        var indexTrim = 2 + command.name.length // /<command>
         arguments.forEachIndexed { index, argument ->
+            val option = command.options[argument.name.toLowerCase()]
+            // each argument is prefix by " <name>:"
+            indexTrim += argument.name.length + 2
             val argumentText =
-                command.options[argument.name.toLowerCase()]?.value?.toString() ?: "" // "" for optionals
+                option?.value?.toString()
+                    ?: "" // "" for optionals
             when (val result = argument.parse(argumentText, 0, event)) {
                 is ArgumentResult.Success -> {
                     items += result.item
+                    indexTrim += result.newIndex + 1 // space after the argument
                 }
                 is ArgumentResult.Failure -> return ArgumentsResult.Failure(
                     event,
@@ -132,7 +152,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
                     arguments,
                     index,
                     argumentText,
-                    result.atChar
+                    result.atChar + indexTrim
                 )
             }
         }
@@ -166,4 +186,20 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         val member = runBlocking { interaction.member.asMember() }
         return MessageCreateEvent(message, interaction.guildId, member, shard, interaction.supplier)
     }
+}
+
+@OptIn(KordPreview::class)
+private fun Interaction.buildInvokeString(): String {
+    val builder = StringBuilder("/")
+    builder.append(command.name) // command
+
+    val options =
+        command.options
+            .toList()
+            .joinToString(prefix = " ", separator = " ") { (name, value) ->
+                "$name: ${value.value}"
+            }
+    builder.append(options)
+
+    return builder.toString()
 }

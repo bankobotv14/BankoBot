@@ -25,17 +25,23 @@
 
 package de.nycode.bankobot.command.slashcommands
 
+import de.nycode.bankobot.command.ERROR_MARKER
+import de.nycode.bankobot.command.HastebinErrorHandler
 import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.exceptionThrown
 import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.rejectArgument
-import de.nycode.bankobot.utils.EMBED_TITLE_MAX_LENGTH
-import de.nycode.bankobot.utils.limit
+import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.HastebinUtil
 import dev.kord.common.annotation.KordPreview
+import dev.kord.core.behavior.edit
+import dev.kord.core.behavior.followUp
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.processor.CommandProcessor
 import dev.kord.x.commands.model.processor.ErrorHandler
 import dev.kord.x.commands.model.processor.ProcessorContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * Command context for slash command.
@@ -52,22 +58,79 @@ object InteractionContext :
  */
 @OptIn(KordPreview::class)
 object KordInteractionErrorHandler :
-    ErrorHandler<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent> {
+    ErrorHandler<InteractionErrorEvent, MessageCreateEvent, KordCommandEvent> {
+
+    private const val backtick = "`"
+    private const val backtickEscape = "\u200E`"
 
     override suspend fun CommandProcessor.rejectArgument(
-        rejection: ErrorHandler.RejectedArgument<InteractionCreateEvent,
+        rejection: ErrorHandler.RejectedArgument<InteractionErrorEvent,
                 MessageCreateEvent,
                 KordCommandEvent>,
     ) {
-        rejection.event.interaction.channel.createMessage(rejection.message)
+        with(rejection) {
+            respondError(
+                event,
+                eventText,
+                atChar,
+                message
+            )
+        }
     }
 
     override suspend fun CommandProcessor.exceptionThrown(
-        event: InteractionCreateEvent,
+        event: InteractionErrorEvent,
         command: dev.kord.x.commands.model.command.Command<KordCommandEvent>,
         exception: Exception,
     ) {
-        event.interaction.channel.createMessage(exception.stackTraceToString().limit(
-            EMBED_TITLE_MAX_LENGTH))
+        val interaction = event.interaction
+        val coroutine = coroutineContext
+        coroutineScope {
+            val logLink = async {
+                HastebinUtil.postToHastebin(HastebinErrorHandler.collectErrorInformation(
+                    exception,
+                    "<slash command invocation>",
+                    interaction.channel.asChannel(),
+                    interaction.guild.asGuild(),
+                    interaction.member.asMember(),
+                    Thread.currentThread(),
+                    coroutine
+                ))
+            }
+            event.response.followUp {
+                // Pingy ping!
+                content =
+                    "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
+                embeds.add(Embeds.loading(
+                    "Ein Fehler ist aufgetreten!",
+                    "Bitte warte einen Augenblick, während ich versuche mehr Informationen" +
+                            " über den Fehler herauszufinden"
+                ).toRequest())
+            }.edit {
+                val hastebinLink = logLink.await()
+                content =
+                    "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
+                embeds = mutableListOf(Embeds.error(
+                    "Ein Fehler ist aufgetreten!",
+                    "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
+                ))
+            }
+        }
+    }
+
+    private suspend inline fun respondError(
+        event: InteractionErrorEvent,
+        text: String,
+        characterIndex: Int,
+        message: String,
+    ) {
+        event.response.followUp {
+            content = """
+            <|>```
+            <|>${text.replace(backtick, backtickEscape)}
+            <|>${"-".repeat(characterIndex)}^ ${message.replace(backtick, backtickEscape)}
+            <|>```
+            """.trimMargin("<|>").trim()
+        }
     }
 }
