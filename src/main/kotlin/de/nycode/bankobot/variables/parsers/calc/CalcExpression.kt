@@ -48,7 +48,10 @@ class CalcExpression(val input: String) : Expression<BigDecimal> {
         }
 
         val tokens = CommonTokenStream(lexer)
-        val parser = CalculationParser(tokens)
+        val parser = CalculationParser(tokens).apply {
+            removeErrorListeners()
+            addErrorListener(ThrowingErrorListener)
+        }
         val tree = parser.root()
         result = CalcExpressionVisitor().visit(tree)
         return result as BigDecimal
