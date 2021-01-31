@@ -25,20 +25,9 @@
 
 package de.nycode.bankobot.variables
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import java.math.BigDecimal
-import kotlin.test.Test
+import de.nycode.bankobot.commands.tag.TagEntry
+import de.nycode.bankobot.variables.VariableParser.replaceVariables
 
-internal class VariableParserTest {
-
-    @Test
-    fun testParse() {
-        val input = "$(calc 1+1)"
-
-        val expression = VariableParser.parseExpression<BigDecimal>(input)
-        assertThat(expression?.getResult())
-            .isEqualTo(BigDecimal(2))
-    }
-
+fun TagEntry.format(): String {
+    return this.text.replaceVariables()
 }

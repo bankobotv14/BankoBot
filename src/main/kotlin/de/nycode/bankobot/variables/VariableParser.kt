@@ -27,9 +27,9 @@ package de.nycode.bankobot.variables
 
 import de.nycode.bankobot.variables.parsers.CalcExpressionParser
 
-class VariableParser {
+object VariableParser {
 
-    private val expressionRegex = "\\\$\\(([a-zA-Z0-9_-]+)( [a-zA-Z0-9:/.]+)?\\)".toRegex()
+    private val expressionRegex = "\\\$\\(([a-zA-Z0-9_-]+)(?: (.+))?\\)".toRegex()
     private val expressions = listOf<ExpressionParser<*>>(CalcExpressionParser)
 
     /**
@@ -38,11 +38,30 @@ class VariableParser {
      * @return either the parsed expression or null if the [input] is not a valid expression
      * @param input the input to parse the expression form
      */
+    @Suppress("UNCHECKED_CAST")
     fun <R> parseExpression(input: String): Expression<R>? {
-        val result = expressionRegex.find(input) ?: return null
+        val result = expressionRegex.find(input)
+            ?: return null
 
         val (command, arguments) = result.destructured
 
-        return null
+        val parser = expressions.find { it.isMatching(command) } ?: return null
+
+        return parser.parseExpression(arguments) as Expression<R>
     }
+
+    fun String.replaceVariables(): String {
+        val replacements = mutableMapOf<String, String>()
+        expressionRegex.findAll(this)
+            .forEach {
+                val expression = parseExpression<Any>(it.value) ?: return@forEach
+                replacements[it.value] = expression.getResult().toString()
+            }
+        var replacementString = this
+        replacements.forEach { (key, value) ->
+            replacementString = replacementString.replace(key, value)
+        }
+        return replacementString
+    }
+
 }

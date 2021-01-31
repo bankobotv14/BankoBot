@@ -31,6 +31,7 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.UseAction
+import de.nycode.bankobot.variables.format
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
@@ -47,7 +48,7 @@ internal fun tagCommand(): CommandSet = command("tag") {
     description("Einen Tag anzeigen")
 
     invoke(TagArgument) { tag ->
-        respond(tag.text)
+        respond(tag.format())
 
         val useAction = UseAction(
             author = message.author?.id ?: return@invoke,

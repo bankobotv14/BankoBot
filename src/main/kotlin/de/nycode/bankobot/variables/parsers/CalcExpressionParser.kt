@@ -34,7 +34,7 @@ object CalcExpressionParser : ExpressionParser<BigDecimal> {
         return command in arrayOf("calc", "calculate", "math")
     }
 
-    override suspend fun parseExpression(input: String): Expression<BigDecimal> {
+    override fun parseExpression(input: String): Expression<BigDecimal> {
         return CalcExpression(input)
     }
 }
