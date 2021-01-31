@@ -15,7 +15,7 @@ Example Config can be found [here](https://github.com/bankobotv14/BankoBot/blob/
 
 # Build
 ```bash
-./gradlew build
+gradlew build
 ```
 
 # Run
