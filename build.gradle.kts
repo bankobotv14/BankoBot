@@ -76,6 +76,7 @@ dependencies {
     implementation("io.sentry", "sentry-logback", "3.2.0")
 
     implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.60.2")
+    implementation("net.sf.trove4j", "trove4j", "3.0.3")
 
     detektPlugins("io.gitlab.arturbosch.detekt", "detekt-formatting", "1.15.0")
 

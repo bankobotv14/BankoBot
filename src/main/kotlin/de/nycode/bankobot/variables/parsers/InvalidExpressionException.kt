@@ -25,42 +25,4 @@
 
 package de.nycode.bankobot.variables.parsers
 
-import de.nycode.bankobot.variables.CalculationLexer
-import de.nycode.bankobot.variables.CalculationParser
-import de.nycode.bankobot.variables.Expression
-import org.antlr.v4.runtime.*
-
-class CalcExpression(val input: String) : Expression<Int>() {
-
-    private var result: Int? = null
-
-    override fun getResult(): Int {
-        if (result != null)
-            return result as Int
-
-        val input = CharStreams.fromString(input)
-        val lexer = CalculationLexer(input).apply {
-            removeErrorListeners()
-            addErrorListener(ThrowingErrorListener)
-        }
-
-        val tokens = CommonTokenStream(lexer)
-        val parser = CalculationParser(tokens)
-        val tree = parser.root()
-        result = CalcExpressionVisitor().visit(tree)
-        return result as Int
-    }
-}
-
-internal object ThrowingErrorListener : BaseErrorListener() {
-    override fun syntaxError(
-        recognizer: Recognizer<*, *>?,
-        offendingSymbol: Any?,
-        line: Int,
-        charPositionInLine: Int,
-        msg: String?,
-        e: RecognitionException?
-    ) {
-        throw InvalidExpressionException(msg, charPositionInLine)
-    }
-}
+class InvalidExpressionException(reason: String?, val position: Int, cause: Throwable? = null) : Exception(reason, cause)

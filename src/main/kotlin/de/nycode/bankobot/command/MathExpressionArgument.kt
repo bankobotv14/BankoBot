@@ -23,10 +23,30 @@
  *
  */
 
-package de.nycode.bankobot.variables
+package de.nycode.bankobot.command
 
-abstract class Expression<R> {
+import de.nycode.bankobot.variables.parsers.CalcExpression
+import de.nycode.bankobot.variables.parsers.InvalidExpressionException
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.argument.Argument
+import dev.kord.x.commands.argument.result.ArgumentResult
 
-    abstract fun getResult(): R?
+val MathExpressionArgument: Argument<CalcExpression, MessageCreateEvent> =
+    InternalMathExpressionArgument()
 
+internal class InternalMathExpressionArgument(override val name: String = "expression") :
+    Argument<CalcExpression, MessageCreateEvent> {
+    override suspend fun parse(
+        text: String,
+        fromIndex: Int,
+        context: MessageCreateEvent
+    ): ArgumentResult<CalcExpression> {
+        val expression = CalcExpression(text.substring(fromIndex))
+        return try {
+            expression.getResult()
+            ArgumentResult.Success(expression, text.length - fromIndex)
+        }catch (exception: InvalidExpressionException) {
+            ArgumentResult.Failure(exception.message ?: "Unknown error", exception.position)
+        }
+    }
 }
