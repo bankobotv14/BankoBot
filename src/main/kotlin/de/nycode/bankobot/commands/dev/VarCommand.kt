@@ -23,18 +23,26 @@
  *
  */
 
-package de.nycode.bankobot.variables.parsers
+package de.nycode.bankobot.commands.dev
 
-import de.nycode.bankobot.variables.Expression
-import de.nycode.bankobot.variables.ExpressionParser
-import java.math.BigDecimal
+import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.permissions.PermissionLevel
+import de.nycode.bankobot.command.permissions.permission
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
+import de.nycode.bankobot.commands.BotOwnerModule
+import de.nycode.bankobot.variables.VariableParser.replaceVariables
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.text.StringArgument
+import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.CommandSet
 
-object CalcExpressionParser : ExpressionParser<BigDecimal> {
-    override fun isMatching(command: String): Boolean {
-        return command in arrayOf("calc", "calculate", "math")
-    }
-
-    override fun parseExpression(input: String): Expression<BigDecimal> {
-        return CalcExpression(input)
+@PublishedApi
+@ModuleName(BotOwnerModule)
+@AutoWired
+internal fun varCommand(): CommandSet = command("var") {
+    permission(PermissionLevel.BOT_OWNER)
+    invoke(StringArgument.asSlashArgument("Der Ausdruck")) {
+        respond(it.replaceVariables())
     }
 }

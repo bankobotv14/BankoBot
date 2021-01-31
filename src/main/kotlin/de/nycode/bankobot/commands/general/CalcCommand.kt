@@ -33,7 +33,7 @@ import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.HastebinUtil
-import de.nycode.bankobot.variables.parsers.CalcExpression
+import de.nycode.bankobot.variables.parsers.calc.CalcExpression
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.interaction.BaseApplicationBuilder

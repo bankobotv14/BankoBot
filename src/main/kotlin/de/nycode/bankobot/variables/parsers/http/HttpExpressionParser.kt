@@ -23,46 +23,24 @@
  *
  */
 
-package de.nycode.bankobot.variables.parsers
+package de.nycode.bankobot.variables.parsers.http
 
-import de.nycode.bankobot.variables.CalculationLexer
-import de.nycode.bankobot.variables.CalculationParser
 import de.nycode.bankobot.variables.Expression
-import org.antlr.v4.runtime.*
-import java.math.BigDecimal
+import de.nycode.bankobot.variables.ExpressionParser
+import de.nycode.bankobot.variables.parsers.InvalidExpressionException
 
-class CalcExpression(val input: String) : Expression<BigDecimal> {
+object HttpExpressionParser : ExpressionParser<String> {
+    private val urlRegex = "^https://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
 
-    private var result: BigDecimal? = null
-
-    override fun getResult(): BigDecimal {
-        if (result != null) {
-            return result as BigDecimal
-        }
-
-        val input = CharStreams.fromString(input)
-        val lexer = CalculationLexer(input).apply {
-            removeErrorListeners()
-            addErrorListener(ThrowingErrorListener)
-        }
-
-        val tokens = CommonTokenStream(lexer)
-        val parser = CalculationParser(tokens)
-        val tree = parser.root()
-        result = CalcExpressionVisitor().visit(tree)
-        return result as BigDecimal
+    override fun isMatching(command: String): Boolean {
+        return command in arrayOf("http")
     }
-}
 
-internal object ThrowingErrorListener : BaseErrorListener() {
-    override fun syntaxError(
-        recognizer: Recognizer<*, *>?,
-        offendingSymbol: Any?,
-        line: Int,
-        charPositionInLine: Int,
-        msg: String?,
-        e: RecognitionException?
-    ) {
-        throw InvalidExpressionException(msg, charPositionInLine)
+    override fun parseExpression(input: String): Expression<String> {
+        if (!input.matches(urlRegex)) {
+            throw InvalidExpressionException("Invalid url! (Only https is allowed!)", 0)
+        }
+
+        return HttpExpression(input)
     }
 }

@@ -23,30 +23,31 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.variables.parsers.http
 
-import de.nycode.bankobot.variables.parsers.InvalidExpressionException
-import de.nycode.bankobot.variables.parsers.calc.CalcExpression
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.result.ArgumentResult
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.variables.Expression
+import io.ktor.client.request.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-val MathExpressionArgument: Argument<CalcExpression, MessageCreateEvent> =
-    InternalMathExpressionArgument()
+class HttpExpression(val url: String) : Expression<String> {
 
-internal class InternalMathExpressionArgument(override val name: String = "expression") :
-    Argument<CalcExpression, MessageCreateEvent> {
-    override suspend fun parse(
-        text: String,
-        fromIndex: Int,
-        context: MessageCreateEvent
-    ): ArgumentResult<CalcExpression> {
-        val expression = CalcExpression(text.substring(fromIndex))
-        return try {
-            expression.getResult()
-            ArgumentResult.Success(expression, text.length - fromIndex)
-        } catch (exception: InvalidExpressionException) {
-            ArgumentResult.Failure(exception.message ?: "Unknown error", exception.position)
+    private var result: String? = null
+    private var job: Job? = null
+
+    init {
+        job = GlobalScope.launch {
+            result = BankoBot.httpClient.get<String>(url)
         }
+    }
+
+    override fun getResult(): String? {
+        if (result == null) {
+            runBlocking { job?.join() }
+        }
+        return result
     }
 }

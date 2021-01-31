@@ -23,30 +23,18 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.variables.parsers.calc
 
-import de.nycode.bankobot.variables.parsers.InvalidExpressionException
-import de.nycode.bankobot.variables.parsers.calc.CalcExpression
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.result.ArgumentResult
+import de.nycode.bankobot.variables.Expression
+import de.nycode.bankobot.variables.ExpressionParser
+import java.math.BigDecimal
 
-val MathExpressionArgument: Argument<CalcExpression, MessageCreateEvent> =
-    InternalMathExpressionArgument()
+object CalcExpressionParser : ExpressionParser<BigDecimal> {
+    override fun isMatching(command: String): Boolean {
+        return command in arrayOf("calc", "calculate", "math")
+    }
 
-internal class InternalMathExpressionArgument(override val name: String = "expression") :
-    Argument<CalcExpression, MessageCreateEvent> {
-    override suspend fun parse(
-        text: String,
-        fromIndex: Int,
-        context: MessageCreateEvent
-    ): ArgumentResult<CalcExpression> {
-        val expression = CalcExpression(text.substring(fromIndex))
-        return try {
-            expression.getResult()
-            ArgumentResult.Success(expression, text.length - fromIndex)
-        } catch (exception: InvalidExpressionException) {
-            ArgumentResult.Failure(exception.message ?: "Unknown error", exception.position)
-        }
+    override fun parseExpression(input: String): Expression<BigDecimal> {
+        return CalcExpression(input)
     }
 }

@@ -23,10 +23,11 @@
  *
  */
 
-package de.nycode.bankobot.variables.parsers
+package de.nycode.bankobot.variables.parsers.calc
 
 import de.nycode.bankobot.variables.CalculationBaseVisitor
 import de.nycode.bankobot.variables.CalculationParser
+import de.nycode.bankobot.variables.parsers.InvalidExpressionException
 import java.math.BigDecimal
 
 const val MAXIMUM_POW_VALUE = 999999999

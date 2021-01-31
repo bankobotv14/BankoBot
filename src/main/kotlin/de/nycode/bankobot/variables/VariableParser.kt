@@ -25,12 +25,13 @@
 
 package de.nycode.bankobot.variables
 
-import de.nycode.bankobot.variables.parsers.CalcExpressionParser
+import de.nycode.bankobot.variables.parsers.calc.CalcExpressionParser
+import de.nycode.bankobot.variables.parsers.http.HttpExpressionParser
 
 object VariableParser {
 
     private val expressionRegex = "\\\$\\(([a-zA-Z0-9_-]+)(?: (.+))?\\)".toRegex()
-    private val expressions = listOf<ExpressionParser<*>>(CalcExpressionParser)
+    private val expressions = listOf<ExpressionParser<*>>(CalcExpressionParser, HttpExpressionParser)
 
     /**
      * Parses an [Expression] out of a string matching the following form
