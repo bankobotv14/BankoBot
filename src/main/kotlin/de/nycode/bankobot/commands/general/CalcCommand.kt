@@ -53,6 +53,8 @@ private object CalcArgument : AbstractSlashCommandArgument<CalcExpression, Messa
     }
 }
 
+const val DISCORD_FIELD_MAX_LENGTH = 1024
+
 @PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
@@ -63,7 +65,7 @@ internal fun calcCommand(): CommandSet = command("calc") {
     invoke(CalcArgument) { expression ->
         var result = expression.getResult().toString()
 
-        if (result.length > 1024) {
+        if (result.length > DISCORD_FIELD_MAX_LENGTH) {
             result = HastebinUtil.postToHastebin(result)
         }
 

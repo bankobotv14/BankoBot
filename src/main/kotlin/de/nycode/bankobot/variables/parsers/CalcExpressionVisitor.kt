@@ -29,7 +29,10 @@ import de.nycode.bankobot.variables.CalculationBaseVisitor
 import de.nycode.bankobot.variables.CalculationParser
 import java.math.BigDecimal
 
+const val MAXIMUM_POW_VALUE = 999999999
+
 class CalcExpressionVisitor : CalculationBaseVisitor<BigDecimal>() {
+
     override fun visitDivide(ctx: CalculationParser.DivideContext): BigDecimal {
         return visit(ctx.left) / visit(ctx.right)
     }
@@ -58,7 +61,7 @@ class CalcExpressionVisitor : CalculationBaseVisitor<BigDecimal>() {
         val left = visit(ctx.left)
         val right = visit(ctx.right)
 
-        if (right > 999999999.toBigDecimal()) {
+        if (right > MAXIMUM_POW_VALUE.toBigDecimal()) {
             throw InvalidExpressionException("$right is higher than the max of 999999999", ctx.right.ruleIndex)
         }
 

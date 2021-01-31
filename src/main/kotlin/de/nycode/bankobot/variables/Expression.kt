@@ -25,8 +25,7 @@
 
 package de.nycode.bankobot.variables
 
-abstract class Expression<R> {
+interface Expression<R> {
 
-    abstract fun getResult(): R?
-
+    fun getResult(): R?
 }

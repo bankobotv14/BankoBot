@@ -34,5 +34,4 @@ interface ExpressionParser<R> {
     fun isMatching(command: String): Boolean
 
     suspend fun parseExpression(input: String): Expression<R>
-
 }

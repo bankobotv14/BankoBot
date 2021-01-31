@@ -25,4 +25,5 @@
 
 package de.nycode.bankobot.variables.parsers
 
-class InvalidExpressionException(reason: String?, val position: Int, cause: Throwable? = null) : Exception(reason, cause)
+class InvalidExpressionException(reason: String?, val position: Int, cause: Throwable? = null) :
+    Exception(reason, cause)

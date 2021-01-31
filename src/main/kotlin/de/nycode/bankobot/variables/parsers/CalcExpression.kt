@@ -31,13 +31,14 @@ import de.nycode.bankobot.variables.Expression
 import org.antlr.v4.runtime.*
 import java.math.BigDecimal
 
-class CalcExpression(val input: String) : Expression<BigDecimal>() {
+class CalcExpression(val input: String) : Expression<BigDecimal> {
 
     private var result: BigDecimal? = null
 
     override fun getResult(): BigDecimal {
-        if (result != null)
+        if (result != null) {
             return result as BigDecimal
+        }
 
         val input = CharStreams.fromString(input)
         val lexer = CalculationLexer(input).apply {
