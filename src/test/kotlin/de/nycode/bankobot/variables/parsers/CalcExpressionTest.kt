@@ -25,46 +25,64 @@
 
 package de.nycode.bankobot.variables.parsers
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Test
+import kotlin.math.ceil
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class CalcExpressionTest {
 
-    private suspend fun assertExpressionEquals(input: String, result: Int) {
-        assertThat(CalcExpression(input).getResult()).isEqualTo(result)
+    private infix fun String.shouldBe(result: Number) {
+        val double = result.toDouble()
+        val bigDecimal = if (double != ceil(double)) {
+            double.toBigDecimal()
+        } else {
+            result.toInt().toBigDecimal()
+        }
+        assertEquals(bigDecimal, CalcExpression(this).getResult())
     }
 
     @Test
-    fun `Parse simple addition`() = runBlockingTest {
-        assertExpressionEquals("1 + 2", 3)
+    fun `Parse simple addition`() {
+        "1 + 2" shouldBe 3
     }
 
     @Test
-    fun `Parse simple subtraction`() = runBlockingTest {
-        assertExpressionEquals("2 - 1", 1)
+    fun `Parse simple subtraction`() {
+        "2 - 1" shouldBe 1
     }
 
     @Test
-    fun `Parse simple multiplication`() = runBlockingTest {
-        assertExpressionEquals("2 * 2", 4)
+    fun `Parse simple multiplication`() {
+        "2 * 2" shouldBe 4
     }
 
     @Test
-    fun `Parse simple division`() = runBlockingTest {
-        assertExpressionEquals("10 / 2", 5)
+    fun `Parse simple division`() {
+        "10 / 2" shouldBe 5
     }
 
     @Test
-    fun `Point before Line Calculation`() = runBlockingTest {
-        assertExpressionEquals("2 + 2 * 4", 10)
+    fun `Point before Line Calculation`() {
+        "2 + 2 * 4" shouldBe 10
     }
 
     @Test
-    fun `Calculation with Parentheses`() = runBlockingTest {
-        assertExpressionEquals("2 * (4 + 5)", 18)
+    fun `Calculation with Parentheses`() {
+        "2 * (4 + 5)" shouldBe 18
+    }
+
+    @Test
+    fun `Square number`() {
+        "2^3" shouldBe 8
+    }
+
+    @Test
+    fun `Square number throws exception when to high`() {
+        assertFailsWith<InvalidExpressionException>("1000000000 is higher than the max of 999999999") {
+            CalcExpression("2^1000000000").getResult()
+        }
     }
 }

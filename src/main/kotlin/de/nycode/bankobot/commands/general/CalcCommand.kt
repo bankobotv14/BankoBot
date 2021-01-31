@@ -32,6 +32,7 @@ import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandAr
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.HastebinUtil
 import de.nycode.bankobot.variables.parsers.CalcExpression
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.event.message.MessageCreateEvent
@@ -60,6 +61,12 @@ internal fun calcCommand(): CommandSet = command("calc") {
     description("Führt eine mathematische Berechnung aus")
 
     invoke(CalcArgument) { expression ->
+        var result = expression.getResult().toString()
+
+        if (result.length > 1024) {
+            result = HastebinUtil.postToHastebin(result)
+        }
+
         respondEmbed(Embeds.info("Mathematische Berechnung")) {
             field {
                 name = "Berechnung"
@@ -67,7 +74,7 @@ internal fun calcCommand(): CommandSet = command("calc") {
             }
             field {
                 name = "Ergebnis"
-                value = MarkdownSanitizer.escape(expression.getResult().toString())
+                value = MarkdownSanitizer.escape(result)
             }
         }
     }

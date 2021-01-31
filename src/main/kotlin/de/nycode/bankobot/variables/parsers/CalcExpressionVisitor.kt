@@ -27,29 +27,41 @@ package de.nycode.bankobot.variables.parsers
 
 import de.nycode.bankobot.variables.CalculationBaseVisitor
 import de.nycode.bankobot.variables.CalculationParser
+import java.math.BigDecimal
 
-class CalcExpressionVisitor : CalculationBaseVisitor<Int>() {
-    override fun visitDivide(ctx: CalculationParser.DivideContext): Int {
+class CalcExpressionVisitor : CalculationBaseVisitor<BigDecimal>() {
+    override fun visitDivide(ctx: CalculationParser.DivideContext): BigDecimal {
         return visit(ctx.left) / visit(ctx.right)
     }
 
-    override fun visitNumber(ctx: CalculationParser.NumberContext): Int {
-        return ctx.NUMBER().symbol.text.toInt()
+    override fun visitNumber(ctx: CalculationParser.NumberContext): BigDecimal {
+        return ctx.NUMBER().symbol.text.toBigDecimal()
     }
 
-    override fun visitMultiply(ctx: CalculationParser.MultiplyContext): Int {
+    override fun visitMultiply(ctx: CalculationParser.MultiplyContext): BigDecimal {
         return visit(ctx.left) * visit(ctx.right)
     }
 
-    override fun visitPlus(ctx: CalculationParser.PlusContext): Int {
+    override fun visitPlus(ctx: CalculationParser.PlusContext): BigDecimal {
         return visit(ctx.left) + visit(ctx.right)
     }
 
-    override fun visitMinus(ctx: CalculationParser.MinusContext): Int {
+    override fun visitMinus(ctx: CalculationParser.MinusContext): BigDecimal {
         return visit(ctx.left) - visit(ctx.right)
     }
 
-    override fun visitParentheses(ctx: CalculationParser.ParenthesesContext): Int {
+    override fun visitParentheses(ctx: CalculationParser.ParenthesesContext): BigDecimal {
         return visit(ctx.expression())
+    }
+
+    override fun visitSquared(ctx: CalculationParser.SquaredContext): BigDecimal {
+        val left = visit(ctx.left)
+        val right = visit(ctx.right)
+
+        if (right > 999999999.toBigDecimal()) {
+            throw InvalidExpressionException("$right is higher than the max of 999999999", ctx.right.ruleIndex)
+        }
+
+        return left.pow(right.intValueExact())
     }
 }

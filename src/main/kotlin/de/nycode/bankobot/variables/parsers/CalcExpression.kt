@@ -29,14 +29,15 @@ import de.nycode.bankobot.variables.CalculationLexer
 import de.nycode.bankobot.variables.CalculationParser
 import de.nycode.bankobot.variables.Expression
 import org.antlr.v4.runtime.*
+import java.math.BigDecimal
 
-class CalcExpression(val input: String) : Expression<Int>() {
+class CalcExpression(val input: String) : Expression<BigDecimal>() {
 
-    private var result: Int? = null
+    private var result: BigDecimal? = null
 
-    override fun getResult(): Int {
+    override fun getResult(): BigDecimal {
         if (result != null)
-            return result as Int
+            return result as BigDecimal
 
         val input = CharStreams.fromString(input)
         val lexer = CalculationLexer(input).apply {
@@ -48,7 +49,7 @@ class CalcExpression(val input: String) : Expression<Int>() {
         val parser = CalculationParser(tokens)
         val tree = parser.root()
         result = CalcExpressionVisitor().visit(tree)
-        return result as Int
+        return result as BigDecimal
     }
 }
 

@@ -3,6 +3,7 @@ grammar Calculation;
 root: expression;
 
 expression: '(' expression ')' #Parentheses
+    | left=expression operator='^' right=expression #Squared
     | left=expression operator='*' right=expression #Multiply
     | left=expression operator='/' right=expression #Divide
     | left=expression operator='+' right=expression #Plus
