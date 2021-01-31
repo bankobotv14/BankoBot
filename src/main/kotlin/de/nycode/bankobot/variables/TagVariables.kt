@@ -28,6 +28,13 @@ package de.nycode.bankobot.variables
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.variables.VariableParser.replaceVariables
 
+private val regex = "(?<!\\\\)\\\$\\(([a-zA-Z0-9_-]+) ?(.+)?\\)".toRegex()
+
 fun TagEntry.format(): String {
-    return this.text.replaceVariables()
+    var text = this.text.replaceVariables()
+    regex.findAll(text)
+        .forEach {
+            text = text.replace(it.value, it.groupValues.joinToString(""))
+        }
+    return text
 }

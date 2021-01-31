@@ -30,7 +30,7 @@ import de.nycode.bankobot.variables.parsers.http.HttpExpressionParser
 
 object VariableParser {
 
-    private val expressionRegex = "\\\$\\(([a-zA-Z0-9_-]+)(?: (.+))?\\)".toRegex()
+    private val expressionRegex = "(?<!\\\\)\\\$\\(([a-zA-Z0-9_-]+) ?(.+)?\\)".toRegex()
     private val expressions = listOf<ExpressionParser<*>>(CalcExpressionParser, HttpExpressionParser)
 
     /**
@@ -64,5 +64,4 @@ object VariableParser {
         }
         return replacementString
     }
-
 }
