@@ -31,6 +31,8 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
+import de.nycode.bankobot.commands.tag.TagEntry
+import de.nycode.bankobot.commands.tag.checkEmpty
 import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
@@ -53,6 +55,13 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
         TagArgument,
         StringArgument.named("new-text").asSlashArgument("Neuer Inhalt")
     ) { tag, newText ->
+
+        if (checkEmpty(tag)) {
+            return@invoke
+        }
+
+        tag as TagEntry
+
         if (tag.text == newText) {
             respondEmbed(
                 Embeds.error(
