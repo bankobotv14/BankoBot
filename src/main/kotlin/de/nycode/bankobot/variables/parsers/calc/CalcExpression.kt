@@ -37,24 +37,32 @@ class CalcExpression(val input: String) : Expression<BigDecimal> {
     private var result: BigDecimal? = null
 
     override fun getResult(): BigDecimal {
-        if (result != null) {
+        try {
+            if (result != null) {
+                return result as BigDecimal
+            }
+
+            val input = CharStreams.fromString(input)
+            val lexer = CalculationLexer(input).apply {
+                removeErrorListeners()
+                addErrorListener(ThrowingErrorListener)
+            }
+
+            val tokens = CommonTokenStream(lexer)
+            val parser = CalculationParser(tokens).apply {
+                removeErrorListeners()
+                addErrorListener(ThrowingErrorListener)
+            }
+            val tree = parser.root()
+            result = CalcExpressionVisitor().visit(tree)
             return result as BigDecimal
+        } catch (exception: Exception) {
+            if (exception is InvalidExpressionException) {
+                throw exception
+            } else {
+                throw CalculationException(exception.message ?: "Invalid operation")
+            }
         }
-
-        val input = CharStreams.fromString(input)
-        val lexer = CalculationLexer(input).apply {
-            removeErrorListeners()
-            addErrorListener(ThrowingErrorListener)
-        }
-
-        val tokens = CommonTokenStream(lexer)
-        val parser = CalculationParser(tokens).apply {
-            removeErrorListeners()
-            addErrorListener(ThrowingErrorListener)
-        }
-        val tree = parser.root()
-        result = CalcExpressionVisitor().visit(tree)
-        return result as BigDecimal
     }
 }
 

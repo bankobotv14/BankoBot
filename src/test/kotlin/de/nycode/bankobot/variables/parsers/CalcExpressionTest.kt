@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.variables.parsers
 
+import de.nycode.bankobot.variables.parsers.calc.CalcExpression
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.math.ceil
 import kotlin.test.Test

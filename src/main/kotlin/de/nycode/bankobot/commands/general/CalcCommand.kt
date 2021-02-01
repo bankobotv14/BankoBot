@@ -34,6 +34,7 @@ import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.HastebinUtil
 import de.nycode.bankobot.variables.parsers.calc.CalcExpression
+import de.nycode.bankobot.variables.parsers.calc.CalculationException
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.interaction.BaseApplicationBuilder
@@ -41,7 +42,6 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
-import net.dv8tion.jda.api.utils.MarkdownSanitizer
 
 private object CalcArgument : AbstractSlashCommandArgument<CalcExpression, MessageCreateEvent>(
     "Der mathematische Ausdruck der ausgeführt werden soll",
@@ -53,7 +53,7 @@ private object CalcArgument : AbstractSlashCommandArgument<CalcExpression, Messa
     }
 }
 
-const val DISCORD_FIELD_MAX_LENGTH = 1024
+const val MAX_LENGTH = 25
 
 @PublishedApi
 @AutoWired
@@ -63,20 +63,30 @@ internal fun calcCommand(): CommandSet = command("calc") {
     description("Führt eine mathematische Berechnung aus")
 
     invoke(CalcArgument) { expression ->
-        var result = expression.getResult().toString()
+        var isError = false
+        var result = try {
+            expression.getResult().toString()
+        } catch (exception: CalculationException) {
+            isError = true
+            exception.message ?: "Invalid Operation"
+        }
 
-        if (result.length > DISCORD_FIELD_MAX_LENGTH) {
+        if (result.length > MAX_LENGTH) {
             result = HastebinUtil.postToHastebin(result)
         }
 
-        respondEmbed(Embeds.info("Mathematische Berechnung")) {
+        val embed =
+            if (!isError) Embeds.info("Mathematische Berechnung")
+            else Embeds.error("Mathematische Berechnung", null)
+
+        respondEmbed(embed) {
             field {
                 name = "Berechnung"
-                value = MarkdownSanitizer.escape(expression.input)
+                value = "`${expression.input}`"
             }
             field {
-                name = "Ergebnis"
-                value = MarkdownSanitizer.escape(result)
+                name = if (isError) "Fehler" else "Ergebnis"
+                value = "`$result`"
             }
         }
     }
