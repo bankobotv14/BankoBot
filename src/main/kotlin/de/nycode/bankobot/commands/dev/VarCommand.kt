@@ -23,47 +23,26 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag.commands
+package de.nycode.bankobot.commands.dev
 
-import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.TagArgument
-import de.nycode.bankobot.commands.tag.TagEntry
-import de.nycode.bankobot.commands.tag.UseAction
-import de.nycode.bankobot.variables.format
-import de.nycode.bankobot.commands.tag.checkEmpty
+import de.nycode.bankobot.command.permissions.PermissionLevel
+import de.nycode.bankobot.command.permissions.permission
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
+import de.nycode.bankobot.commands.BotOwnerModule
+import de.nycode.bankobot.variables.VariableParser.replaceVariables
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 @PublishedApi
+@ModuleName(BotOwnerModule)
 @AutoWired
-@ModuleName(TagModule)
-internal fun tagCommand(): CommandSet = command("tag") {
-    alias("t")
-    description("Einen Tag anzeigen")
-
-    invoke(TagArgument) { tag ->
-        if (checkEmpty(tag)) {
-            return@invoke
-        }
-
-        tag as TagEntry
-
-        respond(tag.format())
-
-        val useAction = UseAction(
-            author = message.author?.id ?: return@invoke,
-            date = Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault()),
-            tagId = tag.id
-        )
-        BankoBot.repositories.tagActions.save(useAction)
+internal fun varCommand(): CommandSet = command("var") {
+    permission(PermissionLevel.BOT_OWNER)
+    invoke(StringArgument.asSlashArgument("Der Ausdruck")) {
+        respond(it.replaceVariables())
     }
 }
