@@ -35,17 +35,12 @@ import kotlinx.serialization.Serializable
 object GoogleUtil {
 
     suspend fun getResults(search: String): Array<GoogleResult>? {
-        val response: GoogleResponse = try {
+        val response: GoogleResponse =
             BankoBot.httpClient.get("https://www.googleapis.com/customsearch/v1") {
                 parameter("q", search)
                 parameter("key", Config.GOOGLE_API_KEY)
                 parameter("cx", Config.GOOGLE_CX_CODE)
             }
-        } catch (e: ClientRequestException) {
-            println(e.response.readText())
-            e.printStackTrace()
-            TODO()
-        }
 
         val items = response.items
         return if (response.kind == "customsearch#search") items
@@ -56,7 +51,7 @@ object GoogleUtil {
 @Serializable
 class GoogleResponse(
     val kind: String,
-    val items: Array<GoogleResult>,
+    val items: Array<GoogleResult>
 )
 
 @Serializable
@@ -64,5 +59,5 @@ class GoogleResult(
     val kind: String,
     val title: String,
     val link: String,
-    val snippet: String,
+    val snippet: String
 )
