@@ -27,7 +27,6 @@ package de.nycode.bankobot.command
 
 import de.nycode.bankobot.variables.parsers.InvalidExpressionException
 import de.nycode.bankobot.variables.parsers.calc.CalcExpression
-import de.nycode.bankobot.variables.parsers.calc.CalculationException
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.argument.Argument
 import dev.kord.x.commands.argument.result.ArgumentResult
