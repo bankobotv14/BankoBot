@@ -29,6 +29,8 @@ import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.searchTags
+import de.nycode.bankobot.utils.Embeds
+import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.LazyItemProvider
 import de.nycode.bankobot.utils.paginate
 import dev.kord.x.commands.annotation.AutoWired
@@ -46,6 +48,13 @@ internal fun searchTagsCommand(): CommandSet = command("search-tag") {
 
     invoke(WordArgument.named("Suchbegriff").asSlashArgument("Der Suchbegriff")) { search ->
         val tags = searchTags(search)
+        if (tags.isEmpty()) {
+            respondEmbed(Embeds.error(
+                "Nichts gefunden!",
+                "Es scheint keine tags für den Suchbegriff $search zu geben"
+            ))
+            return@invoke
+        }
         LazyItemProvider(tags.size) { start, end ->
             tags.subList(start, end + 1)
                 .map { it.name }

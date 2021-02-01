@@ -43,6 +43,7 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.Argument
 import dev.kord.x.commands.argument.extension.filter
+import dev.kord.x.commands.argument.extension.map
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.result.extension.FilterResult
 import dev.kord.x.commands.argument.text.WordArgument
@@ -63,6 +64,7 @@ private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
 @OptIn(KordPreview::class)
 private val JavaDocArgument = WordArgument
     .named("javadoc-name")
+    .map { it.toLowerCase() }
     .docsFilter()
     .asSlashArgument("Das Javadoc in dem gesucht werden soll") {
         choice("JDK 11 Dokumentation", "jdk11")
