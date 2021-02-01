@@ -30,7 +30,6 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.GeneralModule
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createEmbed
-import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
