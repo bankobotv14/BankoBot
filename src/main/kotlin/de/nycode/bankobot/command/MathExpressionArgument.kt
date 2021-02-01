@@ -48,7 +48,7 @@ internal class InternalMathExpressionArgument(override val name: String = "expre
             ArgumentResult.Success(expression, text.length - fromIndex)
         } catch (exception: InvalidExpressionException) {
             ArgumentResult.Failure(exception.message ?: "Unknown error", exception.position)
-        } catch (exception: CalculationException) {
+        } catch (exception: Exception) {
             ArgumentResult.Failure(exception.message ?: "Unknown error", 0)
         }
     }
