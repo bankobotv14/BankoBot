@@ -28,6 +28,7 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.permissions.PermissionLevel
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagEntry
@@ -48,9 +49,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.litote.kmongo.eq
 
+private val regex = "\\\$\\(([a-zA-Z0-9_-]+) ?(.+)?\\)".toRegex()
+
 @PublishedApi
 @AutoWired
 @ModuleName(TagModule)
+@Suppress("UnsafeCallOnNullableType")
 internal fun createTagCommand(): CommandSet = command("create-tag") {
     description("Tag erstellen")
 
@@ -71,10 +75,18 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
             )
         } else {
             doExpensiveTask("Tag wird erstellt", "Erstelle den Tag '${tagName.trim()}'!") {
+                var text = tagText
+
+                if (!BankoBot.permissionHandler.isCovered(message.getAuthorAsMember()!!, PermissionLevel.BOT_OWNER)) {
+                    regex.findAll(text).forEach {
+                        text = text.replace(it.value, "\\${it.value}")
+                    }
+                }
+
                 val entry = TagEntry(
                     author = author.id,
                     name = tagName.trim(),
-                    text = tagText,
+                    text = text,
                     createdOn = Clock.System.now().toLocalDateTime(
                         TimeZone.currentSystemDefault()
                     )

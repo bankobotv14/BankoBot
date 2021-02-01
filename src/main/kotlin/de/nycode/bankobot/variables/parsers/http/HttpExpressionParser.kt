@@ -23,31 +23,24 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag
+package de.nycode.bankobot.variables.parsers.http
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
-import dev.kord.common.annotation.KordPreview
-import dev.kord.rest.builder.interaction.BaseApplicationBuilder
-import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.tryMap
-import dev.kord.x.commands.argument.result.extension.MapResult
-import dev.kord.x.commands.argument.text.WordArgument
-import org.litote.kmongo.eq
+import de.nycode.bankobot.variables.Expression
+import de.nycode.bankobot.variables.ExpressionParser
+import de.nycode.bankobot.variables.parsers.InvalidExpressionException
 
-val TagArgument: Argument<Tag, Any?> = InternalTagArgument()
+object HttpExpressionParser : ExpressionParser<String> {
+    private val urlRegex = "^https://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
 
-@OptIn(KordPreview::class)
-internal class InternalTagArgument(
-    description: String = "Der Tag"
-) : AbstractSlashCommandArgument<Tag, Any?>(description, WordArgument.named("tag").tagMap()) {
-    override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description, required())
+    override fun isMatching(command: String): Boolean {
+        return command in arrayOf("http")
     }
-}
 
-private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
-    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-    MapResult.Pass(tag ?: EmptyTag)
+    override fun parseExpression(input: String): Expression<String> {
+        if (!input.matches(urlRegex)) {
+            throw InvalidExpressionException("Invalid url! (Only https is allowed!)", 0)
+        }
+
+        return HttpExpression(input)
+    }
 }

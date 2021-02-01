@@ -37,6 +37,8 @@ import kotlinx.serialization.Serializable
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 
+interface Tag
+
 @Serializable
 data class TagEntry(
     @SerialName("_id")
@@ -49,7 +51,7 @@ data class TagEntry(
     @Contextual
     val createdOn: LocalDateTime,
     val aliases: List<String> = emptyList()
-)
+) : Tag
 
 infix fun TagEntry.calculateChangesTo(newTag: TagEntry): List<TagChange> {
     val changes = mutableListOf<TagChange>()

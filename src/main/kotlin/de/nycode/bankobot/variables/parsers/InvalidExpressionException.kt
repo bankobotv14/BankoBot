@@ -23,31 +23,7 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag
+package de.nycode.bankobot.variables.parsers
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
-import dev.kord.common.annotation.KordPreview
-import dev.kord.rest.builder.interaction.BaseApplicationBuilder
-import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.tryMap
-import dev.kord.x.commands.argument.result.extension.MapResult
-import dev.kord.x.commands.argument.text.WordArgument
-import org.litote.kmongo.eq
-
-val TagArgument: Argument<Tag, Any?> = InternalTagArgument()
-
-@OptIn(KordPreview::class)
-internal class InternalTagArgument(
-    description: String = "Der Tag"
-) : AbstractSlashCommandArgument<Tag, Any?>(description, WordArgument.named("tag").tagMap()) {
-    override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description, required())
-    }
-}
-
-private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
-    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-    MapResult.Pass(tag ?: EmptyTag)
-}
+class InvalidExpressionException(reason: String?, val position: Int, cause: Throwable? = null) :
+    Exception(reason, cause)

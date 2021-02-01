@@ -32,6 +32,7 @@ plugins {
     kotlin("plugin.serialization") version "1.4.21"
     id("io.gitlab.arturbosch.detekt") version "1.15.0"
     application
+    antlr
 }
 
 group = "de.nycode"
@@ -77,6 +78,15 @@ dependencies {
     implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.60.2")
 
     detektPlugins("io.gitlab.arturbosch.detekt", "detekt-formatting", "1.15.0")
+
+    antlr("org.antlr", "antlr4", "4.9.1")
+
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit5"))
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.6.0")
+    testRuntimeOnly("org.slf4j", "slf4j-simple", "1.7.30")
+    testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-test", "1.4.2")
+    testImplementation("com.willowtreeapps.assertk", "assertk-jvm", "0.23")
 }
 
 // Kotlin dsl
@@ -91,5 +101,14 @@ tasks {
     withType<Detekt> {
         // Target version of the generated JVM bytecode. It is used for type resolution.
         this.jvmTarget = "1.8"
+    }
+
+    generateGrammarSource {
+        outputDirectory = File("${project.buildDir}/generated-src/antlr/main/de/nycode/bankobot/variables")
+        arguments = arguments + listOf("-visitor", "-package", "de.nycode.bankobot.variables")
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }

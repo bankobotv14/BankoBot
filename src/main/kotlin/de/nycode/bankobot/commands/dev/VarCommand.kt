@@ -23,31 +23,26 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag
+package de.nycode.bankobot.commands.dev
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
-import dev.kord.common.annotation.KordPreview
-import dev.kord.rest.builder.interaction.BaseApplicationBuilder
-import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.tryMap
-import dev.kord.x.commands.argument.result.extension.MapResult
-import dev.kord.x.commands.argument.text.WordArgument
-import org.litote.kmongo.eq
+import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.permissions.PermissionLevel
+import de.nycode.bankobot.command.permissions.permission
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
+import de.nycode.bankobot.commands.BotOwnerModule
+import de.nycode.bankobot.variables.VariableParser.replaceVariables
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.text.StringArgument
+import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.CommandSet
 
-val TagArgument: Argument<Tag, Any?> = InternalTagArgument()
-
-@OptIn(KordPreview::class)
-internal class InternalTagArgument(
-    description: String = "Der Tag"
-) : AbstractSlashCommandArgument<Tag, Any?>(description, WordArgument.named("tag").tagMap()) {
-    override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description, required())
+@PublishedApi
+@ModuleName(BotOwnerModule)
+@AutoWired
+internal fun varCommand(): CommandSet = command("var") {
+    permission(PermissionLevel.BOT_OWNER)
+    invoke(StringArgument.asSlashArgument("Der Ausdruck")) {
+        respond(it.replaceVariables())
     }
-}
-
-private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
-    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-    MapResult.Pass(tag ?: EmptyTag)
 }

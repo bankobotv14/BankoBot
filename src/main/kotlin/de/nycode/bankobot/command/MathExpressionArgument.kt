@@ -23,31 +23,32 @@
  *
  */
 
-package de.nycode.bankobot.commands.tag
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
-import dev.kord.common.annotation.KordPreview
-import dev.kord.rest.builder.interaction.BaseApplicationBuilder
+import de.nycode.bankobot.variables.parsers.InvalidExpressionException
+import de.nycode.bankobot.variables.parsers.calc.CalcExpression
+import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.argument.Argument
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.tryMap
-import dev.kord.x.commands.argument.result.extension.MapResult
-import dev.kord.x.commands.argument.text.WordArgument
-import org.litote.kmongo.eq
+import dev.kord.x.commands.argument.result.ArgumentResult
 
-val TagArgument: Argument<Tag, Any?> = InternalTagArgument()
+val MathExpressionArgument: Argument<CalcExpression, MessageCreateEvent> =
+    InternalMathExpressionArgument()
 
-@OptIn(KordPreview::class)
-internal class InternalTagArgument(
-    description: String = "Der Tag"
-) : AbstractSlashCommandArgument<Tag, Any?>(description, WordArgument.named("tag").tagMap()) {
-    override fun BaseApplicationBuilder.applyArgument() {
-        string(name, description, required())
+internal class InternalMathExpressionArgument(override val name: String = "expression") :
+    Argument<CalcExpression, MessageCreateEvent> {
+    override suspend fun parse(
+        text: String,
+        fromIndex: Int,
+        context: MessageCreateEvent
+    ): ArgumentResult<CalcExpression> {
+        val expression = CalcExpression(text.substring(fromIndex))
+        return try {
+            expression.getResult()
+            ArgumentResult.Success(expression, text.length - fromIndex)
+        } catch (exception: InvalidExpressionException) {
+            ArgumentResult.Failure(exception.message ?: "Unknown error", exception.position)
+        } catch (exception: Exception) {
+            ArgumentResult.Failure(exception.message ?: "Unknown error", 0)
+        }
     }
-}
-
-private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
-    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
-    MapResult.Pass(tag ?: EmptyTag)
 }
