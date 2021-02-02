@@ -27,15 +27,20 @@ package de.nycode.bankobot.docdex
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 object DocDex {
 
     /**
      * Retrieves a list of all available javadocs.
      */
+    @OptIn(ExperimentalTime::class)
+    @Suppress("MagicNumber")
     suspend fun allJavadocs(): List<JavaDoc> = BankoBot.httpClient.get(Config.DOCDEX_URL) {
         url {
             path("javadocs")
