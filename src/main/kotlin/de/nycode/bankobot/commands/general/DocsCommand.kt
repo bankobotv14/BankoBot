@@ -100,7 +100,7 @@ fun allDocsCommand() = command("alldocs") {
 @ModuleName(DocsModule)
 fun docsCommand() = command("docs") {
     description("Zeigt Javadoc in Discord an")
-    alias("doc", "d")
+    alias("doc")
 
     invoke(
         JavaDocArgument,
