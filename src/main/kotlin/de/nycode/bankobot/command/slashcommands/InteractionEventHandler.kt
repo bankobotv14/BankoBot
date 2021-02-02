@@ -49,6 +49,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaInstant
 import mu.KotlinLogging
+import kotlin.time.ExperimentalTime
 
 private val LOG = KotlinLogging.logger {}
 
@@ -57,7 +58,7 @@ data class InteractionErrorEvent constructor(
     val response: InteractionResponseBehavior,
     val interaction: Interaction,
     override val kord: Kord,
-    override val shard: Int
+    override val shard: Int,
 ) : Event
 
 @OptIn(KordPreview::class)
@@ -65,6 +66,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
     override val context: ProcessorContext<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent>
         get() = InteractionContext
 
+    @OptIn(ExperimentalTime::class)
     override suspend fun CommandProcessor.onEvent(event: InteractionCreateEvent) {
         val filters = getFilters(context)
         if (!filters.all { it(event) }) return
