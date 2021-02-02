@@ -179,6 +179,8 @@ object BankoBot : CoroutineScope {
 
             eventSources += InteractionEventSource(kord)
 
+            dispatcher = Dispatchers.IO
+
             eventHandlers[InteractionContext] = InteractionEventHandler
 
             moduleModifiers += forEachModule {
