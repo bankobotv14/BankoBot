@@ -53,7 +53,13 @@ import dev.kord.x.commands.model.command.invoke
 const val DocsModule = "Documentation"
 
 private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
-    if (doc in BankoBot.availableDocs) {
+
+    if (BankoBot.availableDocs == null) {
+        return@filter FilterResult
+            .Fail("Die verfügbaren Docs konnten leider nicht geladen werden! Versuche es später erneut!")
+    }
+
+    if (BankoBot.availableDocs?.contains(doc) == true) {
         FilterResult.Pass
     } else {
         FilterResult.Fail("Dieses Doc is unbekannt. (Siehe `xd list-docs`)")
@@ -89,10 +95,20 @@ fun allDocsCommand() = command("alldocs") {
     alias("all-docs", "list-docs", "listdocs", "availabledocs", "available-docs")
 
     invoke {
-        respondEmbed(Embeds.info(
-            "Verfügbare Dokumentationen!",
-            BankoBot.availableDocs.format()
-        ))
+
+        val embed = if (BankoBot.availableDocs == null) {
+            Embeds.error(
+                "Keine Docs verfügbar!",
+                "Die Docs konnten leider nicht geladen werden! Versuche es später erneut!"
+            )
+        } else {
+            Embeds.info(
+                "Verfügbare Dokumentationen!",
+                BankoBot.availableDocs?.format()
+            )
+        }
+
+        respondEmbed(embed)
     }
 }
 
