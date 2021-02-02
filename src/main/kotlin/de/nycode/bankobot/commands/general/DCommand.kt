@@ -23,45 +23,30 @@
  *
  */
 
-package de.nycode.bankobot.docdex
+package de.nycode.bankobot.commands.general
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.config.Config
-import io.ktor.client.request.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlin.time.ExperimentalTime
+import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.description
+import de.nycode.bankobot.commands.GeneralModule
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.x.commands.annotation.AutoWired
+import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.model.command.invoke
 
-object DocDex {
+@ModuleName(GeneralModule)
+@AutoWired
+fun dCommand() = command("dddd") {
+    alias("d", "dd", "ddd")
+    description("They don't know :pepeLaugh:")
 
-    /**
-     * Retrieves a list of all available javadocs.
-     */
-    @OptIn(ExperimentalTime::class)
-    @Suppress("MagicNumber")
-    suspend fun allJavadocs(): List<JavaDoc> = BankoBot.httpClient.get(Config.DOCDEX_URL) {
-        url {
-            path("javadocs")
-        }
+    invoke {
+        channel.specificCommand()
     }
-
-    /**
-     * Retrieves a list of [DocumentedElements][DocumentedElement] from the [javadoc].
-     */
-    suspend fun search(javadoc: String, query: String): List<DocumentedElement> =
-        BankoBot.httpClient.get(Config.DOCDEX_URL) {
-            url {
-                path("index")
-                parameter("javadoc", javadoc)
-                parameter("query", query)
-            }
-        }
 }
 
-@Serializable
-class JavaDoc(
-    val names: List<String>,
-    val link: String,
-    @SerialName("actual_link")
-    val actualLink: String
-)
+private suspend fun MessageChannelBehavior.specificCommand() {
+    createEmbed {
+        title = "Imagine using xd in 2k21... oh wait"
+    }
+}

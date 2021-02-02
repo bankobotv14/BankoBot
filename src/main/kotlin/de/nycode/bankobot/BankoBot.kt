@@ -56,6 +56,7 @@ import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.util.*
@@ -63,6 +64,8 @@ import kapt.kotlin.generated.configure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import mu.KotlinLogging
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.coroutine.CoroutineDatabase
@@ -70,16 +73,21 @@ import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.serialization.registerSerializer
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 object BankoBot : CoroutineScope {
 
     private var initialized = false
     override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
 
-    lateinit var availableDocs: List<String>
+    var availableDocs: List<String>? = null
         private set
 
-    @OptIn(KtorExperimentalAPI::class)
+    private val logger = KotlinLogging.logger { }
+
+    @Suppress("MagicNumber")
+    @OptIn(KtorExperimentalAPI::class, ExperimentalTime::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
             val json = kotlinx.serialization.json.Json {
@@ -87,6 +95,10 @@ object BankoBot : CoroutineScope {
                 ignoreUnknownKeys = true
             }
             serializer = KotlinxSerializer(json)
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 10.seconds.toLongMilliseconds()
+            connectTimeoutMillis = 10.seconds.toLongMilliseconds()
         }
     }
 
@@ -107,13 +119,25 @@ object BankoBot : CoroutineScope {
     suspend operator fun invoke() {
         require(!initialized) { "Cannot initialize bot twice" }
         initialized = true
+        loadJavadocs()
 
         initializeDatabase()
 
         kord = Kord(Config.DISCORD_TOKEN)
 
-        availableDocs = DocDex.allJavadocs().map { it.names }.flatten()
         initializeKord()
+    }
+
+    private suspend fun loadJavadocs(): Unit = coroutineScope {
+        runCatching {
+            availableDocs = DocDex.allJavadocs().map { it.names }.flatten()
+        }
+            .onSuccess {
+                logger.info("Successfully loaded available javadocs! (${availableDocs?.size})")
+            }
+            .onFailure {
+                logger.error("Unable to load available javadocs!")
+            }
     }
 
     @Suppress("MagicNumber")
