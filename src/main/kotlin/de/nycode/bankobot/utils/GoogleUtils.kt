@@ -27,7 +27,9 @@ package de.nycode.bankobot.utils
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
+import io.ktor.client.features.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.serialization.Serializable
 
 object GoogleUtil {

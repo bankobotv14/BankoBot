@@ -57,7 +57,7 @@ fun searchCommand() = command("google") {
 private suspend fun KordCommandEvent.search(search: String) {
     doExpensiveTask("Searching...", "Bitte warte, bis ich Ergebnisse gefunden habe!") {
         val list = getResultAsList(search)
-        if (list == null) {
+        if (list.isNullOrEmpty()) {
             editEmbed(Embeds.error("Schade!", "Google möchte dir anscheinend nicht antworten! ._."))
         } else {
             delete()
