@@ -55,7 +55,8 @@ const val DocsModule = "Documentation"
 private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
 
     if (BankoBot.availableDocs == null) {
-        return@filter FilterResult.Fail("Die verfügbaren Docs konnten leider nicht geladen werden! Versuche es später erneut!")
+        return@filter FilterResult
+            .Fail("Die verfügbaren Docs konnten leider nicht geladen werden! Versuche es später erneut!")
     }
 
     if (BankoBot.availableDocs?.contains(doc) == true) {

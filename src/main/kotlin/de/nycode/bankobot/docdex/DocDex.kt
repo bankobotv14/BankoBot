@@ -27,12 +27,10 @@ package de.nycode.bankobot.docdex
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
-import io.ktor.client.features.*
 import io.ktor.client.request.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 object DocDex {
 
