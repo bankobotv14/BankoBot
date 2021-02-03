@@ -44,11 +44,12 @@ import dev.kord.x.commands.model.command.invoke
 import io.ktor.client.request.*
 import io.ktor.http.*
 
+@PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
-fun hastebinCommand() = command("hastebin") {
-    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) {
-        respond(autoUpload(message))
+internal fun hastebinCommand() = command("hastebin") {
+    invoke(StringArgument.asSlashArgument("Der hochzuladende String")) { text ->
+        respond(autoUpload(text))
     }
 }
 
