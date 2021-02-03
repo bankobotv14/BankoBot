@@ -43,12 +43,14 @@ import dev.kord.x.commands.model.command.invoke
 import io.ktor.client.request.*
 import io.ktor.http.*
 
+@Suppress("MagicNumber")
 @PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
 internal fun hastebinCommand() = command("hastebin") {
-    invoke(StringArgument.asSlashArgument("Der hochzuladende String")) { text ->
-        respond(autoUpload(text))
+    invoke(StringArgument.asSlashArgument("Der hochzuladende String")) {
+        val hasteContent = message.content.substring(message.content.indexOf("hastebin") + 8, message.content.length)
+        respond(HastebinUtil.postToHastebin(hasteContent))
     }
 }
 
