@@ -38,7 +38,6 @@ import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.extension.optional
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
 import io.ktor.client.request.*
