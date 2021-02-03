@@ -38,6 +38,7 @@ import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.extension.optional
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
 import io.ktor.client.request.*
@@ -50,10 +51,18 @@ const val HASTEBIN_COMMAND = "hastebin"
 @AutoWired
 @ModuleName(GeneralModule)
 internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
-    invoke(StringArgument.asSlashArgument("Der hochzuladende String")) {
+    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) {
         val hasteContent = message.content
             .substring(message.content.indexOf(HASTEBIN_COMMAND) + HASTEBIN_COMMAND.length, message.content.length)
-        respond(HastebinUtil.postToHastebin(hasteContent))
+
+        when (hasteContent.trim()) {
+            "" -> {
+                respond(autoUpload(message))
+            }
+            else -> {
+                respond(autoUpload(hasteContent))
+            }
+        }
     }
 }
 
