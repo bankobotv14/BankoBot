@@ -69,13 +69,10 @@ internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
         val hasteContent = message.content
             .substring(message.content.indexOf(HASTEBIN_COMMAND) + HASTEBIN_COMMAND.length, message.content.length)
 
-        when (hasteContent.trim()) {
-            "" -> {
-                respond(autoUpload(message))
-            }
-            else -> {
-                respond(autoUpload(hasteContent))
-            }
+        if (hasteContent.isBlank()) {
+            respond(autoUpload(message))
+        } else {
+            respond(autoUpload(hasteContent))
         }
     }
 }
