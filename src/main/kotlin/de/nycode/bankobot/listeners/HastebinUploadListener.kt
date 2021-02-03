@@ -112,7 +112,7 @@ private suspend fun autoUpload(text: String): String {
 
 private fun makeEmbed(url: String = Emotes.LOADING) = Embeds.warn(
     "Uff, das ist aber viel",
-    """So viel Text willst du schreiben? | Benutze am besten einen paste-Dienst wie ${Config.HASTE_HOST}.
+    """So viel Text willst du schreiben? | Benutze am besten einen Paste-Dienst wie ${Config.HASTE_HOST}.
             | Hier, ich mache das mal schnell für dich: $url
             |""".trimMargin()
 )
