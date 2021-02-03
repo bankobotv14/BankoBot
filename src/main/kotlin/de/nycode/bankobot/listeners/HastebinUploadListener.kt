@@ -58,8 +58,8 @@ internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
             respondEmbed(
                 Embeds.error(
                     "Kein Inhalt gefunden!",
-                    "Ich konnte keinen Inhalt finden" +
-                            ", den ich auf hastebin posten könnte!" +
+                    "Ich konnte keinen Inhalt finden, " +
+                            "den ich auf hastebin posten könnte!" +
                             "\n" +
                             "Bitte sende ihn als Text hinter dem Befehl oder als Textanhang!"
                 )
