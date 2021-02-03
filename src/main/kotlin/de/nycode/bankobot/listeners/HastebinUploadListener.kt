@@ -34,6 +34,7 @@ import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.core.Kord
+import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Message
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
@@ -53,7 +54,7 @@ const val HASTEBIN_COMMAND = "hastebin"
 @ModuleName(GeneralModule)
 internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
     invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) { text ->
-        if (text == null && message.attachments.any { !it.isImage }) {
+        if (text == null && message.attachments.firstMessageTxtOrNull() == null) {
             respondEmbed(
                 Embeds.error(
                     "Kein Inhalt gefunden!",
@@ -77,17 +78,19 @@ internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
     }
 }
 
+private fun Set<Attachment>.firstMessageTxtOrNull() = firstOrNull {
+    !it.isImage && it.filename == "message.txt"
+}
+
 fun Kord.autoUploadListener() = on<MessageCreateEvent> {
-    val file = message.attachments.firstOrNull() ?: return@on
-    if (!file.isImage && file.filename == "message.txt") {
-        message.channel.doExpensiveTask(makeEmbed()) {
-            editEmbed(makeEmbed(autoUpload(message)))
-        }
+    message.attachments.firstMessageTxtOrNull() ?: return@on
+    message.channel.doExpensiveTask(makeEmbed()) {
+        editEmbed(makeEmbed(autoUpload(message)))
     }
 }
 
 private suspend fun autoUpload(message: Message): String {
-    val attachment = message.attachments.firstOrNull()
+    val attachment = message.attachments.firstMessageTxtOrNull()
     return if (attachment != null && !attachment.isImage) {
         val text = BankoBot.httpClient.get<String>(attachment.url)
         autoUpload(text)
