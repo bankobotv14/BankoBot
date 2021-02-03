@@ -32,6 +32,7 @@ import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
+import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.core.Kord
 import dev.kord.core.entity.Message
 import dev.kord.core.event.message.MessageCreateEvent
@@ -51,7 +52,20 @@ const val HASTEBIN_COMMAND = "hastebin"
 @AutoWired
 @ModuleName(GeneralModule)
 internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
-    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) {
+    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) { text ->
+        if (text == null && message.attachments.any { !it.isImage }) {
+            respondEmbed(
+                Embeds.error(
+                    "Kein Inhalt gefunden!",
+                    "Ich konnte keinen Inhalt finden" +
+                            ", den ich auf hastebin posten könnte!" +
+                            "\n" +
+                            "Bitte sende ihn als Text hinter dem Befehl oder als Textanhang!"
+                )
+            )
+            return@invoke
+        }
+
         val hasteContent = message.content
             .substring(message.content.indexOf(HASTEBIN_COMMAND) + HASTEBIN_COMMAND.length, message.content.length)
 
