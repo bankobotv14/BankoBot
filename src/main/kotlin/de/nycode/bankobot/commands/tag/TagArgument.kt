@@ -34,7 +34,9 @@ import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.tryMap
 import dev.kord.x.commands.argument.result.extension.MapResult
 import dev.kord.x.commands.argument.text.WordArgument
+import org.litote.kmongo.contains
 import org.litote.kmongo.eq
+import org.litote.kmongo.or
 
 val TagArgument: Argument<Tag, Any?> = InternalTagArgument()
 
@@ -48,6 +50,6 @@ internal class InternalTagArgument(
 }
 
 private fun <CONTEXT> Argument<String, CONTEXT>.tagMap() = tryMap { tagName ->
-    val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
+    val tag = BankoBot.repositories.tag.findOne(or(TagEntry::name eq tagName, TagEntry::aliases contains tagName))
     MapResult.Pass(tag ?: EmptyTag)
 }
