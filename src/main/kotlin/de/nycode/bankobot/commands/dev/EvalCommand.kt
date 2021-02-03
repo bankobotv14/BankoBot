@@ -33,6 +33,7 @@ import de.nycode.bankobot.commands.BotOwnerModule
 import de.nycode.bankobot.utils.EMBED_TITLE_MAX_LENGTH
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
+import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.HastebinUtil
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
@@ -41,11 +42,10 @@ import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import javax.script.*
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
+import kotlin.time.*
 
 /**
  * Wrapper class to measure time in scripts
@@ -86,9 +86,45 @@ fun evalCommand() = command("ev") {
             engine.put("krd_capture", kord)
             engine.put("ctx_capture", this@invoke)
             val res = try {
-                //language=kotlin
-                engine.eval(
-                    """
+                eval(engine, code)
+            } catch (e: TimeoutCancellationException) {
+                respondEmbed(Embeds.info(
+                    "Das hat zu lange gedauert",
+                    "Dieser Code hat länger als eine minute gebraucht"
+                ))
+                return@doExpensiveTask
+            }
+            val output = if (res is Deferred<*>) {
+                res.await().toString()
+            } else {
+                res?.toString()
+            }
+
+            val (compileTime, runTime) = timeMarker.markRunEnd()
+
+            val timeInfo = if (runTime != null) {
+                "${Emojis.stopwatch}Compiled in $compileTime and ran in $runTime"
+            } else {
+                "${Emojis.stopwatch} Compilation failed after $compileTime"
+            }
+
+            editEmbed(
+                Embeds.info(
+                    timeInfo,
+                    output?.uploadIfToLong()
+                )
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalTime::class)
+private suspend fun eval(engine: ScriptEngine, code: String): Any? {
+    return withTimeout(1.minutes) {
+        try {
+            //language=kotlin
+            engine.eval(
+                """
                     import dev.kord.common.entity.*
                     import de.nycode.bankobot.*
                     import de.nycode.bankobot.utils.*
@@ -107,30 +143,9 @@ fun evalCommand() = command("ev") {
                         }
                     }
                 """.trimIndent()
-                )
-            } catch (e: ScriptException) {
-                e.stackTraceToString()
-            }
-            val output = if (res is Deferred<*>) {
-                res.await().toString()
-            } else {
-                res?.toString()
-            }
-
-            val (compileTime, runTime) = timeMarker.markRunEnd()
-
-            val timeInfo = if (runTime != null) {
-                "${Emojis.stopwatch}Compiled in $compileTime and ran in ${runTime}"
-            } else {
-                "${Emojis.stopwatch} Compilation failed after $compileTime"
-            }
-
-            editEmbed(
-                Embeds.info(
-                    timeInfo,
-                    output?.uploadIfToLong()
-                )
             )
+        } catch (e: ScriptException) {
+            e.stackTraceToString()
         }
     }
 }
