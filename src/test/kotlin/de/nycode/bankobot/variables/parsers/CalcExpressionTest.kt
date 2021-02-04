@@ -25,7 +25,7 @@
 
 package de.nycode.bankobot.variables.parsers
 
-import de.nycode.bankobot.variables.parsers.calc.CalcExpression
+import de.nycode.bankobot.variables.parsers.calc.OldCalcExpression
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.math.ceil
 import kotlin.test.Test
@@ -42,7 +42,7 @@ internal class CalcExpressionTest {
         } else {
             result.toInt().toBigDecimal()
         }
-        assertEquals(bigDecimal, CalcExpression(this).getResult())
+        assertEquals(bigDecimal, OldCalcExpression(this).getResult())
     }
 
     @Test
@@ -83,7 +83,7 @@ internal class CalcExpressionTest {
     @Test
     fun `Square number throws exception when to high`() {
         assertFailsWith<InvalidExpressionException>("1000000000 is higher than the max of 999999999") {
-            CalcExpression("2^1000000000").getResult()
+            OldCalcExpression("2^1000000000").getResult()
         }
     }
 }

@@ -25,56 +25,54 @@
 
 package de.nycode.bankobot.variables.parsers.calc
 
-import de.nycode.bankobot.variables.CalculationLexer
-import de.nycode.bankobot.variables.CalculationParser
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.variables.Expression
-import de.nycode.bankobot.variables.parsers.InvalidExpressionException
-import org.antlr.v4.runtime.*
-import java.math.BigDecimal
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.util.*
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
-class CalcExpression(val input: String) : Expression<BigDecimal> {
+class CalcExpression(val expression: String) : Expression<CalcExpressionResult> {
 
-    private var result: BigDecimal? = null
+    private var result: CalcExpressionResult? = null
 
-    override fun getResult(): BigDecimal {
-        try {
-            if (result != null) {
-                return result as BigDecimal
-            }
-
-            val input = CharStreams.fromString(input)
-            val lexer = CalculationLexer(input).apply {
-                removeErrorListeners()
-                addErrorListener(ThrowingErrorListener)
-            }
-
-            val tokens = CommonTokenStream(lexer)
-            val parser = CalculationParser(tokens).apply {
-                removeErrorListeners()
-                addErrorListener(ThrowingErrorListener)
-            }
-            val tree = parser.root()
-            result = CalcExpressionVisitor().visit(tree)
-            return result as BigDecimal
-        } catch (exception: Exception) {
-            if (exception is InvalidExpressionException) {
-                throw exception
-            } else {
-                throw CalculationException(exception.message ?: "Invalid operation")
+    companion object {
+        @OptIn(KtorExperimentalAPI::class, ExperimentalTime::class)
+        private val httpClient = HttpClient(CIO) {
+            expectSuccess = false
+            install(HttpTimeout) {
+                requestTimeoutMillis = 10.seconds.toLongMilliseconds()
+                connectTimeoutMillis = 10.seconds.toLongMilliseconds()
             }
         }
     }
-}
 
-internal object ThrowingErrorListener : BaseErrorListener() {
-    override fun syntaxError(
-        recognizer: Recognizer<*, *>?,
-        offendingSymbol: Any?,
-        line: Int,
-        charPositionInLine: Int,
-        msg: String?,
-        e: RecognitionException?
-    ) {
-        throw InvalidExpressionException(msg, charPositionInLine)
+    override suspend fun getResult(): CalcExpressionResult {
+        if (result == null) {
+            val response = httpClient.get<HttpResponse>(Config.MATHJS_SERVER_URL) {
+                url {
+                    parameter("expr", expression)
+                }
+            }
+            result = when (response.status) {
+                HttpStatusCode.OK -> {
+                    CalcExpressionResult(response.readText())
+                }
+                else -> {
+                    CalcExpressionResult(response.readText(), true)
+                }
+            }
+        }
+        return result ?: CalcExpressionResult("Unable to reach expression evaluating service!", true)
     }
 }
+
+data class CalcExpressionResult(val result: String, val isError: Boolean = false)

@@ -30,7 +30,7 @@ import de.nycode.bankobot.variables.VariableParser.replaceVariables
 
 private val regex = "(?<!\\\\)\\\$\\(([a-zA-Z0-9_-]+) ?(.+)?\\)".toRegex()
 
-fun TagEntry.format(): String {
+suspend fun TagEntry.format(): String {
     var text = this.text.replaceVariables()
     regex.findAll(text)
         .forEach {

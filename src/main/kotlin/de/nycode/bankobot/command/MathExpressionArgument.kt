@@ -25,7 +25,6 @@
 
 package de.nycode.bankobot.command
 
-import de.nycode.bankobot.variables.parsers.InvalidExpressionException
 import de.nycode.bankobot.variables.parsers.calc.CalcExpression
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.argument.Argument
@@ -42,13 +41,12 @@ internal class InternalMathExpressionArgument(override val name: String = "expre
         context: MessageCreateEvent
     ): ArgumentResult<CalcExpression> {
         val expression = CalcExpression(text.substring(fromIndex))
-        return try {
-            expression.getResult()
+        val (result, isError) = expression.getResult()
+
+        return if (isError) {
+            ArgumentResult.Failure(result, text.length - fromIndex)
+        } else {
             ArgumentResult.Success(expression, text.length - fromIndex)
-        } catch (exception: InvalidExpressionException) {
-            ArgumentResult.Failure(exception.message ?: "Unknown error", exception.position)
-        } catch (exception: Exception) {
-            ArgumentResult.Failure(exception.message ?: "Unknown error", 0)
         }
     }
 }

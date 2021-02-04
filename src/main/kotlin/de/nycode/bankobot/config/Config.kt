@@ -69,6 +69,8 @@ object Config {
 
     val WEBHOOK_URL: String by getEnv()
     val WEBHOOK_SECRET: String by getEnv()
+
+    val MATHJS_SERVER_URL: String by getEnv()
 }
 
 /**

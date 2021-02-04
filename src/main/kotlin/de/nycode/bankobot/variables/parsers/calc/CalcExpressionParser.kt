@@ -29,12 +29,12 @@ import de.nycode.bankobot.variables.Expression
 import de.nycode.bankobot.variables.ExpressionParser
 import java.math.BigDecimal
 
-object CalcExpressionParser : ExpressionParser<BigDecimal> {
+object CalcExpressionParser : ExpressionParser<CalcExpressionResult> {
     override fun isMatching(command: String): Boolean {
         return command in arrayOf("calc", "calculate", "math")
     }
 
-    override fun parseExpression(input: String): Expression<BigDecimal> {
+    override fun parseExpression(input: String): Expression<CalcExpressionResult> {
         return CalcExpression(input)
     }
 }

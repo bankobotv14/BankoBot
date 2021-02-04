@@ -51,7 +51,7 @@ object VariableParser {
         return parser.parseExpression(arguments) as Expression<R>
     }
 
-    fun String.replaceVariables(): String {
+    suspend fun String.replaceVariables(): String {
         val replacements = mutableMapOf<String, String>()
         expressionRegex.findAll(this)
             .forEach {
