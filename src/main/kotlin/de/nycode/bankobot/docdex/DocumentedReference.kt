@@ -37,7 +37,7 @@ import kotlinx.serialization.encoding.Encoder
 sealed class DocumentedReference(val raw: String, val `package`: String, val className: String) {
 
     companion object : KSerializer<DocumentedReference> {
-        private val packageRegex = "[a-z.]".toRegex()
+        private val packageRegex = "[a-z.0-9_]".toRegex()
 
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("reference", PrimitiveKind.STRING)
