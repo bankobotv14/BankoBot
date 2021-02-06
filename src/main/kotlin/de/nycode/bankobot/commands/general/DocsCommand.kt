@@ -76,7 +76,8 @@ private val JavaDocArgument = WordArgument
         choice("JDK 11 Dokumentation", "jdk11")
         choice("JDK 8 Dokumentation", "jdk8")
         choice("Spigot 1.16.5 Dokumentation", "spigot1165")
-        choice("Paper Spigot dokumentation", "paper")
+        choice("Paper Spigot Dokumentation", "paper")
+        choice("JDA Dokumentation", "jda")
     }
 
 private object QueryArgument :
@@ -210,6 +211,20 @@ private fun renderClass(doc: DocumentedClassObject): EmbedBuilder = Embeds.doc(d
         }
     }
 
+    if (meta.subInterfaces.isNotEmpty()) {
+        field {
+            name = "All known sub interfaces"
+            value = meta.subInterfaces.formatReferences()
+        }
+    }
+
+    if (meta.subClasses.isNotEmpty()) {
+        field {
+            name = "All known subclasses"
+            value = meta.subClasses.formatReferences()
+        }
+    }
+
     if (doc.type == DocumentedObject.Type.ENUM) {
         field {
             name = "fields"
@@ -229,7 +244,7 @@ private fun formatMethodDefinition(doc: DocumentedMethodObject): String {
             " ",
             postfix = "\n"
         ) { "@${it.className}" }
-    }${doc.modifiers.joinToString(" ")} ${doc.metadata.returns} ${doc.name}(${
+    }${doc.modifiers.joinToString(" ") + if (doc.modifiers.isNotEmpty()) " " else ""}${doc.metadata.returns} ${doc.name}(${
         meta.parameters.joinToString {
             "${
                 it.annotations.joinToString(
