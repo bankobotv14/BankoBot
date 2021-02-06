@@ -239,6 +239,7 @@ private fun formatMethodName(doc: DocumentedMethodObject) =
 
 private fun formatMethodDefinition(doc: DocumentedMethodObject): String {
     val meta = doc.metadata
+    @Suppress("MaxLineLength")
     return "${
         doc.annotations.joinToString(
             " ",
