@@ -28,10 +28,13 @@ package de.nycode.bankobot.commands.moderation
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.BlacklistEntry
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.permissions.PermissionLevel
+import de.nycode.bankobot.command.permissions.permission
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.ModerationModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
+import dev.kord.common.entity.Permission
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.kord.argument.MemberArgument
@@ -45,6 +48,7 @@ private val TargetArgument =
 @ModuleName(ModerationModule)
 internal fun blacklistCommand() = command("blacklist") {
     alias("bl", "schwarzeliste", "schwarze-liste")
+    permission(PermissionLevel.MODERATOR)
 
     invoke(TargetArgument) { member ->
         val entry = BankoBot.repositories.blacklist.findOneById(member.id.value)
