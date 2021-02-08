@@ -27,7 +27,6 @@ package de.nycode.bankobot.variables.parsers.calc
 
 import de.nycode.bankobot.variables.Expression
 import de.nycode.bankobot.variables.ExpressionParser
-import java.math.BigDecimal
 
 object CalcExpressionParser : ExpressionParser<CalcExpressionResult> {
     override fun isMatching(command: String): Boolean {

@@ -25,7 +25,6 @@
 
 package de.nycode.bankobot.variables.parsers.calc
 
-import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.variables.Expression
 import io.ktor.client.*
@@ -35,8 +34,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
