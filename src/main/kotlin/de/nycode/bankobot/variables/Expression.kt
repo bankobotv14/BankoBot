@@ -27,5 +27,5 @@ package de.nycode.bankobot.variables
 
 interface Expression<R> {
 
-    fun getResult(): R?
+    suspend fun getResult(): R?
 }

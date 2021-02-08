@@ -28,25 +28,14 @@ package de.nycode.bankobot.variables.parsers.http
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.variables.Expression
 import io.ktor.client.request.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class HttpExpression(val url: String) : Expression<String> {
 
     private var result: String? = null
-    private var job: Job? = null
 
-    init {
-        job = GlobalScope.launch {
-            result = BankoBot.httpClient.get<String>(url)
-        }
-    }
-
-    override fun getResult(): String? {
+    override suspend fun getResult(): String? {
         if (result == null) {
-            runBlocking { job?.join() }
+            result = BankoBot.httpClient.get<String>(url)
         }
         return result
     }
