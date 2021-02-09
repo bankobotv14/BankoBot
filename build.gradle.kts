@@ -36,7 +36,7 @@ plugins {
 }
 
 group = "de.nycode"
-version = "1.0.1-hotfix.1"
+version = "1.0.1-hotfix.3"
 
 repositories {
     jcenter()
