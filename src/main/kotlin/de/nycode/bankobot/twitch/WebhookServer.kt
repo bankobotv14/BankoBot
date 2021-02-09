@@ -39,9 +39,9 @@ import io.ktor.serialization.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.util.*
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 
-internal val webhookLogger by lazy { LoggerFactory.getLogger("Webhooks") }
+internal val webhookLogger by lazy { KotlinLogging.logger("Webhooks") }
 
 /**
  * Launches a ktor embedded server uses for receiving webhook notifications from the twitch api
@@ -51,7 +51,7 @@ internal fun Kord.launchServer() = embeddedServer(CIO) {
     install(Routing) {
         route("twitch") {
             get {
-                webhookLogger.info(call.parameters.toString())
+                webhookLogger.debug { "Receiving webhook call with parameters: ${call.parameters}" }
                 when {
                     call.parameters.contains("hub.challenge") -> {
                         val challenge = call.parameters["hub.challenge"]
@@ -62,11 +62,11 @@ internal fun Kord.launchServer() = embeddedServer(CIO) {
                             return@get
                         }
 
-                        webhookLogger.info("Receiving Webhook Challenge $challenge")
+                        webhookLogger.debug { "Receiving Webhook Challenge $challenge" }
                         call.respondText(challenge)
                     }
                     call.parameters.contains("hub.reason") -> {
-                        webhookLogger.error("Could not create subscription: ${call.parameters["hub.reason"]}")
+                        webhookLogger.error { "Could not create subscription: ${call.parameters["hub.reason"]}" }
                         call.respond(HttpStatusCode.OK)
                     }
                     else -> {
