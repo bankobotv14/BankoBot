@@ -110,12 +110,12 @@ private fun CoroutineScope.launchSubscriptionUpdater(
         30.seconds
     }
     val delay = duration.toLongMilliseconds()
-    for (unit in ticker(delayMillis = delay , initialDelayMillis = delay)) {
+    for (unit in ticker(delayMillis = delay, initialDelayMillis = delay)) {
         BankoBot.httpClient.updateSubscription(
             userId,
             "subscribe",
             token,
-            duration = duration.milliseconds.inSeconds.toInt()
+            duration = delay.milliseconds.inSeconds.toInt()
         )
         webhookLogger.info("Updated twitch webhook subscription!")
     }
