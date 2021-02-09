@@ -105,11 +105,12 @@ private fun CoroutineScope.launchSubscriptionUpdater(
     token: TwitchAccessTokenResponse
 ) = launch {
     val duration = if (Config.ENVIRONMENT == Environment.PRODUCTION) {
-        1.days.toLongMilliseconds()
+        1.days
     } else {
-        30.seconds.toLongMilliseconds()
+        30.seconds
     }
-    for (unit in ticker(delayMillis = duration, initialDelayMillis = duration)) {
+    val delay = duration.toLongMilliseconds()
+    for (unit in ticker(delayMillis = delay , initialDelayMillis = delay)) {
         BankoBot.httpClient.updateSubscription(
             userId,
             "subscribe",
