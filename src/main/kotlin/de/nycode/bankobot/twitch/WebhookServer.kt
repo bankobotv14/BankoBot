@@ -39,6 +39,9 @@ import io.ktor.serialization.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.util.*
+import org.slf4j.LoggerFactory
+
+internal val webhookLogger by lazy { LoggerFactory.getLogger("Webhooks") }
 
 /**
  * Launches a ktor embedded server uses for receiving webhook notifications from the twitch api
@@ -48,12 +51,22 @@ internal fun Kord.launchServer() = embeddedServer(CIO) {
     install(Routing) {
         route("twitch") {
             get {
+                webhookLogger.info(call.parameters.toString())
                 when {
                     call.parameters.contains("hub.challenge") -> {
-                        call.respondText(call.parameters["hub.challenge"] ?: "lösch dich")
+                        val challenge = call.parameters["hub.challenge"]
+
+                        if (challenge == null) {
+                            webhookLogger.error("Failed Webhook Challenge")
+                            call.respond(HttpStatusCode.BadRequest)
+                            return@get
+                        }
+
+                        webhookLogger.info("Receiving Webhook Challenge $challenge")
+                        call.respondText(challenge)
                     }
                     call.parameters.contains("hub.reason") -> {
-                        println("Could not create subscription: ${call.parameters["hub.reason"]}")
+                        webhookLogger.error("Could not create subscription: ${call.parameters["hub.reason"]}")
                         call.respond(HttpStatusCode.OK)
                     }
                     else -> {
@@ -66,17 +79,19 @@ internal fun Kord.launchServer() = embeddedServer(CIO) {
                 if (Config.ENVIRONMENT == Environment.PRODUCTION) {
                     val signature = call.request.header("X-Hub-Signature")
                     if (Config.WEBHOOK_SECRET.sha256() != signature) {
+                        webhookLogger.warn("Unable to verify signature of request!")
                         call.respond(HttpStatusCode.BadRequest)
                         return@post
                     }
+                    webhookLogger.info("Successfully verified signature of request!")
                 }
+                call.respond(HttpStatusCode.OK)
 
                 val stream = call.receive<TwitchStreamsResponse>()
                     .data
                     .firstOrNull()
                     ?: TwitchStream()
                 updatePresence(stream)
-                call.respond(HttpStatusCode.OK)
             }
         }
     }
