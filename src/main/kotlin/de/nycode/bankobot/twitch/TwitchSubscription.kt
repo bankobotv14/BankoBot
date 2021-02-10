@@ -37,14 +37,20 @@ import io.ktor.http.*
  * @param userId the user to subscribe or unsubscribe from
  * @param mode either "subscribe" or "unsubscribe"
  * @param token the twitch app access token to use
+ * @param duration the duration to submit to twitch
  */
 @Suppress("MagicNumber")
-internal suspend fun HttpClient.updateSubscription(userId: Int, mode: String, token: TwitchAccessTokenResponse) =
+internal suspend fun HttpClient.updateSubscription(
+    userId: Int,
+    mode: String,
+    token: TwitchAccessTokenResponse,
+    duration: Int = 86400
+) =
     post<HttpResponse>("https://api.twitch.tv/helix/webhooks/hub") {
         body = TwitchSubscriptionRequest {
             callback = Config.WEBHOOK_URL
             this.mode = mode
-            leaseSeconds = 86400
+            leaseSeconds = duration
             topic = "https://api.twitch.tv/helix/streams?user_id=${userId}"
             if (Config.ENVIRONMENT == Environment.PRODUCTION) {
                 secret = Config.WEBHOOK_SECRET

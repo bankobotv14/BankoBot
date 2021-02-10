@@ -32,7 +32,9 @@ import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
+import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.core.Kord
+import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Message
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
@@ -44,25 +46,51 @@ import dev.kord.x.commands.model.command.invoke
 import io.ktor.client.request.*
 import io.ktor.http.*
 
+const val HASTEBIN_COMMAND = "hastebin"
+
+@Suppress("MagicNumber")
+@PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
-fun hastebinCommand() = command("hastebin") {
-    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) {
-        respond(autoUpload(message))
-    }
-}
+internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
+    invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) { text ->
+        if (text == null && message.attachments.firstMessageTxtOrNull() == null) {
+            respondEmbed(
+                Embeds.error(
+                    "Kein Inhalt gefunden!",
+                    "Ich konnte keinen Inhalt finden, " +
+                            "den ich auf hastebin posten könnte!" +
+                            "\n" +
+                            "Bitte sende ihn als Text hinter dem Befehl oder als Textanhang!"
+                )
+            )
+            return@invoke
+        }
 
-fun Kord.autoUploadListener() = on<MessageCreateEvent> {
-    val file = message.attachments.firstOrNull() ?: return@on
-    if (!file.isImage && file.filename == "message.txt") {
-        message.channel.doExpensiveTask(makeEmbed()) {
-            editEmbed(makeEmbed(autoUpload(message)))
+        val hasteContent = message.content
+            .substring(message.content.indexOf(HASTEBIN_COMMAND) + HASTEBIN_COMMAND.length, message.content.length)
+
+        if (hasteContent.isBlank()) {
+            respond(autoUpload(message))
+        } else {
+            respond(autoUpload(hasteContent))
         }
     }
 }
 
+private fun Set<Attachment>.firstMessageTxtOrNull() = firstOrNull {
+    !it.isImage && it.filename == "message.txt"
+}
+
+fun Kord.autoUploadListener() = on<MessageCreateEvent> {
+    message.attachments.firstMessageTxtOrNull() ?: return@on
+    message.channel.doExpensiveTask(makeEmbed()) {
+        editEmbed(makeEmbed(autoUpload(message)))
+    }
+}
+
 private suspend fun autoUpload(message: Message): String {
-    val attachment = message.attachments.firstOrNull()
+    val attachment = message.attachments.firstMessageTxtOrNull()
     return if (attachment != null && !attachment.isImage) {
         val text = BankoBot.httpClient.get<String>(attachment.url)
         autoUpload(text)
@@ -83,8 +111,8 @@ private suspend fun autoUpload(text: String): String {
 }
 
 private fun makeEmbed(url: String = Emotes.LOADING) = Embeds.warn(
-    "Uff das ist aber viel",
-    """soviel text gedacht.| Benutze am besten einen paste Dienst wie ${Config.HASTE_HOST}.
-            | Hier ich mache das mal schnell für dich: $url
+    "Uff, das ist aber viel",
+    """So viel Text willst du schreiben? | Benutze am besten einen Paste-Dienst wie ${Config.HASTE_HOST}.
+            | Hier, ich mache das mal schnell für dich: $url
             |""".trimMargin()
 )

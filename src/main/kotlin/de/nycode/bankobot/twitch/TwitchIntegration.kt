@@ -26,6 +26,8 @@
 package de.nycode.bankobot.twitch
 
 import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.config.Config
+import de.nycode.bankobot.config.Environment
 import dev.kord.core.Kord
 import dev.kord.rest.request.errorString
 import io.ktor.http.*
@@ -33,6 +35,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ticker
 import kotlin.time.ExperimentalTime
 import kotlin.time.days
+import kotlin.time.milliseconds
+import kotlin.time.seconds
 
 const val TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 
@@ -82,7 +86,7 @@ private suspend fun Kord.subscribe(userId: Int, token: TwitchAccessTokenResponse
     registerSubscriptionShutdownHook(userId, token)
 
     if (response.status == HttpStatusCode.Accepted) {
-        println("Registered subscription!")
+        webhookLogger.info("Registered subscription for twitch webhook!")
     } else {
         error(response.errorString())
     }
@@ -95,13 +99,25 @@ private suspend fun Kord.subscribe(userId: Int, token: TwitchAccessTokenResponse
  * @param token the app authentication token
  */
 @OptIn(ObsoleteCoroutinesApi::class, ExperimentalTime::class)
+@Suppress("MagicNumber")
 private fun CoroutineScope.launchSubscriptionUpdater(
     userId: Int,
     token: TwitchAccessTokenResponse
 ) = launch {
-    for (unit in ticker(1.days.toLongMilliseconds())) {
-        BankoBot.httpClient.updateSubscription(userId, "subscribe", token)
-        println("Updated subscription!")
+    val duration = if (Config.ENVIRONMENT == Environment.PRODUCTION) {
+        1.days
+    } else {
+        30.seconds
+    }
+    val delay = duration.toLongMilliseconds()
+    for (unit in ticker(delayMillis = delay, initialDelayMillis = delay)) {
+        BankoBot.httpClient.updateSubscription(
+            userId,
+            "subscribe",
+            token,
+            duration = delay.milliseconds.inSeconds.toInt()
+        )
+        webhookLogger.info("Updated twitch webhook subscription!")
     }
 }
 

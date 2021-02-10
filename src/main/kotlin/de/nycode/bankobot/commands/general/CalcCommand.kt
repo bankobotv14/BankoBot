@@ -32,9 +32,7 @@ import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandAr
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.respondEmbed
-import de.nycode.bankobot.utils.HastebinUtil
 import de.nycode.bankobot.variables.parsers.calc.CalcExpression
-import de.nycode.bankobot.variables.parsers.calc.CalculationException
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.interaction.BaseApplicationBuilder
@@ -53,8 +51,6 @@ private object CalcArgument : AbstractSlashCommandArgument<CalcExpression, Messa
     }
 }
 
-const val MAX_LENGTH = 25
-
 @PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
@@ -63,17 +59,7 @@ internal fun calcCommand(): CommandSet = command("calc") {
     description("Führt eine mathematische Berechnung aus")
 
     invoke(CalcArgument) { expression ->
-        var isError = false
-        var result = try {
-            expression.getResult().toString()
-        } catch (exception: CalculationException) {
-            isError = true
-            exception.message ?: "Invalid Operation"
-        }
-
-        if (result.length > MAX_LENGTH) {
-            result = HastebinUtil.postToHastebin(result)
-        }
+        val (result, isError) = expression.getResult()
 
         val embed =
             if (!isError) Embeds.info("Mathematische Berechnung")
@@ -82,7 +68,7 @@ internal fun calcCommand(): CommandSet = command("calc") {
         respondEmbed(embed) {
             field {
                 name = "Berechnung"
-                value = "`${expression.input}`"
+                value = "`${expression.expression}`"
             }
             field {
                 name = if (isError) "Fehler" else "Ergebnis"

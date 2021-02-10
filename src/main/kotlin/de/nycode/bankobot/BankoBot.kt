@@ -183,11 +183,13 @@ object BankoBot : CoroutineScope {
 
             eventHandlers[InteractionContext] = InteractionEventHandler
 
-            moduleModifiers += forEachModule {
-                commands.values
-                    .asSequence()
-                    .filter { it.supportsSlashCommands }
-                    .forEach { kord.registerCommand(it) }
+            if (Config.REGISTER_SLASH_COMMANDS) {
+                moduleModifiers += forEachModule {
+                    commands.values
+                        .asSequence()
+                        .filter { it.supportsSlashCommands }
+                        .forEach { kord.registerCommand(it) }
+                }
             }
 
             // listeners
@@ -197,7 +199,7 @@ object BankoBot : CoroutineScope {
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
                 }
-                if (Config.ENVIRONMENT == Environment.PRODUCTION) {
+                if (Config.ENABLE_TWITCH_WEBHOOKS) {
                     on<ReadyEvent> {
                         twitchIntegration()
                     }

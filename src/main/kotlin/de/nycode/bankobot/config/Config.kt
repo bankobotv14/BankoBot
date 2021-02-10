@@ -69,6 +69,22 @@ object Config {
 
     val WEBHOOK_URL: String by getEnv()
     val WEBHOOK_SECRET: String by getEnv()
+
+    /**
+     * MathJS Evaluation Server used by the CalcExpression
+     * https://mathjs.org/
+     */
+    val MATHJS_SERVER_URL: String by getEnv()
+
+    /**
+     * Used to disable registering slash commands in development
+     */
+    val REGISTER_SLASH_COMMANDS: Boolean by getEnv(default = true) { it.toBoolean() }
+
+    /**
+     * Used to disable or enable twitch webhooks
+     */
+    val ENABLE_TWITCH_WEBHOOKS: Boolean by getEnv(default = true) { it.toBoolean() }
 }
 
 /**
