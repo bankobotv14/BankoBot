@@ -85,6 +85,9 @@ object Config {
      * Used to disable or enable twitch webhooks
      */
     val ENABLE_TWITCH_WEBHOOKS: Boolean by getEnv(default = true) { it.toBoolean() }
+
+    val LAVALINK_HOST: String? by getEnv().optional()
+    val LAVALINK_PASSWORD: String? by getEnv().optional()
 }
 
 /**
