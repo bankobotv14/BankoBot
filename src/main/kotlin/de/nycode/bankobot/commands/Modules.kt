@@ -43,6 +43,11 @@ const val ModerationModule: String = "Moderation"
 const val TagModule: String = "Tag"
 
 /**
- * Name for the bot owner module
+ * Name for the bot owner module.
  */
 const val BotOwnerModule: String = "BotOwner"
+
+/**
+ * Name for the fun module.
+ */
+const val FunModule: String = "Fun"
