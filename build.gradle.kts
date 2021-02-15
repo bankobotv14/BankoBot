@@ -63,6 +63,9 @@ dependencies {
     implementation("io.ktor", "ktor-client-cio", ktorVersion)
     implementation("io.ktor", "ktor-client-json", ktorVersion)
     implementation("io.ktor", "ktor-serialization", ktorVersion)
+    implementation("io.ktor", "ktor-server-netty", ktorVersion)
+    implementation("io.ktor", "ktor-server-core", ktorVersion)
+    implementation("io.ktor", "ktor-server-host-common", ktorVersion)
 
     implementation("io.ktor", "ktor-server-core", ktorVersion)
     implementation("io.ktor", "ktor-server-cio", ktorVersion)

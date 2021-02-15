@@ -80,7 +80,6 @@ internal suspend fun Kord.updatePresence(stream: TwitchStream) {
  * @param token the app authentication token
  */
 private suspend fun Kord.subscribe(userId: Int, token: TwitchAccessTokenResponse) = coroutineScope {
-    launchServer()
     val response = BankoBot.httpClient.updateSubscription(userId, "subscribe", token)
 
     registerSubscriptionShutdownHook(userId, token)

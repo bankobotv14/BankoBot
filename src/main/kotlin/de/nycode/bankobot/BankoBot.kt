@@ -28,6 +28,7 @@ package de.nycode.bankobot
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.IndexOptions
+import de.nycode.bankobot.api.launchServer
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
@@ -205,6 +206,8 @@ object BankoBot : CoroutineScope {
                     }
                 }
             }
+
+            kord.launchServer()
         }
     }
 }
