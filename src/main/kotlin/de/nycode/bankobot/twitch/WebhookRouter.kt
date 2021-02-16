@@ -44,7 +44,7 @@ import mu.KotlinLogging
 internal val webhookLogger by lazy { KotlinLogging.logger("Webhooks") }
 
 /**
- * Launches a ktor embedded server uses for receiving webhook notifications from the twitch api
+ * Routes for receiving webhook notifications from the twitch api
  */
 @OptIn(KtorExperimentalAPI::class)
 internal fun Route.twitch() {
