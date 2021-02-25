@@ -35,7 +35,7 @@ import dev.kord.x.commands.model.module.CommandSet
 @PublishedApi
 internal object CallbackData : Metadata.Key<CommandExecutionCallback>
 
-data class CommandExecutionCallback(val stack: StackTraceElement, val fileName: String)
+data class CommandExecutionCallback(val stack: StackTraceElement)
 
 @Suppress("UnsafeCallOnNullableType") // we know it's not null
 val Command<*>.callback: CommandExecutionCallback
@@ -49,9 +49,8 @@ fun command(
     builder: KordCommandBuilder.() -> Unit,
 ): CommandSet {
     val stack = Exception().stackTrace[1]
-    val fileName = builder.javaClass.name.substringBefore("Kt$")
     val configure: KordCommandBuilder.() -> Unit = {
-        metaData[CallbackData] = CommandExecutionCallback(stack, fileName)
+        metaData[CallbackData] = CommandExecutionCallback(stack)
         builder(this)
     }
     return dev.kord.x.commands.model.module.command(CommonContext, name, configure)
