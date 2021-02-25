@@ -43,6 +43,7 @@ import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
 import de.nycode.bankobot.serialization.SnowflakeSerializer
 import de.nycode.bankobot.twitch.twitchIntegration
+import de.nycode.bankobot.twitch.updatePresence
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.event.gateway.ReadyEvent

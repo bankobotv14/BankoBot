@@ -42,6 +42,10 @@ import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.kord.model.KordEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.Opcodes
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.LineNumberNode
 
 private const val GITHUB_BASE = "https://github.com/${GitHubUtil.GITHUB_REPO}"
 private const val GITHUB_FILE_APPENDIX = "/tree/main/src/main/kotlin/"
@@ -67,14 +71,25 @@ internal fun sourceCommand() = command("source") {
     }
 }
 
+@Suppress("BlockingMethodInNonBlockingContext") // Afaik there is no ASM based on coroutines
 private suspend fun KordCommandEvent.specificCommand(name: String) {
     val command = processor.getCommand(name)
     if (command == null) {
         respondEmbed(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
         return
     }
-    val (stack, fileName) = command.callback
-    val url = "$GITHUB_BASE$GITHUB_FILE_APPENDIX${fileName.replace(".", "/")}.kt#L${stack.lineNumber}"
+    val (stack) = command.callback
+    val reader = ClassReader(stack.className)
+    val clazz = ClassNode(Opcodes.ASM9)
+    reader.accept(clazz, Opcodes.ASM9)
+    val method = clazz.methods.first { it.name == stack.methodName }
+    val (start, end) = method.instructions
+        .asSequence()
+        .filterIsInstance<LineNumberNode>()
+        .map(LineNumberNode::line)
+        .toList()
+    val url =
+        "$GITHUB_BASE$GITHUB_FILE_APPENDIX${clazz.name.dropLast(2) /* Drop Kt file suffix */}.kt#L$start-L$end"
 
     respondEmbed(
         Embeds.info(
