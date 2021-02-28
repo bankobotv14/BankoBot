@@ -79,11 +79,11 @@ dependencies {
 
     implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.60.2")
 
+    implementation("dev.schlaubi.lavakord", "core-jvm", "1.0.0-20210227.215714-5")
+    implementation("dev.schlaubi.lavakord", "kord-jvm", "1.0.0-20210227.215714-5")
+
     implementation("org.ow2.asm", "asm", "9.1")
     implementation("org.ow2.asm", "asm-tree", "9.1")
-
-    implementation("dev.schlaubi.lavakord", "core-jvm", "1.0.0-20210211.162050-2")
-    implementation("dev.schlaubi.lavakord", "kord-jvm", "1.0.0-20210211.162050-2")
 
     detektPlugins("io.gitlab.arturbosch.detekt", "detekt-formatting", "1.15.0")
 
