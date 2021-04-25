@@ -63,7 +63,7 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
         tag as TagEntry
 
         if (tag.text == newText) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Text stimmt überein",
                     "Der angegebene Text stimmt mit dem aktuellen Text des Tags überein!"

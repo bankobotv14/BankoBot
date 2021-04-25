@@ -23,20 +23,25 @@
  *
  */
 
-package de.nycode.bankobot.listeners
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.commands.general.sendInfo
-import de.nycode.bankobot.utils.Embeds.createEmbed
-import de.nycode.bankobot.utils.Embeds.editEmbed
 import dev.kord.core.Kord
 import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.core.on
+import dev.kord.x.commands.kord.model.processor.KordContext
+import dev.kord.x.commands.model.processor.EventSource
+import dev.kord.x.commands.model.processor.ProcessorContext
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.filterIsInstance
 
-private val mentionRegex by lazy { "<@!?${BankoBot.kord.selfId.asString}>".toRegex() }
+class MessageCommandEventSource(
+    val kord: Kord
+) : EventSource<MessageCreateEvent> {
+    override val context: ProcessorContext<MessageCreateEvent, *, *>
+        get() = BankoBotContext
 
-internal fun Kord.selfMentionListener() = on<MessageCreateEvent> {
-    if (message.content.matches(mentionRegex)) {
-        sendInfo({ message.channel.createEmbed(it) }) { editEmbed(it) }
-    }
+    override val events: Flow<MessageCreateEvent>
+        get() = kord.events.buffer(Channel.UNLIMITED).filterIsInstance()
+
 }

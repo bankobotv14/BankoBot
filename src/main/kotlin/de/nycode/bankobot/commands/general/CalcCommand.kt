@@ -65,7 +65,7 @@ internal fun calcCommand(): CommandSet = command("calc") {
             if (!isError) Embeds.info("Mathematische Berechnung")
             else Embeds.error("Mathematische Berechnung", null)
 
-        respondEmbed(embed) {
+        sendResponse(embed) {
             field {
                 name = "Berechnung"
                 value = "`${expression.expression}`"

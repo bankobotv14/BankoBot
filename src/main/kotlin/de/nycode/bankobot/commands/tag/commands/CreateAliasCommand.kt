@@ -66,7 +66,7 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
 
         val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
         if (aliasTag != null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Alias existiert bereits!",
                     "Du kannst diesen Alias nicht erstellen, da der Tag **${aliasTag.name}** diesen bereits nutzt!"
@@ -77,7 +77,7 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
 
         val aliasNameTag = BankoBot.repositories.tag.findOne(TagEntry::name eq aliasName)
         if (aliasNameTag != null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Name bereits genutzt!",
                     "Du kannst diesen Alias nicht erstellen," +

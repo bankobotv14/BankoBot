@@ -67,7 +67,7 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
 
         if (tag != null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Tag existierst bereits",
                     "Ein Tag mit dem Namen **$tagName** existiert bereits!"

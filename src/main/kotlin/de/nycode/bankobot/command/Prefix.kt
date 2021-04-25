@@ -25,6 +25,8 @@
 
 package de.nycode.bankobot.command
 
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.kord.model.processor.KordContext
 import dev.kord.x.commands.model.prefix.PrefixBuilder
 import dev.kord.x.commands.model.prefix.PrefixRule
 
@@ -45,3 +47,6 @@ private class LiteralPrefixRule(prefix: String) : PrefixRule<Any?> {
         return PrefixRule.Result.Accepted(match.value)
     }
 }
+
+inline fun PrefixBuilder.bankoBot(supplier: () -> PrefixRule<MessageCreateEvent>) =
+    add(BankoBotContext, supplier())

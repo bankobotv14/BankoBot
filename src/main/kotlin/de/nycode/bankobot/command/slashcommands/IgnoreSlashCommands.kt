@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.command.slashcommands
 
+import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.command.CommandBuilder
 import dev.kord.x.commands.model.metadata.Metadata
 
@@ -37,8 +38,15 @@ val CommandBuilder<*, *, *>.supportsSlashCommands: Boolean
     get() = metaData[IgnoreAsSlashCommand] != true
 
 /**
+ * Whether a Command supports slash commands or not
+ */
+val Command<*>.supportsSlashCommands: Boolean
+    get() = data.metadata[IgnoreAsSlashCommand] != true
+
+/**
  * Disables slash commands for this command.
  */
 fun CommandBuilder<*, *, *>.disableSlashCommands() {
     metaData[IgnoreAsSlashCommand] = true
 }
+

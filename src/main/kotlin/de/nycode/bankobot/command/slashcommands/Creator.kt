@@ -26,32 +26,41 @@
 package de.nycode.bankobot.command.slashcommands
 
 import de.nycode.bankobot.command.description
-import de.nycode.bankobot.config.Config
-import de.nycode.bankobot.config.Environment
 import dev.kord.common.annotation.KordPreview
-import dev.kord.core.Kord
 import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
+import dev.kord.rest.builder.interaction.ApplicationCommandsCreateBuilder
 import dev.kord.x.commands.model.command.CommandBuilder
 
 /**
- * Registers [command] as a Slash Command for this kord instance.
+ * Class containing all necessary information to register a slash command
+ * @property name the name
+ * @property description the description
+ * @property creator an extension of [ApplicationCommandCreateBuilder] to add options
  */
 @OptIn(KordPreview::class)
-suspend fun Kord.registerCommand(command: CommandBuilder<*, *, *>) {
-    val description = command.description ?: "<unknown description>"
+class SlashCommandCreator(
+    val name: String,
+    val description: String,
+    val creator: ApplicationCommandCreateBuilder.() -> Unit
+) {
+    fun ApplicationCommandsCreateBuilder.register() = command(name, description, creator)
+}
+
+/**
+ * Converts this command into a [SlashCommandCreator].
+ */
+@OptIn(KordPreview::class)
+fun CommandBuilder<*, *, *>.toSlashCommand(): SlashCommandCreator {
+    val description = description ?: "<unknown description>"
     val creator: ApplicationCommandCreateBuilder.() -> Unit = {
-        command.arguments.forEach {
+        arguments.forEach {
             if (it is SlashArgument<*, *>) {
                 with(it) {
                     applyArgument()
                 }
-            } else error("Command ${command.name} does use incompatible arguments for slashCommands: $it")
+            } else error("Command $name does use incompatible arguments for slashCommands: $it")
         }
     }
 
-    if (Config.ENVIRONMENT == Environment.DEVELOPMENT) {
-        slashCommands.createGuildApplicationCommand(Config.DEV_GUILD_ID, command.name, description, creator)
-    } else {
-        slashCommands.createGlobalApplicationCommand(command.name, description, creator)
-    }
+    return SlashCommandCreator(name, description, creator)
 }

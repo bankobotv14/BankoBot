@@ -50,7 +50,7 @@ internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
         val tag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
 
         if (tag == null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Nicht gefunden!",
                     "Es konnte kein Tag mit dem Alias \"$aliasName\" gefunden werden!"
@@ -60,7 +60,7 @@ internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
         }
 
         if (tag.author != message.author?.id && message.getAuthorAsMember()?.hasDeletePermission()?.not() == true) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Du bist nicht der Autor.",
                     "Du darfst diesen Alias nicht löschen, da du den Tag nicht erstellt hast!"

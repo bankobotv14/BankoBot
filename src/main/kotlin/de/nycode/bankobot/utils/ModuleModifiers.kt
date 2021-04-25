@@ -23,20 +23,24 @@
  *
  */
 
-package de.nycode.bankobot.listeners
+package de.nycode.bankobot.utils
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.commands.general.sendInfo
-import de.nycode.bankobot.utils.Embeds.createEmbed
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import dev.kord.core.Kord
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.core.on
+import dev.kord.x.commands.model.module.ModuleBuilder
+import dev.kord.x.commands.model.module.ModuleModifier
+import dev.kord.x.commands.model.processor.ModuleContainer
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberProperties
 
-private val mentionRegex by lazy { "<@!?${BankoBot.kord.selfId.asString}>".toRegex() }
+inline fun afterAll(
+    crossinline modification: suspend Collection<ModuleBuilder<*, *, *>>.() -> Unit
+): ModuleModifier = object : ModuleModifier {
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun apply(container: ModuleContainer) {
+        val properties =
+            container::class.declaredMemberProperties.first { it.name == "modules" } as KProperty1<ModuleContainer, MutableMap<String, ModuleBuilder<*, *, *>>>
 
-internal fun Kord.selfMentionListener() = on<MessageCreateEvent> {
-    if (message.content.matches(mentionRegex)) {
-        sendInfo({ message.channel.createEmbed(it) }) { editEmbed(it) }
+        val modules = properties.get(container)
+
+        modification(modules.values)
     }
 }

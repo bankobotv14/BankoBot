@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.commands.general
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.GeneralModule
@@ -41,12 +42,12 @@ fun dCommand() = command("dddd") {
     description("They don't know :pepeLaugh:")
 
     invoke {
-        channel.specificCommand()
+        specificCommand()
     }
 }
 
-private suspend fun MessageChannelBehavior.specificCommand() {
-    createEmbed {
+private suspend fun Context.specificCommand() {
+    sendResponse {
         title = "Imagine using xd in 2k21... oh wait"
     }
 }

@@ -25,19 +25,20 @@
 
 package de.nycode.bankobot.commands.general
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.isMessageCommandContext
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
+import de.nycode.bankobot.command.slashcommands.supportsSlashCommands
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.optional
 import dev.kord.x.commands.argument.text.WordArgument
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.AliasInfo
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -64,44 +65,45 @@ internal fun helpCommand(): CommandSet = command("help") {
     }
 }
 
-private suspend fun KordCommandEvent.specificCommand(commandName: String) {
+private suspend fun Context.specificCommand(commandName: String) {
     val command = processor.getCommand(commandName)
     if (command == null) {
-        respondEmbed(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
+        sendResponse(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
         return
     }
-    respondEmbed(Embeds.command(command, processor))
+    sendResponse(Embeds.command(command, processor))
 }
 
-private suspend fun KordCommandEvent.allCommands() {
+private suspend fun Context.allCommands() {
     val commands = processor.commands.values.groupBy { it.module.name }
+    val myCommands = commands
+        .mapValues { (_, it) ->
+            it.filter {
+                it.aliasInfo !is AliasInfo.Child &&
+                        it.preconditions.all { precondition ->
+                            @Suppress("UNCHECKED_CAST")
+                            (precondition as Precondition<Context>).invoke(
+                                this@allCommands
+                            )
+                        }
+                        && (isMessageCommandContext() || it.supportsSlashCommands) // only show slash commands in /help
+            }
+        }
 
-    respondEmbed(
+    sendResponse(
         Embeds.info(
             "Hilfe - Befehlsliste",
             """Dies ist eine Liste aller Befehle, die du benutzen kannst,
                 |um mehr über einen Befehl zu erfahren kannst du `xd help [command]` ausführen""".trimMargin()
         )
     ) {
-        commands
-            .mapValues { (_, it) ->
-                it.filter {
-                    it.aliasInfo !is AliasInfo.Child &&
-                            it.preconditions.all { precondition ->
-                                @Suppress("UNCHECKED_CAST")
-                                (precondition as Precondition<KordCommandEvent>).invoke(
-                                    this@allCommands
-                                )
-                            }
+        myCommands.forEach { (module, commands) ->
+            if (commands.isNotEmpty()) {
+                field {
+                    name = module
+                    value = commands.joinToString("`, `", "`", "`") { it.name }
                 }
             }
-            .forEach { (module, commands) ->
-                if (commands.isNotEmpty()) {
-                    field {
-                        name = module
-                        value = commands.joinToString("`, `", "`", "`") { it.name }
-                    }
-                }
-            }
+        }
     }
 }

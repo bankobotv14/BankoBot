@@ -23,20 +23,19 @@
  *
  */
 
-package de.nycode.bankobot.listeners
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.commands.general.sendInfo
-import de.nycode.bankobot.utils.Embeds.createEmbed
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import dev.kord.core.Kord
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.core.on
+import de.nycode.bankobot.command.slashcommands.SlashCommandContext
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
-private val mentionRegex by lazy { "<@!?${BankoBot.kord.selfId.asString}>".toRegex() }
-
-internal fun Kord.selfMentionListener() = on<MessageCreateEvent> {
-    if (message.content.matches(mentionRegex)) {
-        sendInfo({ message.channel.createEmbed(it) }) { editEmbed(it) }
+@OptIn(ExperimentalContracts::class)
+fun Context.isSlashCommandContext(): Boolean {
+    contract {
+        returns(true) implies (this@isSlashCommandContext is SlashCommandContext)
     }
+
+    return this is SlashCommandContext
 }
+
+fun Context.isMessageCommandContext(): Boolean = !isSlashCommandContext()

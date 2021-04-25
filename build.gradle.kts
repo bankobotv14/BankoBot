@@ -27,9 +27,9 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.30"
-    kotlin("kapt") version "1.4.30"
-    kotlin("plugin.serialization") version "1.4.30"
+    kotlin("jvm") version "1.4.32"
+    kotlin("kapt") version "1.4.32"
+    kotlin("plugin.serialization") version "1.4.32"
     id("io.gitlab.arturbosch.detekt") version "1.15.0"
     application
     antlr
@@ -39,11 +39,12 @@ group = "de.nycode"
 version = "1.0.1-hotfix.3"
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://kotlin.bintray.com/kotlinx/")
     maven("https://schlaubi.jfrog.io/artifactory/lavakord")
+    jcenter()
 }
 
 application {
@@ -55,7 +56,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-datetime", "0.1.1")
     implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.0.1")
 
-    implementation("dev.kord", "kord-core", "0.7.0-SNAPSHOT")
+    implementation("dev.kord", "kord-core", "0.7.0-RC3")
     implementation("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")
     implementation("dev.kord.x", "commands-runtime-kord", "0.4.0-SNAPSHOT")
     kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")
@@ -79,8 +80,7 @@ dependencies {
 
     implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.60.2")
 
-    implementation("dev.schlaubi.lavakord", "core-jvm", "1.0.0-20210227.215714-5")
-    implementation("dev.schlaubi.lavakord", "kord-jvm", "1.0.0-20210227.215714-5")
+    implementation("dev.schlaubi.lavakord", "kord", "1.0.0-SNAPSHOT")
 
     implementation("org.ow2.asm", "asm", "9.1")
     implementation("org.ow2.asm", "asm-tree", "9.1")

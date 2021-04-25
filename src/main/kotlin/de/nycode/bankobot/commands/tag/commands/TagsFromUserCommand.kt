@@ -56,7 +56,7 @@ internal fun tagsFromUserCommand(): CommandSet = command("from-user") {
         val tagCount = BankoBot.repositories.tag.countDocuments(TagEntry::author eq member.id).toInt()
 
         if (tagCount == 0) {
-            respondEmbed(Embeds.error("Keine Tags gefunden!", "${member.mention} hat keine Tags erstellt!"))
+            sendResponse(Embeds.error("Keine Tags gefunden!", "${member.mention} hat keine Tags erstellt!"))
             return@invoke
         }
 
