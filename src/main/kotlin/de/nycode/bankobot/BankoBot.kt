@@ -160,6 +160,7 @@ object BankoBot : CoroutineScope {
         repositories.tagActions = database.getCollection("tagActions")
     }
 
+    @Suppress("LongMethod")
     @OptIn(KordPreview::class)
     private suspend fun initializeKord() {
         BotBuilder(kord).processorBuilder.apply {

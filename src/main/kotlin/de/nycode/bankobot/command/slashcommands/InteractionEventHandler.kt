@@ -236,4 +236,3 @@ fun OptionValue<*>?.stringify(): String {
         else -> argumentValue.toString()
     }
 }
-

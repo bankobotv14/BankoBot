@@ -27,7 +27,6 @@ package de.nycode.bankobot.command
 
 import dev.kord.core.Kord
 import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.kord.model.processor.KordContext
 import dev.kord.x.commands.model.processor.EventSource
 import dev.kord.x.commands.model.processor.ProcessorContext
 import kotlinx.coroutines.channels.Channel
@@ -43,5 +42,4 @@ class MessageCommandEventSource(
 
     override val events: Flow<MessageCreateEvent>
         get() = kord.events.buffer(Channel.UNLIMITED).filterIsInstance()
-
 }

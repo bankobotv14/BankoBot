@@ -85,8 +85,7 @@ private suspend fun Context.allCommands() {
                             (precondition as Precondition<Context>).invoke(
                                 this@allCommands
                             )
-                        }
-                        && (isMessageCommandContext() || it.supportsSlashCommands) // only show slash commands in /help
+                        } && (isMessageCommandContext() || it.supportsSlashCommands) // only show /commands in /help
             }
         }
 

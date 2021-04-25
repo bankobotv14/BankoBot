@@ -37,7 +37,8 @@ inline fun afterAll(
     @Suppress("UNCHECKED_CAST")
     override suspend fun apply(container: ModuleContainer) {
         val properties =
-            container::class.declaredMemberProperties.first { it.name == "modules" } as KProperty1<ModuleContainer, MutableMap<String, ModuleBuilder<*, *, *>>>
+            container::class.declaredMemberProperties.first { it.name == "modules" }
+                    as KProperty1<ModuleContainer, MutableMap<String, ModuleBuilder<*, *, *>>>
 
         val modules = properties.get(container)
 

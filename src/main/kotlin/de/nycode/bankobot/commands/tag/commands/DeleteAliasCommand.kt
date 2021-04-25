@@ -29,10 +29,10 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.*
+import de.nycode.bankobot.commands.tag.TagEntry
+import de.nycode.bankobot.commands.tag.hasDeletePermission
+import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName

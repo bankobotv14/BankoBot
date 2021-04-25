@@ -96,7 +96,6 @@ object BankoBotContextConverter :
 
     override fun MessageCreateEvent.toCommandEvent(data: CommandEventData<Context>): Context =
         createCommandEvent(this, data).toContext()
-
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -60,7 +60,11 @@ abstract class AbstractErrorHandler :
     ) {
         if (rejection.message == "Expected more input but reached end.") {
             rejection.event.message.channel.createEmbed(Embeds.command(rejection.command, this))
-        } else with(kordHandler) { rejectArgument(rejection as ErrorHandler.RejectedArgument<MessageCreateEvent, MessageCreateEvent, KordCommandEvent>) }
+        } else with(kordHandler) {
+            rejectArgument(
+                rejection as ErrorHandler.RejectedArgument<MessageCreateEvent, MessageCreateEvent, KordCommandEvent>
+            )
+        }
     }
 }
 

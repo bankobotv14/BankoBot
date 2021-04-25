@@ -1,3 +1,4 @@
+@file:Suppress("Filename")
 /*
  * MIT License
  *

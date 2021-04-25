@@ -65,7 +65,6 @@ internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
             return@invoke
         }
 
-
         if (text.isNullOrBlank()) {
             sendResponse(autoUpload(message))
         } else {

@@ -49,4 +49,3 @@ val Command<*>.supportsSlashCommands: Boolean
 fun CommandBuilder<*, *, *>.disableSlashCommands() {
     metaData[IgnoreAsSlashCommand] = true
 }
-

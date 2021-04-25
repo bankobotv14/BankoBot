@@ -52,7 +52,6 @@ class EphemeralSlashCommandContext(
     override val command: Command<*>
         get() = _command ?: error("Command is not available")
 
-
     @OptIn(KordUnsafe::class)
     override suspend fun createResponse(builder: suspend MessageCreateBuilder.() -> Unit): EditableMessage {
         val messageBuilder = MessageCreateBuilder().apply { builder() }
@@ -64,7 +63,6 @@ class EphemeralSlashCommandContext(
 
         return EditableEphemeralFollowUp(response)
     }
-
 }
 
 class EditableEphemeralFollowUp(private val response: PublicFollowupMessage) : EditableMessage {
