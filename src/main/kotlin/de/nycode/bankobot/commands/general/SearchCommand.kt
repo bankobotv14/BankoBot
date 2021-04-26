@@ -41,7 +41,7 @@ import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
 
-private val QueryArgument = StringArgument.named("Text").asSlashArgument("Die Succh-Query nach der gesucht werden soll")
+private val QueryArgument = StringArgument.named("Text").asSlashArgument("Die Such-Query nach der gesucht werden soll")
 
 @AutoWired
 @ModuleName(GeneralModule)
