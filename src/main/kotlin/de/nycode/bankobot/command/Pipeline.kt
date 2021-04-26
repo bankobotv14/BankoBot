@@ -1,3 +1,4 @@
+@file:Suppress("Filename")
 /*
  * MIT License
  *
@@ -23,29 +24,10 @@
  *
  */
 
-package de.nycode.bankobot.commands.general
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.command.Context
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.commands.GeneralModule
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.model.command.invoke
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.model.processor.ProcessorContext
 
-@ModuleName(GeneralModule)
-@AutoWired
-fun dCommand() = command("dddd") {
-    alias("d", "dd", "ddd")
-    description("They don't know :pepeLaugh:")
-
-    invoke {
-        specificCommand()
-    }
-}
-
-private suspend fun Context.specificCommand() {
-    sendResponse {
-        title = "Imagine using xd in 2k21... oh wait"
-    }
-}
+object BankoBotContext :
+    ProcessorContext<MessageCreateEvent, MessageCreateEvent, Context>

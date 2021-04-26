@@ -33,7 +33,6 @@ import de.nycode.bankobot.command.permissions.permission
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.ModerationModule
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.kord.argument.MemberArgument
@@ -55,7 +54,7 @@ internal fun blacklistCommand() = command("blacklist") {
             val newEntry = BlacklistEntry(member.id)
             BankoBot.repositories.blacklist.save(newEntry)
 
-            respondEmbed(
+            sendResponse(
                 Embeds.success(
                     "Hinzugefügt",
                     "${member.mention} wurde erfolgreich auf die Blacklist gesetzt."
@@ -64,10 +63,12 @@ internal fun blacklistCommand() = command("blacklist") {
         } else {
             BankoBot.repositories.blacklist.deleteOneById(entry.userId)
 
-            respondEmbed(Embeds.success(
-                "Entfernt",
-                "${member.mention} wurde erfolgreich von der Blacklist entfernt."
-            ))
+            sendResponse(
+                Embeds.success(
+                    "Entfernt",
+                    "${member.mention} wurde erfolgreich von der Blacklist entfernt."
+                )
+            )
         }
     }
 }

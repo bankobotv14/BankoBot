@@ -40,7 +40,7 @@ abstract class AbstractSlashCommandArgument<T, CONTEXT>(
     private val delegate: Argument<T, CONTEXT>,
 ) : Argument<T, CONTEXT> by delegate, SlashArgument<T, CONTEXT> {
     override val required: Boolean
-        get() = !delegate.toString().contains("optional")
+        get() = !delegate.toString().contains("optional|default".toRegex())
 
     @OptIn(KordPreview::class)
     protected fun required(): OptionsBuilder.() -> Unit = {

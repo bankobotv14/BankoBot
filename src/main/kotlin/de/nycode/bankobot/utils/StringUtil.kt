@@ -39,7 +39,7 @@ fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLen
 fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
     joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
 
-fun String.asNullable(): String? = if (isBlank()) null else this
+fun String.asNullable(): String? = ifBlank { null }
 
 fun String.sha256(): String {
     return hashString(this, "SHA-256")

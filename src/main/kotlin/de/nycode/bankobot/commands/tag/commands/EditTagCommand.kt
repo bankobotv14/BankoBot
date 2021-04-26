@@ -35,8 +35,6 @@ import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.checkEmpty
 import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -63,7 +61,7 @@ internal fun editTagCommand(): CommandSet = command("edit-tag") {
         tag as TagEntry
 
         if (tag.text == newText) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Text stimmt überein",
                     "Der angegebene Text stimmt mit dem aktuellen Text des Tags überein!"

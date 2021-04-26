@@ -30,6 +30,7 @@ import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.Snowflake
+import dev.kord.core.entity.interaction.GuildInteraction
 import dev.kord.core.event.Event
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
@@ -51,7 +52,7 @@ internal object BlacklistEnforcer : AbstractKordFilter() {
     override suspend fun invoke(event: Event): Boolean {
         val author = when (event) {
             is MessageCreateEvent -> event.message.author?.id ?: return false
-            is InteractionCreateEvent -> event.interaction.member.id
+            is InteractionCreateEvent -> (event.interaction as GuildInteraction).member.id
             else -> return false
         }
         return if (Config.ENVIRONMENT != Environment.PRODUCTION) {

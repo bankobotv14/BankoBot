@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.commands.general
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
@@ -38,7 +39,6 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.text.StringArgument
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
 private val QueryArgument = StringArgument.named("Text").asSlashArgument("Die Such-Query nach der gesucht werden soll")
@@ -54,7 +54,7 @@ fun searchCommand() = command("google") {
     }
 }
 
-private suspend fun KordCommandEvent.search(search: String) {
+private suspend fun Context.search(search: String) {
     doExpensiveTask("Searching...", "Bitte warte, bis ich Ergebnisse gefunden habe!") {
         val list = getResultAsList(search)
         if (list.isNullOrEmpty()) {

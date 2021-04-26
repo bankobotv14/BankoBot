@@ -34,8 +34,6 @@ import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.saveCreation
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -67,7 +65,7 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
         val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
 
         if (tag != null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Tag existierst bereits",
                     "Ein Tag mit dem Namen **$tagName** existiert bereits!"
