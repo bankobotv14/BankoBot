@@ -34,6 +34,7 @@ import dev.kord.common.entity.optional.OptionalSnowflake
 import dev.kord.common.entity.optional.optional
 import dev.kord.common.entity.optional.optionalSnowflake
 import dev.kord.core.Kord
+import dev.kord.core.KordObject
 import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.PublicInteractionResponseBehavior
 import dev.kord.core.cache.data.MessageData
@@ -159,7 +160,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
             when (val result = argument.parse(argumentText, 0, event)) {
                 is ArgumentResult.Success -> {
                     val item = result.item
-                    items += if (item !is String && argumentText.isNotBlank()) {
+                    items += if (item is KordObject && argumentText.isNotBlank()) {
                         argumentValue
                     } else {
                         item
