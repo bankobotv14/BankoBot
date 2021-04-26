@@ -195,6 +195,7 @@ object Embeds {
     /**
      * Responds to this command with an embed provided by [base] and applies [creator] to it
      */
+    @Deprecated("Use sendResponse instead", ReplaceWith("sendResponse(base, creator)"))
     suspend fun KordEvent.respondEmbed(
         base: EmbedBuilder,
         creator: suspend EmbedBuilder.() -> Unit = {}

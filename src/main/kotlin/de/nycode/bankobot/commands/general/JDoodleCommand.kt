@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.commands.general
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
@@ -40,7 +41,6 @@ import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.kord.argument.CodeBlock
 import dev.kord.x.commands.kord.argument.CodeBlockArgument
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.emoji.Emojis
 import kotlin.time.ExperimentalTime
@@ -70,7 +70,7 @@ fun jdoodleCommand() = command("jdoodle") {
 
 @Suppress("MagicNumber")
 @OptIn(ExperimentalTime::class)
-private suspend fun KordCommandEvent.executeViaJDoodle(argument: CodeBlock) {
+private suspend fun Context.executeViaJDoodle(argument: CodeBlock) {
     doExpensiveTask("Loading JDoodle", "Bitte warte, bis ich deinen Code ausgeführt habe!") {
         val response = argument.language?.let { JDoodleUtil.executeCode(it, argument.content) }
 

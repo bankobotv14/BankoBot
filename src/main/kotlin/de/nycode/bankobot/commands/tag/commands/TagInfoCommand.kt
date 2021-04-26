@@ -33,7 +33,6 @@ import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.UseAction
 import de.nycode.bankobot.commands.tag.checkEmpty
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
@@ -63,7 +62,7 @@ internal fun tagInfoCommand(): CommandSet = command("tag-info") {
 
         val rank = tag.getRank()
 
-        respondEmbed(Embeds.info("Tag-Informationen") {
+        sendResponse(Embeds.info("Tag-Informationen") {
             author {
                 icon = author?.avatar?.url
                 name = authorName

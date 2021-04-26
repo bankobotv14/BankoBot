@@ -30,11 +30,8 @@ import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.*
-import de.nycode.bankobot.commands.tag.checkEmpty
-import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -56,7 +53,7 @@ internal fun deleteTagCommand(): CommandSet = command("delete-tag") {
         tag as TagEntry
 
         if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Du bist nicht der Autor.",
                     "Du darfst diesen Tag nicht löschen, da du ihn nicht erstellt hast!"

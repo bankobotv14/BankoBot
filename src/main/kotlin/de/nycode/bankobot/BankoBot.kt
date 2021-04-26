@@ -43,15 +43,15 @@ import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
 import de.nycode.bankobot.serialization.SnowflakeSerializer
 import de.nycode.bankobot.twitch.twitchIntegration
+import de.nycode.bankobot.utils.afterAll
 import dev.kord.common.annotation.KordPreview
+import dev.kord.common.entity.PresenceStatus
 import dev.kord.core.Kord
 import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.on
-import dev.kord.x.commands.kord.bot
+import dev.kord.x.commands.kord.BotBuilder
 import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
-import dev.kord.x.commands.kord.model.processor.KordContext
-import dev.kord.x.commands.model.module.forEachModule
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
 import io.ktor.client.*
@@ -65,6 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -159,36 +160,54 @@ object BankoBot : CoroutineScope {
         repositories.tagActions = database.getCollection("tagActions")
     }
 
+    @Suppress("LongMethod")
     @OptIn(KordPreview::class)
     private suspend fun initializeKord() {
-        bot(kord) {
+        BotBuilder(kord).processorBuilder.apply {
             configure() // add annotation processed commands
             prefix {
-                kord {
+                bankoBot {
                     literal("xd") or literal("!") or mention()
                 }
             }
 
             eventFilters.add(BlacklistEnforcer)
             preconditions.add(permissionHandler)
-            eventHandlers[KordContext] = BaseEventHandler(
-                KordContext,
+            eventHandlers[BankoBotContext] = BaseEventHandler(
+                BankoBotContext,
                 BankoBotContextConverter,
                 if (Config.ENVIRONMENT == Environment.PRODUCTION) HastebinErrorHandler else DebugErrorHandler
             )
 
             eventSources += InteractionEventSource(kord)
+            eventSources += MessageCommandEventSource(kord)
 
             dispatcher = Dispatchers.IO
 
             eventHandlers[InteractionContext] = InteractionEventHandler
 
             if (Config.REGISTER_SLASH_COMMANDS) {
-                moduleModifiers += forEachModule {
-                    commands.values
-                        .asSequence()
-                        .filter { it.supportsSlashCommands }
-                        .forEach { kord.registerCommand(it) }
+                moduleModifiers += afterAll {
+                    val commands =
+                        asSequence()
+                            .flatMap { it.commands.values.asSequence() }
+                            .filter { it.supportsSlashCommands }
+                            .map { it.toSlashCommand() }
+                            .toList()
+
+                    if (Config.ENVIRONMENT == Environment.DEVELOPMENT) {
+                        println(kord.slashCommands.createGuildApplicationCommands(Config.DEV_GUILD_ID) {
+                            commands.forEach {
+                                with(it) { register() }
+                            }
+                        }.toList())
+                    } else {
+                        kord.slashCommands.createGlobalApplicationCommands {
+                            commands.forEach {
+                                with(it) { register() }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -205,6 +224,11 @@ object BankoBot : CoroutineScope {
                     }
                 }
             }
+        }.build()
+
+        kord.login {
+            status = PresenceStatus.DoNotDisturb
+            playing("Starting ...")
         }
     }
 }

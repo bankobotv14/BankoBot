@@ -26,7 +26,6 @@
 package de.nycode.bankobot.command
 
 import de.nycode.bankobot.commands.general.sourceCommand
-import dev.kord.x.commands.kord.model.command.KordCommandBuilder
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.context.CommonContext
 import dev.kord.x.commands.model.metadata.Metadata
@@ -46,10 +45,10 @@ val Command<*>.callback: CommandExecutionCallback
  */
 fun command(
     name: String,
-    builder: KordCommandBuilder.() -> Unit,
+    builder: CommandBuilder.() -> Unit,
 ): CommandSet {
     val stack = Exception().stackTrace[1]
-    val configure: KordCommandBuilder.() -> Unit = {
+    val configure: CommandBuilder.() -> Unit = {
         metaData[CallbackData] = CommandExecutionCallback(stack)
         builder(this)
     }

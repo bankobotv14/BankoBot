@@ -32,7 +32,6 @@ import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.*
 import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.core.Kord
 import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Message
@@ -44,7 +43,6 @@ import dev.kord.x.commands.argument.extension.optional
 import dev.kord.x.commands.argument.text.StringArgument
 import dev.kord.x.commands.model.command.invoke
 import io.ktor.client.request.*
-import io.ktor.http.*
 
 const val HASTEBIN_COMMAND = "hastebin"
 
@@ -55,7 +53,7 @@ const val HASTEBIN_COMMAND = "hastebin"
 internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
     invoke(StringArgument.optional().asSlashArgument("Der hochzuladende String")) { text ->
         if (text == null && message.attachments.firstMessageTxtOrNull() == null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Kein Inhalt gefunden!",
                     "Ich konnte keinen Inhalt finden, " +
@@ -67,13 +65,10 @@ internal fun hastebinCommand() = command(HASTEBIN_COMMAND) {
             return@invoke
         }
 
-        val hasteContent = message.content
-            .substring(message.content.indexOf(HASTEBIN_COMMAND) + HASTEBIN_COMMAND.length, message.content.length)
-
-        if (hasteContent.isBlank()) {
-            respond(autoUpload(message))
+        if (text.isNullOrBlank()) {
+            sendResponse(autoUpload(message))
         } else {
-            respond(autoUpload(hasteContent))
+            sendResponse(autoUpload(text))
         }
     }
 }

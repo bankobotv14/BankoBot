@@ -25,20 +25,19 @@
 
 package de.nycode.bankobot.commands.tag
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
-import dev.kord.x.commands.kord.model.KordEvent
 
 object EmptyTag : Tag
 
-internal suspend fun KordEvent.checkEmpty(tag: Tag, name: String? = null): Boolean {
+internal suspend fun Context.checkEmpty(tag: Tag, name: String? = null): Boolean {
     val isEmpty = tag.isEmpty()
 
     if (isEmpty) {
         if (name == null) {
-            respondEmbed(Embeds.error("Tag nicht gefunden!", "Der Tag konnte nicht gefunden werden!"))
+            sendResponse(Embeds.error("Tag nicht gefunden!", "Der Tag konnte nicht gefunden werden!"))
         } else {
-            respondEmbed(Embeds.error("Tag nicht gefunden!", "Der Tag \"$name\" konnte nicht gefunden werden!"))
+            sendResponse(Embeds.error("Tag nicht gefunden!", "Der Tag \"$name\" konnte nicht gefunden werden!"))
         }
     }
     return isEmpty

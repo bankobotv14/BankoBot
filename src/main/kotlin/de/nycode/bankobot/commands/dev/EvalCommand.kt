@@ -33,7 +33,6 @@ import de.nycode.bankobot.commands.BotOwnerModule
 import de.nycode.bankobot.utils.EMBED_TITLE_MAX_LENGTH
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.HastebinUtil
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
@@ -44,7 +43,9 @@ import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
-import javax.script.*
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
+import javax.script.ScriptException
 import kotlin.time.*
 
 /**
@@ -88,10 +89,12 @@ fun evalCommand() = command("ev") {
             val res = try {
                 eval(engine, code)
             } catch (e: TimeoutCancellationException) {
-                respondEmbed(Embeds.info(
-                    "Das hat zu lange gedauert",
-                    "Dieser Code hat länger als eine minute gebraucht"
-                ))
+                sendResponse(
+                    Embeds.info(
+                        "Das hat zu lange gedauert",
+                        "Dieser Code hat länger als eine minute gebraucht"
+                    )
+                )
                 return@doExpensiveTask
             }
             val output = if (res is Deferred<*>) {

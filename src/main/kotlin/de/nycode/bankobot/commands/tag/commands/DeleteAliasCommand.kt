@@ -29,10 +29,10 @@ import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.commands.tag.*
+import de.nycode.bankobot.commands.tag.TagEntry
+import de.nycode.bankobot.commands.tag.hasDeletePermission
+import de.nycode.bankobot.commands.tag.saveChanges
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -50,7 +50,7 @@ internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
         val tag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
 
         if (tag == null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Nicht gefunden!",
                     "Es konnte kein Tag mit dem Alias \"$aliasName\" gefunden werden!"
@@ -60,7 +60,7 @@ internal fun deleteAliasCommand(): CommandSet = command("delete-alias") {
         }
 
         if (tag.author != message.author?.id && message.getAuthorAsMember()?.hasDeletePermission()?.not() == true) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Du bist nicht der Autor.",
                     "Du darfst diesen Alias nicht löschen, da du den Tag nicht erstellt hast!"

@@ -26,14 +26,13 @@
 package de.nycode.bankobot.commands.tag
 
 import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.permissions.PermissionLevel
-import de.nycode.bankobot.utils.*
-import de.nycode.bankobot.utils.Embeds.respondEmbed
+import de.nycode.bankobot.utils.Embeds
 import dev.kord.core.entity.Member
-import dev.kord.x.commands.kord.model.KordEvent
-import org.litote.kmongo.*
 import org.litote.kmongo.MongoOperator.search
 import org.litote.kmongo.coroutine.aggregate
+import org.litote.kmongo.eq
 
 internal suspend fun Member.hasDeletePermission(): Boolean {
     return BankoBot.permissionHandler.isCovered(this, PermissionLevel.MODERATOR) ||
@@ -63,11 +62,11 @@ internal suspend fun searchTags(searchTerm: String): List<TagEntry> {
         .toList()
 }
 
-internal suspend fun KordEvent.findTag(tagName: String): TagEntry? {
+internal suspend fun Context.findTag(tagName: String): TagEntry? {
     val tag = BankoBot.repositories.tag.findOne(TagEntry::name eq tagName)
 
     if (tag == null) {
-        respondEmbed(notFound())
+        sendResponse(notFound(), {})
     }
     return tag
 }

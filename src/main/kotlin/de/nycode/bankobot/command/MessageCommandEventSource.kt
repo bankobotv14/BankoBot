@@ -23,29 +23,23 @@
  *
  */
 
-package de.nycode.bankobot.commands.general
+package de.nycode.bankobot.command
 
-import de.nycode.bankobot.command.Context
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.commands.GeneralModule
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.model.command.invoke
+import dev.kord.core.Kord
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.x.commands.model.processor.EventSource
+import dev.kord.x.commands.model.processor.ProcessorContext
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.filterIsInstance
 
-@ModuleName(GeneralModule)
-@AutoWired
-fun dCommand() = command("dddd") {
-    alias("d", "dd", "ddd")
-    description("They don't know :pepeLaugh:")
+class MessageCommandEventSource(
+    val kord: Kord
+) : EventSource<MessageCreateEvent> {
+    override val context: ProcessorContext<MessageCreateEvent, *, *>
+        get() = BankoBotContext
 
-    invoke {
-        specificCommand()
-    }
-}
-
-private suspend fun Context.specificCommand() {
-    sendResponse {
-        title = "Imagine using xd in 2k21... oh wait"
-    }
+    override val events: Flow<MessageCreateEvent>
+        get() = kord.events.buffer(Channel.UNLIMITED).filterIsInstance()
 }

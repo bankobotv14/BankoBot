@@ -50,24 +50,28 @@ private val kordHandler = KordErrorHandler()
 
 const val ERROR_MARKER = "[ERROR]"
 
-@Suppress("UnnecessaryAbstractClass")
+@Suppress("UnnecessaryAbstractClass", "UNCHECKED_CAST")
 abstract class AbstractErrorHandler :
-    ErrorHandler<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by kordHandler {
+    ErrorHandler<MessageCreateEvent, MessageCreateEvent, Context> {
     override suspend fun CommandProcessor.rejectArgument(
         rejection: ErrorHandler.RejectedArgument<MessageCreateEvent,
                 MessageCreateEvent,
-                KordCommandEvent>,
+                Context>,
     ) {
         if (rejection.message == "Expected more input but reached end.") {
             rejection.event.message.channel.createEmbed(Embeds.command(rejection.command, this))
-        } else with(kordHandler) { rejectArgument(rejection) }
+        } else with(kordHandler) {
+            rejectArgument(
+                rejection as ErrorHandler.RejectedArgument<MessageCreateEvent, MessageCreateEvent, KordCommandEvent>
+            )
+        }
     }
 }
 
 object DebugErrorHandler : AbstractErrorHandler() {
     override suspend fun CommandProcessor.exceptionThrown(
         event: MessageCreateEvent,
-        command: Command<KordCommandEvent>,
+        command: Command<Context>,
         exception: Exception,
     ) {
         event.message.channel.createMessage("$ERROR_MARKER An error occurred please read the logs")
@@ -80,7 +84,7 @@ object DebugErrorHandler : AbstractErrorHandler() {
 object HastebinErrorHandler : AbstractErrorHandler() {
     override suspend fun CommandProcessor.exceptionThrown(
         event: MessageCreateEvent,
-        command: Command<KordCommandEvent>,
+        command: Command<Context>,
         exception: Exception,
     ) {
         event.message.channel.createMessage {
@@ -111,8 +115,10 @@ object HastebinErrorHandler : AbstractErrorHandler() {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext",
-        "LongParameterList") // How is StringBuilder#append() blocking?!
+    @Suppress(
+        "BlockingMethodInNonBlockingContext",
+        "LongParameterList"
+    ) // How is StringBuilder#append() blocking?!
     suspend fun collectErrorInformation(
         e: Exception,
         content: String,

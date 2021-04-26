@@ -31,7 +31,6 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.variables.parsers.calc.CalcExpression
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.event.message.MessageCreateEvent
@@ -65,7 +64,7 @@ internal fun calcCommand(): CommandSet = command("calc") {
             if (!isError) Embeds.info("Mathematische Berechnung")
             else Embeds.error("Mathematische Berechnung", null)
 
-        respondEmbed(embed) {
+        sendResponse(embed) {
             field {
                 name = "Berechnung"
                 value = "`${expression.expression}`"

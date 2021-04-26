@@ -25,6 +25,10 @@
 
 package de.nycode.bankobot.utils
 
+import de.nycode.bankobot.command.Context
+import de.nycode.bankobot.command.EditableMessage
+import de.nycode.bankobot.command.MessageEditableMessage
+import de.nycode.bankobot.command.isSlashCommandContext
 import de.nycode.bankobot.utils.Embeds.createEmbed
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
@@ -42,21 +46,32 @@ import kotlin.coroutines.CoroutineContext
  *
  * @see MessageChannelBehavior.doExpensiveTask
  */
-suspend fun KordEvent.doExpensiveTask(
+suspend fun Context.doExpensiveTask(
     statusTitle: String = "Bitte warten!",
     statusDescription: String? = null,
-    task: suspend MessageBehavior.() -> Unit,
-) = channel.doExpensiveTask(statusTitle, statusDescription, task)
+    task: suspend EditableMessage.() -> Unit,
+) = doExpensiveTask(EmbedBuilder().apply {
+    title = statusTitle
+    description = statusDescription
+}, task)
 
 /**
  * Helper function that runs an expensive [task] in a coroutine and sends a loading message in [KordEvent.channel].
  *
  * @see MessageChannelBehavior.doExpensiveTask
  */
-suspend fun KordEvent.doExpensiveTask(
+suspend fun Context.doExpensiveTask(
     loadingEmbedBuilder: EmbedBuilder,
-    task: suspend MessageBehavior.() -> Unit,
-): Unit = channel.doExpensiveTask(loadingEmbedBuilder, task)
+    task: suspend EditableMessage.() -> Unit,
+) {
+    if (isSlashCommandContext()) {
+        task(editableAck)
+    } else {
+        channel.doExpensiveTask(loadingEmbedBuilder) {
+            MessageEditableMessage(this)
+        }
+    }
+}
 
 /**
  * Helper function that runs an expensive [task] in a coroutine and sends a loading message in this channel.
@@ -77,11 +92,15 @@ suspend fun MessageChannelBehavior.doExpensiveTask(
     coroutineScope {
         val message = async { createEmbed(loadingEmbedBuilder) }
         launch {
-            task(AsyncMessageChannelBehavior(kord,
-                supplier,
-                this@doExpensiveTask.id,
-                message,
-                coroutineContext))
+            task(
+                AsyncMessageChannelBehavior(
+                    kord,
+                    supplier,
+                    this@doExpensiveTask.id,
+                    message,
+                    coroutineContext
+                )
+            )
         }
     }
 }

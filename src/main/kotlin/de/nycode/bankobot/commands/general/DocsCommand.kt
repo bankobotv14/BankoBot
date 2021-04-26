@@ -26,16 +26,15 @@
 package de.nycode.bankobot.commands.general
 
 import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.Context
+import de.nycode.bankobot.command.EditableMessage
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.docdex.*
 import de.nycode.bankobot.utils.*
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.common.annotation.KordPreview
-import dev.kord.core.behavior.MessageBehavior
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.interaction.BaseApplicationBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
@@ -47,7 +46,6 @@ import dev.kord.x.commands.argument.extension.map
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.result.extension.FilterResult
 import dev.kord.x.commands.argument.text.WordArgument
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 
 @Suppress("TopLevelPropertyNaming")
@@ -111,7 +109,7 @@ fun allDocsCommand() = command("alldocs") {
             )
         }
 
-        respondEmbed(embed)
+        sendResponse(embed)
     }
 }
 
@@ -129,7 +127,7 @@ fun docsCommand() = command("docs") {
     }
 }
 
-suspend fun KordCommandEvent.docs(doc: String, reference: Reference) {
+suspend fun Context.docs(doc: String, reference: Reference) {
     doExpensiveTask(statusDescription = "Das Javadoc wird gesucht.") {
         val docElements = DocDex.search(doc, reference.toDocDexQuery())
 
@@ -148,7 +146,7 @@ suspend fun KordCommandEvent.docs(doc: String, reference: Reference) {
     }
 }
 
-private suspend fun MessageBehavior.respond(doc: DocumentedElement) {
+private suspend fun EditableMessage.respond(doc: DocumentedElement) {
     val embed = when (val obj = doc.`object`) {
         is DocumentedClassObject -> renderClass(obj)
         is DocumentedMethodObject -> renderMethod(obj)

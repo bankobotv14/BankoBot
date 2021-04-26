@@ -33,6 +33,8 @@ import dev.kord.core.event.message.MessageDeleteEvent
 import dev.kord.core.on
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.kord.model.processor.KordContextConverter
+import dev.kord.x.commands.model.command.Command
+import dev.kord.x.commands.model.processor.CommandEventData
 import dev.kord.x.commands.model.processor.ContextConverter
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -53,7 +55,7 @@ private val timeout = 5.seconds
  * @see ContextConverter
  */
 object BankoBotContextConverter :
-    ContextConverter<MessageCreateEvent, MessageCreateEvent, KordCommandEvent> by KordContextConverter {
+    ContextConverter<MessageCreateEvent, MessageCreateEvent, Context> {
 
     private val responses = mutableMapOf<Snowflake, MessageBehavior>()
 
@@ -88,4 +90,18 @@ object BankoBotContextConverter :
             }
         }
     }
+
+    override val MessageCreateEvent.text: String
+        get() = with(KordContextConverter) { text }
+
+    override fun MessageCreateEvent.toCommandEvent(data: CommandEventData<Context>): Context =
+        createCommandEvent(this, data).toContext()
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun createCommandEvent(
+    event: MessageCreateEvent,
+    data: CommandEventData<*>
+): KordCommandEvent {
+    return KordCommandEvent(event, data.command as Command<KordCommandEvent>, data.commands, data.koin, data.processor)
 }
