@@ -25,25 +25,28 @@
 
 package de.nycode.bankobot.commands.general
 
+import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
+import de.nycode.bankobot.command.description
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Emotes
 import de.nycode.bankobot.utils.GitHubUtil
-import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.behavior.channel.createEmbed
-import dev.kord.core.behavior.edit
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
+import kotlinx.coroutines.async
 
 @PublishedApi
 @AutoWired
 @ModuleName(GeneralModule)
 internal fun infoCommand() = command("info") {
     alias("i", "whoareyou")
+    description("Zeigt Informationen über den Bot")
+
     invoke {
-        channel.sendInfo()
+        sendInfo()
     }
 }
 
@@ -51,7 +54,12 @@ internal fun infoCommand() = command("info") {
  * Sends an about message for the bot in this channel.
  * The developers field is fetched from the GitHub repository contributors
  */
-suspend fun MessageChannelBehavior.sendInfo() {
+suspend fun Context.sendInfo() = sendInfo({ sendResponse(it) }) { editEmbed(it) }
+
+suspend inline fun <O> sendInfo(
+    sender: (EmbedBuilder) -> O,
+    editor: O.(EmbedBuilder) -> Unit
+) {
     val embed: EmbedBuilder.() -> Unit = {
         field {
             name = "Programmiersprache"
@@ -64,22 +72,22 @@ suspend fun MessageChannelBehavior.sendInfo() {
             value = "xd"
         }
     }
-    createEmbed {
-        embed(this)
+
+    val loading = EmbedBuilder().apply(embed).apply {
         field {
             name = "Entwickler"
             value = Emotes.LOADING
         }
-    }.edit {
-        val contributors = GitHubUtil.retrieveContributors()
-        embed {
-            embed(this)
-            field {
-                name = "Entwickler"
-                value = contributors.joinToString(", ") {
-                    "[${it.login}](${it.htmlUrl})"
-                }
+    }
+    val contributorsFuture = BankoBot.async { GitHubUtil.retrieveContributors() }
+    val message = sender(loading)
+    message.editor(EmbedBuilder().apply(embed).apply {
+        val contributors = contributorsFuture.await()
+        field {
+            name = "Entwickler"
+            value = contributors.joinToString(", ") {
+                "[${it.login}](${it.htmlUrl})"
             }
         }
-    }
+    })
 }

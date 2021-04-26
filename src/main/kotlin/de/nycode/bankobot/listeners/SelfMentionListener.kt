@@ -27,6 +27,8 @@ package de.nycode.bankobot.listeners
 
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.commands.general.sendInfo
+import de.nycode.bankobot.utils.Embeds.createEmbed
+import de.nycode.bankobot.utils.Embeds.editEmbed
 import dev.kord.core.Kord
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
@@ -35,6 +37,6 @@ private val mentionRegex by lazy { "<@!?${BankoBot.kord.selfId.asString}>".toReg
 
 internal fun Kord.selfMentionListener() = on<MessageCreateEvent> {
     if (message.content.matches(mentionRegex)) {
-        message.channel.sendInfo()
+        sendInfo({ message.channel.createEmbed(it) }) { editEmbed(it) }
     }
 }

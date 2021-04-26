@@ -25,13 +25,13 @@
 
 package de.nycode.bankobot.commands.general
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.callback
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.GitHubUtil
 import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
@@ -39,8 +39,6 @@ import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.optional
 import dev.kord.x.commands.argument.text.WordArgument
-import dev.kord.x.commands.kord.model.KordEvent
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.command.invoke
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
@@ -72,10 +70,10 @@ internal fun sourceCommand() = command("source") {
 }
 
 @Suppress("BlockingMethodInNonBlockingContext") // Afaik there is no ASM based on coroutines
-private suspend fun KordCommandEvent.specificCommand(name: String) {
+private suspend fun Context.specificCommand(name: String) {
     val command = processor.getCommand(name)
     if (command == null) {
-        respondEmbed(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
+        sendResponse(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
         return
     }
     val (stack) = command.callback
@@ -91,7 +89,7 @@ private suspend fun KordCommandEvent.specificCommand(name: String) {
     val url =
         "$GITHUB_BASE$GITHUB_FILE_APPENDIX${clazz.name.dropLast(2) /* Drop Kt file suffix */}.kt#L$start-L$end"
 
-    respondEmbed(
+    sendResponse(
         Embeds.info(
             "Source code",
             "Den Code zu diesem Command findest du hier: [${stack.fileName}]($url)"
@@ -99,7 +97,7 @@ private suspend fun KordCommandEvent.specificCommand(name: String) {
     )
 }
 
-private suspend fun KordEvent.github() = respondEmbed(
+private suspend fun Context.github() = sendResponse(
     Embeds.info(
         "Source code",
         "Dieser Bot ist Open Source du findest ihn auf [GitHub]($GITHUB_BASE)"

@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.command.slashcommands
 
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.ERROR_MARKER
 import de.nycode.bankobot.command.HastebinErrorHandler
 import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.exceptionThrown
@@ -32,11 +33,9 @@ import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.reje
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.HastebinUtil
 import dev.kord.common.annotation.KordPreview
-import dev.kord.core.behavior.edit
-import dev.kord.core.behavior.followUp
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
+import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.processor.CommandProcessor
 import dev.kord.x.commands.model.processor.ErrorHandler
 import dev.kord.x.commands.model.processor.ProcessorContext
@@ -50,7 +49,7 @@ import kotlinx.coroutines.coroutineScope
  */
 @OptIn(KordPreview::class)
 object InteractionContext :
-    ProcessorContext<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent>
+    ProcessorContext<InteractionCreateEvent, MessageCreateEvent, Context>
 
 /**
  * Default implementation of [ErrorHandler] for slash commands.
@@ -58,7 +57,7 @@ object InteractionContext :
  */
 @OptIn(KordPreview::class)
 object KordInteractionErrorHandler :
-    ErrorHandler<InteractionErrorEvent, MessageCreateEvent, KordCommandEvent> {
+    ErrorHandler<InteractionErrorEvent, MessageCreateEvent, Context> {
 
     private const val backtick = "`"
     private const val backtickEscape = "\u200E`"
@@ -66,7 +65,7 @@ object KordInteractionErrorHandler :
     override suspend fun CommandProcessor.rejectArgument(
         rejection: ErrorHandler.RejectedArgument<InteractionErrorEvent,
                 MessageCreateEvent,
-                KordCommandEvent>,
+                Context>,
     ) {
         with(rejection) {
             respondError(
@@ -80,40 +79,45 @@ object KordInteractionErrorHandler :
 
     override suspend fun CommandProcessor.exceptionThrown(
         event: InteractionErrorEvent,
-        command: dev.kord.x.commands.model.command.Command<KordCommandEvent>,
+        command: dev.kord.x.commands.model.command.Command<Context>,
         exception: Exception,
     ) {
         val interaction = event.interaction
         val coroutine = coroutineContext
         coroutineScope {
             val logLink = async {
-                HastebinUtil.postToHastebin(HastebinErrorHandler.collectErrorInformation(
-                    exception,
-                    "<slash command invocation>",
-                    interaction.channel.asChannel(),
-                    interaction.guild.asGuild(),
-                    interaction.member.asMember(),
-                    Thread.currentThread(),
-                    coroutine
-                ))
+                HastebinUtil.postToHastebin(
+                    HastebinErrorHandler.collectErrorInformation(
+                        exception,
+                        "<slash command invocation>",
+                        interaction.channel.asChannel(),
+                        interaction.guild.asGuild(),
+                        interaction.member.asMember(),
+                        Thread.currentThread(),
+                        coroutine
+                    )
+                )
             }
-            event.response.followUp {
+            val loading = event.context.respond {
                 // Pingy ping!
                 content =
                     "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
-                embeds.add(Embeds.loading(
+                embed = Embeds.loading(
                     "Ein Fehler ist aufgetreten!",
                     "Bitte warte einen Augenblick, während ich versuche mehr Informationen" +
                             " über den Fehler herauszufinden"
-                ).toRequest())
-            }.edit {
-                val hastebinLink = logLink.await()
+                )
+            }
+
+            val hastebinLink = logLink.await()
+            loading.delete()
+            event.context.respond {
                 content =
                     "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
-                embeds = mutableListOf(Embeds.error(
+                embed = Embeds.error(
                     "Ein Fehler ist aufgetreten!",
                     "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
-                ))
+                )
             }
         }
     }
@@ -124,13 +128,13 @@ object KordInteractionErrorHandler :
         characterIndex: Int,
         message: String,
     ) {
-        event.response.followUp {
+        event.context.sendResponse(
             content = """
             <|>```
             <|>${text.replace(backtick, backtickEscape)}
             <|>${"-".repeat(characterIndex)}^ ${message.replace(backtick, backtickEscape)}
             <|>```
             """.trimMargin("<|>").trim()
-        }
+        )
     }
 }

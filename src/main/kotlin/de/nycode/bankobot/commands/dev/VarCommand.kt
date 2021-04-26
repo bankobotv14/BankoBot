@@ -43,6 +43,6 @@ import dev.kord.x.commands.model.module.CommandSet
 internal fun varCommand(): CommandSet = command("var") {
     permission(PermissionLevel.BOT_OWNER)
     invoke(StringArgument.asSlashArgument("Der Ausdruck")) {
-        respond(it.replaceVariables())
+        sendResponse(it.replaceVariables())
     }
 }

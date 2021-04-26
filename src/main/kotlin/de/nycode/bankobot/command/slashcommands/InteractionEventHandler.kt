@@ -25,6 +25,7 @@
 
 package de.nycode.bankobot.command.slashcommands
 
+import de.nycode.bankobot.command.Context
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.MessageType
 import dev.kord.common.entity.Snowflake
@@ -33,17 +34,24 @@ import dev.kord.common.entity.optional.OptionalSnowflake
 import dev.kord.common.entity.optional.optional
 import dev.kord.common.entity.optional.optionalSnowflake
 import dev.kord.core.Kord
-import dev.kord.core.behavior.InteractionResponseBehavior
+import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
+import dev.kord.core.behavior.interaction.PublicInteractionResponseBehavior
 import dev.kord.core.cache.data.MessageData
 import dev.kord.core.cache.data.ReactionData
+import dev.kord.core.entity.Member
 import dev.kord.core.entity.Message
+import dev.kord.core.entity.Role
+import dev.kord.core.entity.User
+import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.interaction.GuildInteraction
 import dev.kord.core.entity.interaction.Interaction
+import dev.kord.core.entity.interaction.InteractionCommand
+import dev.kord.core.entity.interaction.OptionValue
 import dev.kord.core.event.Event
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.argument.Argument
 import dev.kord.x.commands.argument.result.ArgumentResult
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.model.processor.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
@@ -55,40 +63,46 @@ private val LOG = KotlinLogging.logger {}
 
 @OptIn(KordPreview::class)
 data class InteractionErrorEvent constructor(
-    val response: InteractionResponseBehavior,
-    val interaction: Interaction,
+    val context: Context,
+    val interaction: GuildInteraction,
     override val kord: Kord,
     override val shard: Int,
 ) : Event
 
 @OptIn(KordPreview::class)
 object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
-    override val context: ProcessorContext<InteractionCreateEvent, MessageCreateEvent, KordCommandEvent>
+    override val context: ProcessorContext<InteractionCreateEvent, MessageCreateEvent, Context>
         get() = InteractionContext
 
     @OptIn(ExperimentalTime::class)
     override suspend fun CommandProcessor.onEvent(event: InteractionCreateEvent) {
+        val guildInteraction = event.interaction as? GuildInteraction ?: return
         val filters = getFilters(context)
         if (!filters.all { it(event) }) return
+        val commandName = guildInteraction.command.rootName
+        val foundCommand = getCommand(context, commandName)
+        val ephemeral = foundCommand?.ephemeral ?: false
+        val ack = if (ephemeral) guildInteraction.acknowledgeEphemeral() else guildInteraction.ackowledgePublic()
+        val messageCreate by lazy { event.toMessageCreateEvent(guildInteraction) }
+        val commandEvent by lazy {
+            if (ephemeral) {
+                EphemeralSlashCommandContext(
+                    messageCreate, foundCommand, commands, this, ack as EphemeralInteractionResponseBehavior
+                )
+            } else {
+                SlashCommandContext(
+                    messageCreate, foundCommand, commands, this, ack as PublicInteractionResponseBehavior
+                )
+            }
+        }
+        val errorEvent by lazy { InteractionErrorEvent(commandEvent, guildInteraction, event.kord, event.shard) }
 
-        val interaction = event.interaction
-
-        val ack = interaction.acknowledge(true)
-        val errorEvent by lazy { InteractionErrorEvent(ack, interaction, event.kord, event.shard) }
-
-        val commandName = interaction.command.name
-        val command = getCommand(context, commandName) ?: return with(KordInteractionErrorHandler) {
+        val command = foundCommand ?: return with(KordInteractionErrorHandler) {
             notFound(
                 errorEvent,
                 commandName
             )
         }
-
-        val messageCreate = event.toMessageCreateEvent()
-
-        @Suppress("UNCHECKED_CAST")
-        val commandEvent = KordCommandEvent(messageCreate,
-            command, commands, koin, this)
 
         @Suppress("UNCHECKED_CAST") val preconditions =
             getPreconditions(context)
@@ -100,10 +114,10 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         @Suppress("UNCHECKED_CAST")
         val arguments =
             command.arguments as List<Argument<*, MessageCreateEvent>>
-        val invoke by lazy { interaction.buildInvokeString() }
+        val invoke by lazy { guildInteraction.buildInvokeString() }
 
         val result =
-            parseArguments(interaction.command, arguments, messageCreate)
+            parseArguments(guildInteraction.command, arguments, messageCreate)
         val (items) = when (result) {
             is ArgumentsResult.Success -> result
             is ArgumentsResult.Failure -> return with(KordInteractionErrorHandler) {
@@ -129,22 +143,27 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
     }
 
     private suspend fun parseArguments(
-        command: dev.kord.core.entity.interaction.Command,
+        command: InteractionCommand,
         arguments: List<Argument<*, MessageCreateEvent>>,
         event: MessageCreateEvent,
     ): ArgumentsResult<MessageCreateEvent> {
         val items = mutableListOf<Any?>()
-        var indexTrim = 2 + command.name.length // /<command>
+        var indexTrim = 2 + command.rootName.length // /<command>
         arguments.forEachIndexed { index, argument ->
             val option = command.options[argument.name.toLowerCase()]
             // each argument is prefix by " <name>:"
             indexTrim += argument.name.length + 2
-            val argumentText =
-                option?.value?.toString()
-                    ?: "" // "" for optionals
+            val argumentValue =
+                option?.value
+            val argumentText = option.stringify()
             when (val result = argument.parse(argumentText, 0, event)) {
                 is ArgumentResult.Success -> {
-                    items += result.item
+                    val item = result.item
+                    items += if (item !is String && argumentText.isNotBlank()) {
+                        argumentValue
+                    } else {
+                        item
+                    }
                     indexTrim += result.newIndex + 1 // space after the argument
                 }
                 is ArgumentResult.Failure -> return ArgumentsResult.Failure(
@@ -162,12 +181,12 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         return ArgumentsResult.Success(items)
     }
 
-    private fun InteractionCreateEvent.toMessageCreateEvent(): MessageCreateEvent {
+    private fun InteractionCreateEvent.toMessageCreateEvent(guildInteraction: GuildInteraction): MessageCreateEvent {
         val messageData = MessageData(
             interaction.id,
             interaction.channelId,
-            interaction.guildId.optionalSnowflake(),
-            runBlocking { interaction.member.asUser().data },
+            guildInteraction.guildId.optionalSnowflake(),
+            runBlocking { guildInteraction.member.asUser().data },
             "<slash command invocation>",
             Clock.System.now().toJavaInstant().toString(),
             null,
@@ -185,23 +204,35 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
             MessageType.Unknown,
         )
         val message = Message(messageData, interaction.kord, interaction.supplier)
-        val member = runBlocking { interaction.member.asMember() }
-        return MessageCreateEvent(message, interaction.guildId, member, shard, interaction.supplier)
+        val member = runBlocking { guildInteraction.member.asMember() }
+        return MessageCreateEvent(message, guildInteraction.guildId, member, shard, interaction.supplier)
     }
 }
 
 @OptIn(KordPreview::class)
 private fun Interaction.buildInvokeString(): String {
     val builder = StringBuilder("/")
-    builder.append(command.name) // command
+    builder.append(command.rootName) // command
 
     val options =
         command.options
             .toList()
             .joinToString(prefix = " ", separator = " ") { (name, value) ->
-                "$name: ${value.value}"
+                "$name: ${value.stringify()}"
             }
     builder.append(options)
 
     return builder.toString()
+}
+
+@OptIn(KordPreview::class)
+fun OptionValue<*>?.stringify(): String {
+    return when (val argumentValue = this?.value) {
+        null -> ""
+        is Member -> argumentValue.mention
+        is User -> argumentValue.mention
+        is TextChannel -> argumentValue.mention
+        is Role -> argumentValue.mention
+        else -> argumentValue.toString()
+    }
 }

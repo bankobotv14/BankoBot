@@ -32,7 +32,6 @@ import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.FunModule
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.common.annotation.KordPreview
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -40,12 +39,13 @@ import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.withDefault
 import dev.kord.x.commands.argument.primitive.BooleanArgument
 import dev.kord.x.commands.model.command.invoke
-import dev.kord.x.lavalink.audio.TrackEndEvent
-import dev.kord.x.lavalink.audio.TrackStartEvent
-import dev.kord.x.lavalink.kord.connectAudio
-import dev.kord.x.lavalink.kord.getLink
-import dev.kord.x.lavalink.kord.lavakord
-import dev.kord.x.lavalink.rest.loadItem
+import dev.kord.x.emoji.Emojis
+import dev.schlaubi.lavakord.audio.TrackEndEvent
+import dev.schlaubi.lavakord.audio.TrackStartEvent
+import dev.schlaubi.lavakord.kord.connectAudio
+import dev.schlaubi.lavakord.kord.getLink
+import dev.schlaubi.lavakord.kord.lavakord
+import dev.schlaubi.lavakord.rest.loadItem
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
@@ -59,7 +59,8 @@ private val tehMusic = listOf(
     "https://youtube.com/watch?v=0CD4VHzjwbs",
     "https://youtube.com/watch?v=zbxm5-9-508",
     "https://youtube.com/watch?v=mTnDyLXKdAs",
-    "https://youtube.com/watch?v=SA99wua3B1s"
+    "https://youtube.com/watch?v=SA99wua3B1s",
+    "https://youtube.com/watch?v=ON-HaqBLt_0"
 )
 
 @OptIn(KordPreview::class)
@@ -73,6 +74,7 @@ private val ForceSongArgument =
 @AutoWired
 fun bingBangCommand() = command("bingbang") {
     description("LÄSST DICH SPAß HABEN")
+
     val lavalink = BankoBot.kord.lavakord()
 
     val lavalinkHost = Config.LAVALINK_HOST
@@ -84,8 +86,12 @@ fun bingBangCommand() = command("bingbang") {
     invoke(ForceSongArgument) { force ->
         val channelId = message.getAuthorAsMember()?.getVoiceStateOrNull()?.channelId
         if (channelId == null) {
-            respondEmbed(Embeds.error("Du bist in keinem voice channel!",
-                "Bitte joine einen VoiceChannel."))
+            sendResponse(
+                Embeds.error(
+                    "Du bist in keinem voice channel!",
+                    "Bitte joine einen VoiceChannel."
+                )
+            )
             return@invoke
         }
 
@@ -99,6 +105,8 @@ fun bingBangCommand() = command("bingbang") {
         @Suppress("SpellCheckingInspection") // STFU THE NAME IS GREAT
         val track = link.loadItem(if (force) tehMusic.first() else tehMusic.random()).track
         player.playTrack(track)
+
+        sendResponse(Emojis.musicalNote)
 
         BankoBot.launch {
             if (track.info.identifier == "l-Egisu_4AA") {

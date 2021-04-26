@@ -26,14 +26,13 @@
 package de.nycode.bankobot.commands.tag.commands
 
 import de.nycode.bankobot.BankoBot
+import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.*
-import de.nycode.bankobot.commands.tag.hasDeletePermission
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.entity.Member
 import dev.kord.core.event.message.ReactionAddEvent
@@ -42,7 +41,6 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.kord.argument.MemberArgument
-import dev.kord.x.commands.kord.model.context.KordCommandEvent
 import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -78,7 +76,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
         tag as TagEntry
 
         if (tag.author != author.id && message.getAuthorAsMember()?.hasDeletePermission() != true) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Du bist nicht der Autor.",
                     "Du darfst diesen Tag nicht transferieren, da du ihn nicht erstellt hast!"
@@ -88,7 +86,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
         }
 
         if (member.id == message.author?.id) {
-            respondEmbed(
+            sendResponse(
                 Embeds
                     .error("Nicht möglich!", "Du kannst den Tag nicht zu dir selbst transferieren!")
             )
@@ -96,7 +94,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
         }
 
         if (!currentlyTransferring.add(tag.name)) {
-            respondEmbed(
+            sendResponse(
                 Embeds
                     .error(
                         "Wird bereits transferiert!",
@@ -161,7 +159,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
     }
 }
 
-private fun KordCommandEvent.cancelMessage(
+private fun Context.cancelMessage(
     tag: TagEntry,
     member: Member
 ) = Embeds.error(

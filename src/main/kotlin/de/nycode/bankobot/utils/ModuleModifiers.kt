@@ -23,29 +23,25 @@
  *
  */
 
-package de.nycode.bankobot.commands.general
+package de.nycode.bankobot.utils
 
-import de.nycode.bankobot.command.Context
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.commands.GeneralModule
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.model.command.invoke
+import dev.kord.x.commands.model.module.ModuleBuilder
+import dev.kord.x.commands.model.module.ModuleModifier
+import dev.kord.x.commands.model.processor.ModuleContainer
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberProperties
 
-@ModuleName(GeneralModule)
-@AutoWired
-fun dCommand() = command("dddd") {
-    alias("d", "dd", "ddd")
-    description("They don't know :pepeLaugh:")
+inline fun afterAll(
+    crossinline modification: suspend Collection<ModuleBuilder<*, *, *>>.() -> Unit
+): ModuleModifier = object : ModuleModifier {
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun apply(container: ModuleContainer) {
+        val properties =
+            container::class.declaredMemberProperties.first { it.name == "modules" }
+                    as KProperty1<ModuleContainer, MutableMap<String, ModuleBuilder<*, *, *>>>
 
-    invoke {
-        specificCommand()
-    }
-}
+        val modules = properties.get(container)
 
-private suspend fun Context.specificCommand() {
-    sendResponse {
-        title = "Imagine using xd in 2k21... oh wait"
+        modification(modules.values)
     }
 }

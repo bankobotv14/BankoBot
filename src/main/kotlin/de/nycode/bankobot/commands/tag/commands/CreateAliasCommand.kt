@@ -32,8 +32,6 @@ import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.*
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.editEmbed
-import de.nycode.bankobot.utils.Embeds.respondEmbed
 import de.nycode.bankobot.utils.doExpensiveTask
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
@@ -66,7 +64,7 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
 
         val aliasTag = BankoBot.repositories.tag.findOne(TagEntry::aliases contains aliasName)
         if (aliasTag != null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Alias existiert bereits!",
                     "Du kannst diesen Alias nicht erstellen, da der Tag **${aliasTag.name}** diesen bereits nutzt!"
@@ -77,7 +75,7 @@ internal fun createAliasCommand(): CommandSet = command("create-alias") {
 
         val aliasNameTag = BankoBot.repositories.tag.findOne(TagEntry::name eq aliasName)
         if (aliasNameTag != null) {
-            respondEmbed(
+            sendResponse(
                 Embeds.error(
                     "Name bereits genutzt!",
                     "Du kannst diesen Alias nicht erstellen," +
