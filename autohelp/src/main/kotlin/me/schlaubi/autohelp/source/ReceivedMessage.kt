@@ -23,21 +23,17 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.source
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
+import io.ktor.utils.io.*
+
+public interface ReceivedMessage {
+
+    public val content: String
+
+    public val files: List<ReceivedFile>
+
+    public interface ReceivedFile {
+        public suspend fun download(): ByteReadChannel
     }
 }
-include("autohelp")

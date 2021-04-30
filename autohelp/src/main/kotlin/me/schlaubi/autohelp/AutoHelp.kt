@@ -23,21 +23,12 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+import dev.schlaubi.forp.analyze.StackTraceAnalyzer
+
+public interface AutoHelp {
+
+    public val analyzer: StackTraceAnalyzer
+
 }
-include("autohelp")

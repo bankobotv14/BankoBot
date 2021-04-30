@@ -23,21 +23,12 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.help
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+public interface EditableMessage {
+    public suspend fun edit(message: OutgoingMessage)
 }
-include("autohelp")
+
+public interface MessageRenderer {
+    public suspend fun sendMessage(message: OutgoingMessage): EditableMessage
+}

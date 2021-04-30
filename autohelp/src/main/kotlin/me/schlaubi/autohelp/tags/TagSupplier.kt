@@ -23,21 +23,10 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.tags
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+import dev.schlaubi.forp.core.stacktrace.ParsedStackTrace
+
+public fun interface TagSupplier {
+    public fun findTagForException(exception: ParsedStackTrace): String?
 }
-include("autohelp")
