@@ -71,15 +71,19 @@ internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer): Embed {
                 val description = with(htmlRenderer) {
                     documentation?.description?.toMarkdown()
                 }
-                add(Embed.Field("Exception Doc", description ?: "<loading>", false))
+                add(Embed.Field("Exception Doc", description?.ifBlank { null } ?: "<loading>", false))
             }
             val causeElement = causeElement
-            if (causeElement != null && causeElement is DefaultStackTraceElement) {
-                // "Der Fehler befindet sich vermutlich in der Datei `${causeElement.file?.limit(100)}.java` in Zeile `${exception.causeLine}`"
+            if (causeElement != null
+                && causeElement is DefaultStackTraceElement
+                && causeElement.source is DefaultStackTraceElement.FileSource
+            ) {
+                val source = causeElement.source as DefaultStackTraceElement.FileSource
                 add(
                     Embed.Field(
                         "Ursache",
-                        causeElement.toString(),
+                        "Der Fehler befindet sich vermutlich in der Datei" +
+                                " `${source.fileName}` in Zeile `${source.lineNumber}`",
                         false
                     )
                 )

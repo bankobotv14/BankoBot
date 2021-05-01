@@ -55,6 +55,7 @@ public fun AutoHelpBuilder.useKordMessageRenderer(kord: Kord) {
  * @param kord the [Kord] instance providing the event.
  */
 public fun ContextBuilder<KordReceivedMessage>.kordEventSource(kord: Kord): Unit = +KordEventSource(kord)
+public fun ContextBuilder<KordUpdateMessage>.kordEditEventSource(kord: Kord): Unit = +KordUpdateEventSource(kord)
 
 /**
  * Builds a new Kord based context.

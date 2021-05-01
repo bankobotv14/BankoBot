@@ -68,7 +68,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
 import me.schlaubi.autohelp.AutoHelp
+import me.schlaubi.autohelp.kord.KordUpdateMessage
 import me.schlaubi.autohelp.kord.autoHelp
+import me.schlaubi.autohelp.kord.kordEditEventSource
 import mu.KotlinLogging
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -123,6 +125,7 @@ object BankoBot : CoroutineScope {
         lateinit var tagActions: CoroutineCollection<TagAction>
     }
 
+    @OptIn(ExperimentalTime::class)
     suspend operator fun invoke() {
         require(!initialized) { "Cannot initialize bot twice" }
         initialized = true
@@ -133,6 +136,11 @@ object BankoBot : CoroutineScope {
         kord = Kord(Config.DISCORD_TOKEN)
         val renderer = htmlRenderer
         autoHelp = kord.autoHelp {
+            context<KordUpdateMessage> {
+                kordEditEventSource(kord)
+            }
+
+            cleanupTime = 30.seconds
             analyzer = RemoteStackTraceAnalyzer {
                 url("http://localhost:8080")
                 authKey = "apple-is-shit"

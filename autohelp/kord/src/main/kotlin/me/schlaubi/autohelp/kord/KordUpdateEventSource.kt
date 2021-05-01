@@ -27,68 +27,40 @@ package me.schlaubi.autohelp.kord
 
 import dev.kord.core.Kord
 import dev.kord.core.entity.Message
-import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.core.event.message.MessageUpdateEvent
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
 import dev.schlaubi.forp.fetch.input.FileInput
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.utils.io.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import me.schlaubi.autohelp.source.EventSource
 import me.schlaubi.autohelp.source.ReceivedMessage
 
-/**
- * Implementation of [EventSource] using [MessageCreateEvent].
- *
- * @param kord the [Kord] instance providing the events
- */
-public class KordEventSource(kord: Kord) : EventSource<KordReceivedMessage> {
-    override val events: Flow<KordReceivedMessage> = kord.events
-        .filterIsInstance<MessageCreateEvent>()
-        .map { KordReceivedMessage(it.message) }
-
+public class KordUpdateEventSource(kord: Kord) : EventSource<KordUpdateMessage> {
+    override val events: Flow<KordUpdateMessage> = kord.events
+        .filterIsInstance<MessageUpdateEvent>()
+        .filter { it.old?.embeds?.isEmpty() == true }
+        .map { KordUpdateMessage(it.message.asMessage()) }
 }
 
-/**
- * Implementation of [ReceivedMessage] using [kordMessage].
- */
-public class KordReceivedMessage(private val kordMessage: Message) : ReceivedMessage {
-    override val channelId: Long
-        get() = kordMessage.channelId.value
-    override val authorId: Long
-        get() = kordMessage.author!!.id.value
+public class KordUpdateMessage(private val kordMessage: Message) : ReceivedMessage {
     override val guildId: Long
         get() = kordMessage.data.guildId.value!!.value
-    override val content: String
-        get() = kordMessage.content
+    override val channelId: Long
+        get() = kordMessage.data.channelId.value
+    override val authorId: Long
+        get() = kordMessage.author?.id?.value!!
+    override val content: String? = null
     override val files: List<ReceivedMessage.ReceivedFile>
-        get() = kordMessage.attachments.map {
-            val type = if (it.isImage) {
-                FileInput.FileType.IMAGE
-            } else {
-                FileInput.FileType.PLAIN_TEXT
-            }
-
-            KordReceivedFile(type, it.proxyUrl, kordMessage.kord.resources.httpClient)
-        } + kordMessage.embeds.mapNotNull {
+        get() = kordMessage.embeds.mapNotNull {
             it.url?.let { url ->
-                KordReceivedFile(FileInput.FileType.IMAGE,
+                KordReceivedMessage.KordReceivedFile(FileInput.FileType.IMAGE,
                     url,
                     kordMessage.kord.resources.httpClient)
             }
         }
 
     override suspend fun react(emoji: DiscordEmoji): Unit = kordMessage.addReaction(emoji)
-
-    public class KordReceivedFile(
-        override val type: FileInput.FileType,
-        private val url: String,
-        private val httpClient: HttpClient,
-    ) : ReceivedMessage.ReceivedFile {
-
-        override suspend fun download(): ByteReadChannel = httpClient.get(url)
-    }
 }

@@ -36,7 +36,7 @@ public interface ReceivedMessage {
 
     public val authorId: Long
 
-    public val content: String
+    public val content: String?
 
     public val files: List<ReceivedFile>
 

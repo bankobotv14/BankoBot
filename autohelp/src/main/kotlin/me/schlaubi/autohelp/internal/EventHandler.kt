@@ -55,7 +55,11 @@ internal suspend fun ReceivedMessage.handle(autoHelp: AutoHelpImpl) {
                 && message.authorId == authorId
     }?.to(true) ?: newDiscordConversation(this, autoHelp, memory) to false
 
-    conversation.consumeNewInput(content.toInput())
+    content?.let { raw ->
+        conversation.consumeNewInput(raw.toInput())
+        conversation.consumeNewInput(raw.toPlainInput())
+    }
+
     coroutineScope {
         files.forEach {
             launch {
@@ -64,7 +68,6 @@ internal suspend fun ReceivedMessage.handle(autoHelp: AutoHelpImpl) {
             }
         }
     }
-    conversation.consumeNewInput(content.toPlainInput())
 
     if (found) {
         autoHelp.launch {
@@ -82,12 +85,12 @@ private suspend fun newDiscordConversation(
     memory: MutableList<DiscordConversation>,
 ): DiscordConversation {
     val conversation = autoHelp.analyzer.createNewConversation()
+    val discordConversation = DiscordConversation(message, conversation)
     val forgetfulness = autoHelp.launch {
         delay(autoHelp.cleanUpTime)
-        conversation.forget()
+        discordConversation.forget()
     }
 
-    val discordConversation = DiscordConversation(message, conversation, forgetfulness)
     conversation.on<Event>(discordConversation) {
         discordConversation.handleEvent(this, autoHelp)
     }
@@ -95,6 +98,7 @@ private suspend fun newDiscordConversation(
     memory.add(discordConversation)
     discordConversation.onForget {
         memory.remove(discordConversation)
+        forgetfulness.cancel()
     }
     return discordConversation
 }
@@ -102,7 +106,6 @@ private suspend fun newDiscordConversation(
 internal data class DiscordConversation(
     val message: ReceivedMessage,
     val delegate: Conversation,
-    val forgetfulness: Job,
 ) : Conversation by delegate, CoroutineScope {
     private val eventQueue: Queue<Event> = LinkedList()
     private var queueRunning = false
@@ -147,7 +150,6 @@ internal data class DiscordConversation(
 
     override fun forget() {
         delegate.forget()
-        forgetfulness.cancel()
         onForget?.invoke()
     }
 }
