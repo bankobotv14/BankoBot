@@ -69,6 +69,7 @@ suspend fun Context.doExpensiveTask(
     } else {
         channel.doExpensiveTask(loadingEmbedBuilder) {
             MessageEditableMessage(this)
+            task(MessageEditableMessage(this))
         }
     }
 }
