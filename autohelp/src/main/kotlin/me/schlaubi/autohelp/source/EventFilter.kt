@@ -25,6 +25,12 @@
 
 package me.schlaubi.autohelp.source
 
+/**
+ * Filters incoming events to determine whether to autohelp or not.
+ */
 public fun interface EventFilter<T : ReceivedMessage> {
+    /**
+     * Whether [event] should get processed or not.
+     */
     public fun validateEvent(event: T): Boolean
 }

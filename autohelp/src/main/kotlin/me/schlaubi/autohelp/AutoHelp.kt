@@ -26,9 +26,21 @@
 package me.schlaubi.autohelp
 
 import dev.schlaubi.forp.analyze.StackTraceAnalyzer
+import me.schlaubi.autohelp.help.HtmlRenderer
+import me.schlaubi.autohelp.help.MessageRenderer
+import me.schlaubi.autohelp.tags.TagSupplier
+import kotlin.time.Duration
 
 public interface AutoHelp {
-
     public val analyzer: StackTraceAnalyzer
 
+    public val tagSupplier: TagSupplier
+
+    public val messageRenderer: MessageRenderer
+
+    public val htmlRenderer: HtmlRenderer
+
+    public val cleanUpTime: Duration
+
+    public suspend fun close()
 }

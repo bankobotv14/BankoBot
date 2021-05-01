@@ -25,4 +25,106 @@
 
 package me.schlaubi.autohelp.help
 
-public class OutgoingMessage
+import dev.schlaubi.forp.parser.stacktrace.CausedStackTrace
+import dev.schlaubi.forp.parser.stacktrace.DefaultStackTraceElement
+import dev.schlaubi.forp.parser.stacktrace.StackTrace
+import me.schlaubi.autohelp.AutoHelpVersion
+import me.schlaubi.autohelp.internal.DiscordConversation
+
+/**
+ * Representation of an AutoHelp message that can be sent using a [MessageRenderer].
+ *
+ * @property content the content of the message if set
+ * @property embed the [Embed] of the message if set
+ *
+ * @see Embed
+ */
+public class OutgoingMessage(public val content: String?, public val embed: Embed?)
+
+/**
+ * Representation of a Discord Embed.
+ *
+ * @see OutgoingMessage
+ */
+public data class Embed(
+    public val title: String,
+    public val description: String?,
+    public val fields: List<Field>,
+    public val footer: Footer?,
+) {
+    public data class Field(public val title: String, public val value: String, public val inline: Boolean)
+    public data class Footer(public val name: String, public val url: String?, public val avatar: String?)
+}
+
+@OptIn(ExperimentalStdlibApi::class)
+internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer): Embed {
+    val fields = buildList {
+        val stackTrace = exception
+        if (stackTrace != null) {
+            add(Embed.Field("Exception", stackTrace.exceptionName, false))
+            val exceptionMessage = stackTrace.message
+            if (!exceptionMessage.isNullOrBlank() && exceptionMessage != "null") {
+                add(Embed.Field("Beschreibung", exceptionMessage, false))
+            }
+            val documentation = doc
+            if (doc != null) {
+                val description = with(htmlRenderer) {
+                    documentation?.description?.toMarkdown()
+                }
+                add(Embed.Field("Exception Doc", description ?: "<loading>", false))
+            }
+            val causeElement = causeElement
+            if (causeElement != null && causeElement is DefaultStackTraceElement) {
+                // "Der Fehler befindet sich vermutlich in der Datei `${causeElement.file?.limit(100)}.java` in Zeile `${exception.causeLine}`"
+                add(
+                    Embed.Field(
+                        "Ursache",
+                        causeElement.toString(),
+                        false
+                    )
+                )
+            }
+
+            val causee = (stackTrace as? CausedStackTrace)?.parent
+            if (causee != null) {
+                add(Embed.Field("Verursacht", causee.exceptionName, false))
+            }
+        }
+
+        val source = causeLine
+        if (source != null) {
+            add(
+                Embed.Field(
+                    "Ursache - Code",
+                    """```java
+                        |$source
+                        |```""".trimMargin(),
+                    false
+                )
+            )
+        } else {
+            add(
+                Embed.Field(
+                    "Ursache - Code",
+                    "Ich konnte keinen Code finden, bitte schicke die komplette Klasse, in der der Fehler auftritt (Am besten via hastebin)",
+                    false
+                )
+            )
+        }
+
+    }
+
+    val footer = Embed.Footer(
+        "AutoHelp ${AutoHelpVersion.VERSION} - Bitte bugs auf https://github.com/DRSchlaubi/furry-octo-rotary-phone melden",
+        "https://github.com/DRSchlaubi/furry-octo-rotary-phone",
+        null
+    )
+    val exceptionName = exception?.exception?.let { it.innerClassName ?: it.className } ?: "<unknown exception>"
+    val title = "AutoHelp - $exceptionName"
+
+
+    return Embed(title, explanation, fields, footer)
+}
+
+private val StackTrace.exceptionName
+    get() = exception.innerClassName ?: exception.className

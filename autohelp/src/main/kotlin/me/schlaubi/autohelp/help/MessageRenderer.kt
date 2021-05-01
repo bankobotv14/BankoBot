@@ -25,10 +25,33 @@
 
 package me.schlaubi.autohelp.help
 
+/**
+ * Interface for a Discord message that can be edited.
+ *
+ * @see MessageRenderer
+ */
 public interface EditableMessage {
+
+    /**
+     * Edits the content of this message to [message].
+     * @see OutgoingMessage
+     */
     public suspend fun edit(message: OutgoingMessage)
 }
 
+/**
+ * Interface for sending messages into a channel.
+ *
+ * @see EditableMessage
+ */
 public interface MessageRenderer {
-    public suspend fun sendMessage(message: OutgoingMessage): EditableMessage
+    /**
+     * Sends [message] into [channelId] on [guildId]
+     *
+     * @return an [EditableMessage]
+     *
+     * @see EditableMessage
+     * @see OutgoingMessage
+     */
+    public suspend fun sendMessage(guildId: Long, channelId: Long, message: OutgoingMessage): EditableMessage
 }

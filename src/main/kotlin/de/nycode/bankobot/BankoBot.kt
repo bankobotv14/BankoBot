@@ -38,6 +38,7 @@ import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import de.nycode.bankobot.docdex.DocDex
 import de.nycode.bankobot.docdex.DocumentationModule
+import de.nycode.bankobot.docdex.htmlRenderer
 import de.nycode.bankobot.listeners.autoUploadListener
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
@@ -50,10 +51,10 @@ import dev.kord.core.Kord
 import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.on
 import dev.kord.x.commands.kord.BotBuilder
-import dev.kord.x.commands.kord.model.prefix.kord
 import dev.kord.x.commands.kord.model.prefix.mention
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
+import dev.schlaubi.forp.analyze.client.RemoteStackTraceAnalyzer
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
@@ -66,6 +67,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
+import me.schlaubi.autohelp.AutoHelp
+import me.schlaubi.autohelp.kord.autoHelp
 import mu.KotlinLogging
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -111,6 +114,9 @@ object BankoBot : CoroutineScope {
     val permissionHandler =
         if (Config.ENVIRONMENT == Environment.PRODUCTION) RolePermissionHandler else DebugPermissionHandler
 
+    lateinit var autoHelp: AutoHelp
+        private set
+
     class Repositories internal constructor() {
         lateinit var blacklist: CoroutineCollection<BlacklistEntry>
         lateinit var tag: CoroutineCollection<TagEntry>
@@ -125,6 +131,21 @@ object BankoBot : CoroutineScope {
         initializeDatabase()
 
         kord = Kord(Config.DISCORD_TOKEN)
+        val renderer = htmlRenderer
+        autoHelp = kord.autoHelp {
+            analyzer = RemoteStackTraceAnalyzer {
+                url("http://localhost:8080")
+                authKey = "apple-is-shit"
+            }
+
+            tagSupplier {
+                null
+            }
+
+            htmlRenderer {
+                renderer.convert(this)
+            }
+        }
 
         initializeKord()
     }

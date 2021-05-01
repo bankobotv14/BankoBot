@@ -28,15 +28,21 @@ package me.schlaubi.autohelp.source
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlin.coroutines.CoroutineContext
 
+/**
+ * Combination of a list of [EventSource]s and [EventFilter].
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 public class EventContext<T : ReceivedMessage>(
-    public val sources: List<EventSource<out T>>,
-    public val filters: List<EventFilter<in T>>,
-    private val scope: CoroutineScope
-) {
+    sources: List<EventSource<out T>>,
+    public val filters: List<EventFilter<in T>>, override val coroutineContext: CoroutineContext,
+) : EventSource<T>, CoroutineScope {
 
-    public val events: Flow<T> = sources.asSequence()
+    /**
+     * A [Flow] of events provided by all sources and matching all [filters].
+     */
+    override val events: Flow<T> = sources.asSequence()
         .map(EventSource<out T>::events)
         .asIterable()
         .merge()

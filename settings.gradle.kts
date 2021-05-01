@@ -41,3 +41,4 @@ pluginManagement {
     }
 }
 include("autohelp")
+include("autohelp:kord")

@@ -23,43 +23,40 @@
  *
  */
 
-package me.schlaubi.autohelp.internal
+package me.schlaubi.autohelp.kord
 
-import dev.schlaubi.forp.analyze.StackTraceAnalyzer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import dev.kord.core.Kord
+import dev.kord.core.event.message.MessageCreateEvent
 import me.schlaubi.autohelp.AutoHelp
-import me.schlaubi.autohelp.help.HtmlRenderer
 import me.schlaubi.autohelp.help.MessageRenderer
-import me.schlaubi.autohelp.source.EventContext
-import me.schlaubi.autohelp.tags.TagSupplier
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
+import me.schlaubi.autohelp.source.EventSource
+import me.schlaubi.autohelp.AutoHelpBuilder
+import me.schlaubi.autohelp.ContextBuilder
 
-internal class AutoHelpImpl(
-    override val analyzer: StackTraceAnalyzer, contexts: List<EventContext<*>>,
-    override val coroutineContext: CoroutineContext,
-    override val tagSupplier: TagSupplier,
-    override val cleanUpTime: Duration,
-    override val messageRenderer: MessageRenderer,
-    override val htmlRenderer: HtmlRenderer,
-) : AutoHelp, CoroutineScope {
-
-    private val listeners = contexts.map {
-        it.events.onEach { message ->
-            message.handle(this)
-        }.launchIn(this)
+public fun Kord.autoHelp(block: AutoHelpBuilder.() -> Unit = {}): AutoHelp = me.schlaubi.autohelp.autoHelp {
+    useKordMessageRenderer(this@autoHelp)
+    kordContext {
+        kordEventSource(this@autoHelp)
     }
 
-
-    override suspend fun close() {
-        coroutineScope {
-            listeners.forEach {
-                launch { it.cancel() }
-            }
-        }
-    }
+    block()
 }
+
+/**
+ * Adds a [MessageRenderer] which uses [kord] to send messages.
+ */
+public fun AutoHelpBuilder.useKordMessageRenderer(kord: Kord) {
+    messageRenderer = KordMessageRenderer(kord)
+}
+
+/**
+ * Adds an [EventSource] which listens for [MessageCreateEvent]s.
+ *
+ * @param kord the [Kord] instance providing the event.
+ */
+public fun ContextBuilder<KordReceivedMessage>.kordEventSource(kord: Kord): Unit = +KordEventSource(kord)
+
+/**
+ * Builds a new Kord based context.
+ */
+public fun AutoHelpBuilder.kordContext(builder: ContextBuilder<KordReceivedMessage>.() -> Unit): Unit = context(builder)

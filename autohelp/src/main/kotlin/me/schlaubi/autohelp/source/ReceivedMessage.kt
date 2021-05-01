@@ -25,15 +25,26 @@
 
 package me.schlaubi.autohelp.source
 
+import dev.kord.x.emoji.DiscordEmoji
+import dev.schlaubi.forp.fetch.input.FileInput
 import io.ktor.utils.io.*
 
 public interface ReceivedMessage {
+
+    public val guildId: Long
+    public val channelId: Long
+
+    public val authorId: Long
 
     public val content: String
 
     public val files: List<ReceivedFile>
 
+    public suspend fun react(emoji: DiscordEmoji)
+
     public interface ReceivedFile {
+        public val type: FileInput.FileType
+
         public suspend fun download(): ByteReadChannel
     }
 }

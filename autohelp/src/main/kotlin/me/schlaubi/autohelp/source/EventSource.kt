@@ -27,6 +27,14 @@ package me.schlaubi.autohelp.source
 
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Provides a [Flow] of potential auto-help events.
+ *
+ * @see EventContext
+ */
 public interface EventSource<T : ReceivedMessage> {
+    /**
+     * A [Flow] of potential incoming auto-help events.
+     */
     public val events: Flow<T>
 }

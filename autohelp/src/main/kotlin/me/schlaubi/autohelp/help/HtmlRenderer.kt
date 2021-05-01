@@ -23,10 +23,14 @@
  *
  */
 
-package me.schlaubi.autohelp.tags
+package me.schlaubi.autohelp.help
 
-import dev.schlaubi.forp.parser.stacktrace.StackTrace
-
-public fun interface TagSupplier {
-    public fun findTagForException(exception: StackTrace): String?
+/**
+ * Functional interface for converting javadoc HTML to Markdown.
+ */
+public fun interface HtmlRenderer {
+    /**
+     * Converts this HTML-formatted string to Markdown.
+     */
+    public fun String.toMarkdown(): String
 }

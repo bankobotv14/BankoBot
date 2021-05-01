@@ -23,10 +23,10 @@
  *
  */
 
-package me.schlaubi.autohelp.tags
+package me.schlaubi.autohelp;
 
-import dev.schlaubi.forp.parser.stacktrace.StackTrace
+public class AutoHelpVersion {
 
-public fun interface TagSupplier {
-    public fun findTagForException(exception: StackTrace): String?
+    public static final String VERSION = "@VERSION@";
+
 }
