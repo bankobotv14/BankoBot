@@ -23,22 +23,16 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.tags
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+import dev.schlaubi.forp.parser.stacktrace.StackTrace
+
+/**
+ * Optional support for a tag system providing custom explanation for auto-help.
+ */
+public fun interface TagSupplier {
+    /**
+     * Finds a tag that explains [exception] or `null` if none was found.
+     */
+    public fun findTagForException(exception: StackTrace): String?
 }
-include("autohelp")
-include("autohelp:kord")

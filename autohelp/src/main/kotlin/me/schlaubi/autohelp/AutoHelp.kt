@@ -23,22 +23,48 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+import dev.schlaubi.forp.analyze.StackTraceAnalyzer
+import me.schlaubi.autohelp.help.HtmlRenderer
+import me.schlaubi.autohelp.help.MessageRenderer
+import me.schlaubi.autohelp.tags.TagSupplier
+import kotlin.time.Duration
+
+/**
+ * Autohelp instance.
+ *
+ * @see AutoHelpBuilder
+ * @see autoHelp
+ */
+public interface AutoHelp {
+    /**
+     * [StackTraceAnalyzer] used to power analysis of exceptions.
+     */
+    public val analyzer: StackTraceAnalyzer
+
+    /**
+     * [TagSupplier] used to provide custom explanations.
+     */
+    public val tagSupplier: TagSupplier
+
+    /**
+     * [MessageRenderer] used to send messages.
+     */
+    public val messageRenderer: MessageRenderer
+
+    /**
+     * [HtmlRenderer] used to render javadocs.
+     */
+    public val htmlRenderer: HtmlRenderer
+
+    /**
+     * The [Duration] after which all conversation should be closed
+     */
+    public val cleanUpTime: Duration
+
+    /**
+     * Closes all resources needed by autohelp.
+     */
+    public suspend fun close()
 }
-include("autohelp")
-include("autohelp:kord")

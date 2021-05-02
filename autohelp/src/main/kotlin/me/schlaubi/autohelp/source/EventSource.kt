@@ -23,22 +23,18 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.source
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * Provides a [Flow] of potential auto-help events.
+ *
+ * @see EventContext
+ */
+public interface EventSource<T : ReceivedMessage> {
+    /**
+     * A [Flow] of potential incoming auto-help events.
+     */
+    public val events: Flow<T>
 }
-include("autohelp")
-include("autohelp:kord")

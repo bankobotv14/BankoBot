@@ -23,22 +23,11 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package de.nycode.bankobot.autohelp
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+import dev.schlaubi.forp.parser.stacktrace.StackTrace
+import me.schlaubi.autohelp.tags.TagSupplier
+
+object TagSupplier : TagSupplier {
+    override fun findTagForException(exception: StackTrace): String? = null
 }
-include("autohelp")
-include("autohelp:kord")

@@ -23,22 +23,14 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.source
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+/**
+ * Filters incoming events to determine whether to autohelp or not.
+ */
+public fun interface EventFilter<T : ReceivedMessage> {
+    /**
+     * Whether [event] should get processed or not.
+     */
+    public fun validateEvent(event: T): Boolean
 }
-include("autohelp")
-include("autohelp:kord")

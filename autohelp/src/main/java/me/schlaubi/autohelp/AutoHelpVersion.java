@@ -23,22 +23,38 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp;
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Properties;
+
+/**
+ * The version of this AutoHelp artifact.
+ */
+public class AutoHelpVersion {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AutoHelpVersion.class);
+    private static final Properties PROPERTIES = new Properties();
+
+    static {
+        try {
+            PROPERTIES.load(AutoHelpVersion.class.getResourceAsStream("AutoHelpVersion.properties"));
+        } catch (IOException e) {
+            LOG.warn("Could not load project meta", e);
         }
     }
+
+    /**
+     * The release name of this release.
+     */
+    public static final String VERSION = PROPERTIES.getProperty("version");
+
+    /**
+     * The commit hash in the <a href="https://github.com/bankobotv14/BankoBot/tree/main/autohelp">AutoHelp repo</a>
+     */
+    public static final String COMMIT_HASH = PROPERTIES.getProperty("commit_hash");
+
 }
-include("autohelp")
-include("autohelp:kord")

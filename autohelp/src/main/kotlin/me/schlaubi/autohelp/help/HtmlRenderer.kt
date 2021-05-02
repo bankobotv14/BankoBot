@@ -23,22 +23,14 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.help
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+/**
+ * Functional interface for converting javadoc HTML to Markdown.
+ */
+public fun interface HtmlRenderer {
+    /**
+     * Converts this HTML-formatted string to Markdown.
+     */
+    public fun String.toMarkdown(): String
 }
-include("autohelp")
-include("autohelp:kord")

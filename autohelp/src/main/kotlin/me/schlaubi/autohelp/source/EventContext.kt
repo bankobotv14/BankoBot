@@ -23,22 +23,30 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.source
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
+import kotlin.coroutines.CoroutineContext
+
+/**
+ * Combination of a list of [EventSource]s and [EventFilter].
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+public class EventContext<T : ReceivedMessage>(
+    sources: List<EventSource<out T>>,
+    public val filters: List<EventFilter<in T>>, override val coroutineContext: CoroutineContext,
+) : EventSource<T>, CoroutineScope {
+
+    /**
+     * A [Flow] of events provided by all sources and matching all [filters].
+     */
+    override val events: Flow<T> = sources.asSequence()
+        .map(EventSource<out T>::events)
+        .asIterable()
+        .merge()
+        .filter { event ->
+            filters.all { it.validateEvent(event) }
         }
-    }
 }
-include("autohelp")
-include("autohelp:kord")

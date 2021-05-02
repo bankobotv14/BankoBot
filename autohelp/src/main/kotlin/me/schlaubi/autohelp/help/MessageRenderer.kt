@@ -23,22 +23,35 @@
  *
  */
 
-rootProject.name = "BankoBot"
+package me.schlaubi.autohelp.help
 
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            repositories {
-                jcenter {
-                    content {
-                        // just allow to include kotlinx projects
-                        // detekt needs 'kotlinx-html' for the html report
-                        includeGroup("org.jetbrains.kotlinx")
-                    }
-                }
-            }
-        }
-    }
+/**
+ * Interface for a Discord message that can be edited.
+ *
+ * @see MessageRenderer
+ */
+public interface EditableMessage {
+
+    /**
+     * Edits the content of this message to [message].
+     * @see OutgoingMessage
+     */
+    public suspend fun edit(message: OutgoingMessage)
 }
-include("autohelp")
-include("autohelp:kord")
+
+/**
+ * Interface for sending messages into a channel.
+ *
+ * @see EditableMessage
+ */
+public interface MessageRenderer {
+    /**
+     * Sends [message] into [channelId] on [guildId]
+     *
+     * @return an [EditableMessage]
+     *
+     * @see EditableMessage
+     * @see OutgoingMessage
+     */
+    public suspend fun sendMessage(guildId: Long, channelId: Long, message: OutgoingMessage): EditableMessage
+}

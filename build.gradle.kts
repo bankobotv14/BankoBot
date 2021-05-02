@@ -44,6 +44,8 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://kotlin.bintray.com/kotlinx/")
     maven("https://schlaubi.jfrog.io/artifactory/lavakord")
+    maven("https://schlaubi.jfrog.io/artifactory/forp")
+
     jcenter()
 }
 
@@ -89,6 +91,9 @@ dependencies {
 
     antlr("org.antlr", "antlr4", "4.9.1")
 
+    implementation(project(":autohelp:kord"))
+    implementation("dev.schlaubi.forp", "forp-analyze-client", "1.0-SNAPSHOT")
+
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.6.0")
@@ -101,7 +106,7 @@ dependencies {
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
         }
     }
