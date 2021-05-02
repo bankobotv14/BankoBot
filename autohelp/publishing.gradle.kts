@@ -22,7 +22,7 @@ val configurePublishing: PublishingExtension.() -> Unit = {
             from(cmp["java"])
 
             groupId = group.toString()
-            artifactId = name
+            artifactId = project.name
             version = project.version.toString()
 
             pom {
