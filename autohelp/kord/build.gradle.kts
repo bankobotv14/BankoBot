@@ -2,6 +2,8 @@ plugins {
     kotlin("jvm")
 }
 
+apply(from = "../publishing.gradle.kts")
+
 group = "me.schlaubi.autohelp"
 version = rootProject.version
 
