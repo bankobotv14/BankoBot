@@ -142,11 +142,11 @@ object BankoBot : CoroutineScope {
             context<KordReceivedMessage> {
                 kordEventSource(kord)
                 filter {
-                    it.kordMessage.author?.isBot != true
-                            && it.channelId in Config.AUTO_HELP_CHANNELS
+                    it.kordMessage.author?.isBot != true && it.channelId in Config.AUTO_HELP_CHANNELS
                 }
             }
 
+            @Suppress("MagicNumber")
             cleanupTime = 30.seconds
             analyzer = RemoteStackTraceAnalyzer {
                 serverUrl = Config.AUTO_HELP_SERVER
