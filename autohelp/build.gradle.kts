@@ -39,14 +39,19 @@ tasks {
 
     processResources {
         from(sourceSets["main"].resources) {
-            val hash = ByteArrayOutputStream().use { out ->
-                exec {
-                    commandLine("git", "rev-parse", "--short", "HEAD")
-                    standardOutput = out
-                }
+            val hash = try {
+                ByteArrayOutputStream().use { out ->
+                    exec {
+                        commandLine("git", "rev-parse", "--short", "HEAD")
+                        standardOutput = out
+                    }
 
-                out.toString().trim()
+                    out.toString().trim()
+                }
+            } catch (e: Throwable) {
+                System.getenv("GITHUB_SHA") ?: "<unknown>"
             }
+
             val tokens = mapOf(
                 "version" to version,
                 "commit_hash" to hash
