@@ -16,8 +16,8 @@ val configurePublishing: PublishingExtension.() -> Unit = {
     }
 
     publications {
-        filterIsInstance<MavenPublication>().forEach { publication ->
-            publication.pom {
+        create<MavenPublication>("maven") {
+            pom {
                 name.set(project.name)
                 description.set(
                     """
@@ -48,6 +48,9 @@ val configurePublishing: PublishingExtension.() -> Unit = {
                     url.set("https://github.com/bankobotv14/bankbot")
                 }
             }
+
+            artifact(tasks["jar"])
+            artifact(tasks["sourcesJar"])
         }
     }
 }

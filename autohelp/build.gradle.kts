@@ -4,8 +4,6 @@ plugins {
     kotlin("jvm")
 }
 
-apply(from = "publishing.gradle.kts")
-
 group = "me.schlaubi"
 version = "2.0.0-RC.1"
 
@@ -34,6 +32,11 @@ tasks {
         }
     }
 
+    task<Jar>("sourcesJar") {
+        archiveClassifier.set("sources")
+        from(sourceSets["main"].allSource)
+    }
+
     processResources {
         from(sourceSets["main"].resources) {
             val hash = ByteArrayOutputStream().use { out ->
@@ -53,3 +56,5 @@ tasks {
         }
     }
 }
+
+apply(from = "publishing.gradle.kts")

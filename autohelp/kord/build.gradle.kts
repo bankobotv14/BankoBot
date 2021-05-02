@@ -2,8 +2,6 @@ plugins {
     kotlin("jvm")
 }
 
-apply(from = "../publishing.gradle.kts")
-
 group = "me.schlaubi.autohelp"
 version = rootProject.version
 
@@ -24,8 +22,15 @@ tasks {
             jvmTarget = "11"
         }
     }
+
+    task<Jar>("sourcesJar") {
+        archiveClassifier.set("sources")
+        from(sourceSets["main"].allSource)
+    }
 }
 
 kotlin {
     explicitApi()
 }
+
+apply(from = "../publishing.gradle.kts")
