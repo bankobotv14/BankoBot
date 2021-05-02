@@ -2,6 +2,7 @@ import java.io.ByteArrayOutputStream
 
 plugins {
     kotlin("jvm")
+    `maven-publish`
 }
 
 group = "me.schlaubi"
@@ -63,3 +64,12 @@ tasks {
 }
 
 apply(from = "publishing.gradle.kts")
+
+publishing {
+    publications {
+        getByName<MavenPublication>("maven") {
+            artifact(tasks.jar)
+            artifact(tasks.kotlinSourcesJar)
+        }
+    }
+}
