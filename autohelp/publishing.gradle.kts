@@ -57,8 +57,7 @@ val configurePublishing: PublishingExtension.() -> Unit = {
                 }
             }
 
-            artifact(tasks["jar"])
-            artifact(tasks["sourcesJar"])
+            artifact(tasks["kotlinSourcesJar"])
         }
     }
 }
