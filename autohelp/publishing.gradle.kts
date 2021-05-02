@@ -3,6 +3,8 @@ import java.util.*
 apply(plugin = "org.gradle.maven-publish")
 apply(plugin = "org.gradle.signing")
 
+val cmp = components
+
 val configurePublishing: PublishingExtension.() -> Unit = {
     repositories {
         maven {
@@ -17,6 +19,12 @@ val configurePublishing: PublishingExtension.() -> Unit = {
 
     publications {
         create<MavenPublication>("maven") {
+            from(cmp["java"])
+
+            groupId = group.toString()
+            artifactId = name
+            version = project.version.toString()
+
             pom {
                 name.set(project.name)
                 description.set(
