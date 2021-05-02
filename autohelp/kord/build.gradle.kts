@@ -25,7 +25,6 @@
 
 plugins {
     kotlin("jvm")
-    `maven-publish`
 }
 
 group = "me.schlaubi.autohelp"
@@ -48,11 +47,6 @@ tasks {
             jvmTarget = "11"
         }
     }
-
-    task<Jar>("sourcesJar") {
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
-    }
 }
 
 kotlin {
@@ -60,12 +54,3 @@ kotlin {
 }
 
 apply(from = "../publishing.gradle.kts")
-
-publishing {
-    publications {
-        getByName<MavenPublication>("maven") {
-            artifact(tasks.jar)
-            artifact(tasks.kotlinSourcesJar)
-        }
-    }
-}
