@@ -25,8 +25,36 @@
 
 package me.schlaubi.autohelp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Properties;
+
+/**
+ * The version of this AutoHelp artifact.
+ */
 public class AutoHelpVersion {
 
-    public static final String VERSION = "@VERSION@";
+    private static final Logger LOG = LoggerFactory.getLogger(AutoHelpVersion.class);
+    private static final Properties PROPERTIES = new Properties();
+
+    static {
+        try {
+            PROPERTIES.load(AutoHelpVersion.class.getResourceAsStream("AutoHelpVersion.properties"));
+        } catch (IOException e) {
+            LOG.warn("Could not load project meta", e);
+        }
+    }
+
+    /**
+     * The release name of this release.
+     */
+    public static final String VERSION = PROPERTIES.getProperty("version");
+
+    /**
+     * The commit hash in the <a href="https://github.com/bankobotv14/BankoBot/tree/main/autohelp">AutoHelp repo</a>
+     */
+    public static final String COMMIT_HASH = PROPERTIES.getProperty("commit_hash");
 
 }

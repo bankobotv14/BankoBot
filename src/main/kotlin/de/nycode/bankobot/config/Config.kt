@@ -36,6 +36,13 @@ import io.ktor.http.*
 @Suppress("MagicNumber")
 object Config {
 
+    val AUTO_HELP_SERVER: Url by getEnv { Url(it) }
+    val AUTO_HELP_KEY: String by getEnv()
+
+    val AUTO_HELP_CHANNELS: List<Long> by getEnv(default = emptyList()) {
+        it.split(", ").map { item -> item.toLong() }
+    }
+
     val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
         Environment.valueOf(it)
     }

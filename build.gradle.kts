@@ -45,6 +45,7 @@ repositories {
     maven("https://kotlin.bintray.com/kotlinx/")
     maven("https://schlaubi.jfrog.io/artifactory/lavakord")
     maven("https://schlaubi.jfrog.io/artifactory/forp")
+
     jcenter()
 }
 
@@ -105,7 +106,7 @@ dependencies {
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
         }
     }

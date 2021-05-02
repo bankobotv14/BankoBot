@@ -43,6 +43,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.minutes
 
+/**
+ * Creates a new [AutoHelp] instance and applies [builder] to it.
+ */
 @OptIn(ExperimentalContracts::class)
 public inline fun autoHelp(builder: AutoHelpBuilder.() -> Unit = {}): AutoHelp {
     contract {
@@ -51,6 +54,17 @@ public inline fun autoHelp(builder: AutoHelpBuilder.() -> Unit = {}): AutoHelp {
     return AutoHelpBuilder().apply(builder).build()
 }
 
+/**
+ * Buildser for [AutoHelp].
+ *
+ * @property analyzer the [StackTraceAnalyzer] to analyze exceptions
+ * @property tagSupplier the [TagSupplier] for custom answers
+ * @property messageRenderer the [MessageRenderer] to send messages
+ * @property htmlRenderer the [HtmlRenderer] to render documentation descriptions
+ * @property cleanupTime the [Duration] after which conversations should be forgotten automatically
+ * @property contexts a list of all [EventContext]s supplying events to analyze
+ * @property dispatcher the [CoroutineContext] used for I/O
+ */
 public class AutoHelpBuilder {
 
     public lateinit var analyzer: StackTraceAnalyzer
@@ -61,14 +75,35 @@ public class AutoHelpBuilder {
     public var contexts: MutableList<EventContext<*>> = mutableListOf()
     public var dispatcher: CoroutineContext = Dispatchers.IO + Job()
 
+    /**
+     * Set's the [tagSupplier] to [supplier].
+     *
+     * ```kotlin
+     * tagSupplier {
+     *  // tag finding logic
+     * }
+     * ```
+     */
     public fun tagSupplier(supplier: TagSupplier) {
         this.tagSupplier = supplier
     }
 
+    /**
+     * Set's the [htmlRenderer] to [htmlRenderer].
+     *
+     * ```kotlin
+     * htmlRenderer {
+     *  // conversion logic
+     * }
+     * ```
+     */
     public fun htmlRenderer(htmlRenderer: HtmlRenderer) {
         this.htmlRenderer = htmlRenderer
     }
 
+    /**
+     * Creates a new context of type [T] and applies [builder].
+     */
     @OptIn(ExperimentalContracts::class)
     public fun <T : ReceivedMessage> context(builder: ContextBuilder<T>.() -> Unit) {
         contract {
@@ -78,22 +113,38 @@ public class AutoHelpBuilder {
         contexts.add(ContextBuilder<T>().apply(builder).build(dispatcher))
     }
 
+
     @PublishedApi
     internal fun build(): AutoHelp =
         AutoHelpImpl(analyzer, contexts, dispatcher, tagSupplier, cleanupTime, messageRenderer, htmlRenderer)
 }
 
+/**
+ * Builder for an [EventContext].
+ */
 public class ContextBuilder<T : ReceivedMessage> {
     public val sources: MutableList<EventSource<out T>> = mutableListOf()
-    public val filter: MutableList<EventFilter<in T>> = mutableListOf()
+    public val filters: MutableList<EventFilter<in T>> = mutableListOf()
 
+    /**
+     * Adds this [EventFilter] to [filters].
+     */
     public operator fun EventFilter<in T>.unaryPlus() {
-        filter += this
+        filters += this
     }
 
+    /**
+     * Adds this [EventSource] to [sources].
+     */
     public operator fun EventSource<out T>.unaryPlus() {
         sources += this
     }
 
-    public fun build(dispatcher: CoroutineContext): EventContext<T> = EventContext(sources, filter, dispatcher)
+
+    /**
+     * Adds a new [eventFilter] to this context.
+     */
+    public fun filter(eventFilter: EventFilter<in T>): Unit = +eventFilter
+
+    internal fun build(dispatcher: CoroutineContext): EventContext<T> = EventContext(sources, filters, dispatcher)
 }

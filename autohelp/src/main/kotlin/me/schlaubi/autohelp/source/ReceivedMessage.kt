@@ -29,22 +29,57 @@ import dev.kord.x.emoji.DiscordEmoji
 import dev.schlaubi.forp.fetch.input.FileInput
 import io.ktor.utils.io.*
 
+/**
+ * Representation of a received Discord message.
+ */
 public interface ReceivedMessage {
 
+    /**
+     * The id of the guild the message was received on.
+     */
     public val guildId: Long
+
+    /**
+     * The id of the channel the message was received in.
+     */
     public val channelId: Long
 
+    /**
+     * The id of the user authoring the message.
+     */
     public val authorId: Long
 
+    /**
+     * The content of the message.
+     */
     public val content: String?
 
+    /**
+     * A list of files attached to the message.
+     */
     public val files: List<ReceivedFile>
 
+    /**
+     * Adds [emoji] to the message.
+     *
+     * @see DiscordEmoji.unicode for non kord users
+     */
     public suspend fun react(emoji: DiscordEmoji)
 
+    /**
+     * Representation of a file attachment.
+     */
     public interface ReceivedFile {
+        /**
+         * The type of the file.
+         *
+         * @see FileInput.FileType
+         */
         public val type: FileInput.FileType
 
+        /**
+         * Downloads the contents of the file and buffers it in a [ByteReadChannel].
+         */
         public suspend fun download(): ByteReadChannel
     }
 }

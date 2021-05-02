@@ -27,12 +27,16 @@ package me.schlaubi.autohelp.kord
 
 import dev.kord.core.Kord
 import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.core.event.message.MessageUpdateEvent
 import me.schlaubi.autohelp.AutoHelp
 import me.schlaubi.autohelp.help.MessageRenderer
 import me.schlaubi.autohelp.source.EventSource
 import me.schlaubi.autohelp.AutoHelpBuilder
 import me.schlaubi.autohelp.ContextBuilder
 
+/**
+ * Creates the default Kord autohelp and applies [block] to it.
+ */
 public fun Kord.autoHelp(block: AutoHelpBuilder.() -> Unit = {}): AutoHelp = me.schlaubi.autohelp.autoHelp {
     useKordMessageRenderer(this@autoHelp)
     kordContext {
@@ -50,11 +54,17 @@ public fun AutoHelpBuilder.useKordMessageRenderer(kord: Kord) {
 }
 
 /**
- * Adds an [EventSource] which listens for [MessageCreateEvent]s.
+ * Adds an [EventSource] which listens for [MessageCreateEvents][MessageCreateEvent].
  *
  * @param kord the [Kord] instance providing the event.
  */
 public fun ContextBuilder<KordReceivedMessage>.kordEventSource(kord: Kord): Unit = +KordEventSource(kord)
+
+/**
+ * Adds an [EventSource] which listens for [MessageUpdateEvents][MessageUpdateEvent].
+ *
+ * @param kord the [Kord] instance providing the event.
+ */
 public fun ContextBuilder<KordUpdateMessage>.kordEditEventSource(kord: Kord): Unit = +KordUpdateEventSource(kord)
 
 /**

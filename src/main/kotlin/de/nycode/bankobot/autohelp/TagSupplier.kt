@@ -23,48 +23,11 @@
  *
  */
 
-package me.schlaubi.autohelp
+package de.nycode.bankobot.autohelp
 
-import dev.schlaubi.forp.analyze.StackTraceAnalyzer
-import me.schlaubi.autohelp.help.HtmlRenderer
-import me.schlaubi.autohelp.help.MessageRenderer
+import dev.schlaubi.forp.parser.stacktrace.StackTrace
 import me.schlaubi.autohelp.tags.TagSupplier
-import kotlin.time.Duration
 
-/**
- * Autohelp instance.
- *
- * @see AutoHelpBuilder
- * @see autoHelp
- */
-public interface AutoHelp {
-    /**
-     * [StackTraceAnalyzer] used to power analysis of exceptions.
-     */
-    public val analyzer: StackTraceAnalyzer
-
-    /**
-     * [TagSupplier] used to provide custom explanations.
-     */
-    public val tagSupplier: TagSupplier
-
-    /**
-     * [MessageRenderer] used to send messages.
-     */
-    public val messageRenderer: MessageRenderer
-
-    /**
-     * [HtmlRenderer] used to render javadocs.
-     */
-    public val htmlRenderer: HtmlRenderer
-
-    /**
-     * The [Duration] after which all conversation should be closed
-     */
-    public val cleanUpTime: Duration
-
-    /**
-     * Closes all resources needed by autohelp.
-     */
-    public suspend fun close()
+object TagSupplier : TagSupplier {
+    override fun findTagForException(exception: StackTrace): String? = null
 }

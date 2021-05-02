@@ -28,6 +28,7 @@ package de.nycode.bankobot
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.IndexOptions
+import de.nycode.bankobot.autohelp.TagSupplier
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
@@ -68,9 +69,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
 import me.schlaubi.autohelp.AutoHelp
-import me.schlaubi.autohelp.kord.KordUpdateMessage
-import me.schlaubi.autohelp.kord.autoHelp
-import me.schlaubi.autohelp.kord.kordEditEventSource
+import me.schlaubi.autohelp.kord.*
 import mu.KotlinLogging
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -135,20 +134,26 @@ object BankoBot : CoroutineScope {
 
         kord = Kord(Config.DISCORD_TOKEN)
         val renderer = htmlRenderer
-        autoHelp = kord.autoHelp {
+        autoHelp = me.schlaubi.autohelp.autoHelp {
             context<KordUpdateMessage> {
                 kordEditEventSource(kord)
+            }
+            useKordMessageRenderer(kord)
+            context<KordReceivedMessage> {
+                kordEventSource(kord)
+                filter {
+                    it.kordMessage.author?.isBot != true
+                            && it.channelId in Config.AUTO_HELP_CHANNELS
+                }
             }
 
             cleanupTime = 30.seconds
             analyzer = RemoteStackTraceAnalyzer {
-                url("http://localhost:8080")
-                authKey = "apple-is-shit"
+                serverUrl = Config.AUTO_HELP_SERVER
+                authKey = Config.AUTO_HELP_KEY
             }
 
-            tagSupplier {
-                null
-            }
+            tagSupplier(TagSupplier)
 
             htmlRenderer {
                 renderer.convert(this)

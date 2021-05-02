@@ -119,7 +119,8 @@ internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer): Embed {
     }
 
     val footer = Embed.Footer(
-        "AutoHelp ${AutoHelpVersion.VERSION} - Bitte bugs auf https://github.com/DRSchlaubi/furry-octo-rotary-phone melden",
+        "AutoHelp ${AutoHelpVersion.VERSION} (${AutoHelpVersion.COMMIT_HASH})" +
+                " - Bitte bugs auf https://github.com/DRSchlaubi/furry-octo-rotary-phone melden",
         "https://github.com/DRSchlaubi/furry-octo-rotary-phone",
         null
     )

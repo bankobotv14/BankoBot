@@ -27,6 +27,12 @@ package me.schlaubi.autohelp.tags
 
 import dev.schlaubi.forp.parser.stacktrace.StackTrace
 
+/**
+ * Optional support for a tag system providing custom explanation for auto-help.
+ */
 public fun interface TagSupplier {
+    /**
+     * Finds a tag that explains [exception] or `null` if none was found.
+     */
     public fun findTagForException(exception: StackTrace): String?
 }

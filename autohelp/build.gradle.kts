@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     kotlin("jvm")
 }
@@ -27,6 +29,25 @@ tasks {
             jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn" +
                     "-Xopt-in=kotlin.time.ExperimentalTime"
+        }
+    }
+
+    processResources {
+        from(sourceSets["main"].resources) {
+            val hash = ByteArrayOutputStream().use { out ->
+                exec {
+                    commandLine("git", "rev-parse", "--short", "HEAD")
+                    standardOutput = out
+                }
+
+                out.toString().trim()
+            }
+            val tokens = mapOf(
+                "version" to version,
+                "commit_hash" to hash
+            )
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            filter(org.apache.tools.ant.filters.ReplaceTokens::class, mapOf("tokens" to tokens))
         }
     }
 }

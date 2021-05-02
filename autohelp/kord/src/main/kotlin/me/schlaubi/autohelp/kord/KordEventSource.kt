@@ -55,7 +55,7 @@ public class KordEventSource(kord: Kord) : EventSource<KordReceivedMessage> {
 /**
  * Implementation of [ReceivedMessage] using [kordMessage].
  */
-public class KordReceivedMessage(private val kordMessage: Message) : ReceivedMessage {
+public class KordReceivedMessage(public val kordMessage: Message) : ReceivedMessage {
     override val channelId: Long
         get() = kordMessage.channelId.value
     override val authorId: Long

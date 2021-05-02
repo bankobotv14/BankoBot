@@ -41,11 +41,10 @@ import me.schlaubi.autohelp.source.ReceivedMessage
 public class KordUpdateEventSource(kord: Kord) : EventSource<KordUpdateMessage> {
     override val events: Flow<KordUpdateMessage> = kord.events
         .filterIsInstance<MessageUpdateEvent>()
-        .filter { it.old?.embeds?.isEmpty() == true }
         .map { KordUpdateMessage(it.message.asMessage()) }
 }
 
-public class KordUpdateMessage(private val kordMessage: Message) : ReceivedMessage {
+public class KordUpdateMessage(public val kordMessage: Message) : ReceivedMessage {
     override val guildId: Long
         get() = kordMessage.data.guildId.value!!.value
     override val channelId: Long
