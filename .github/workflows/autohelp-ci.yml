@@ -20,7 +20,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: git checkout HEAD^
       - name: Build with Gradle
         run: ./gradlew  autohelp:build autohelp:kord:build
   release:
@@ -40,6 +39,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: git checkout HEAD^
+      - run: git checkout HEAD
       - name: Build with Gradle
         run: ./gradlew  autohelp:publish autohelp:kord:publish
