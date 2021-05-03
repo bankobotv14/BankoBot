@@ -20,12 +20,14 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - run: git checkout HEAD^
       - name: Build with Gradle
         run: ./gradlew  autohelp:build autohelp:kord:build
   release:
     name: Publish maven artifact
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    needs: build
     env:
       BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
       BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
@@ -38,5 +40,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - run: git checkout HEAD^
       - name: Build with Gradle
         run: ./gradlew  autohelp:publish autohelp:kord:publish
