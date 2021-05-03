@@ -40,6 +40,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KProperty0
 import kotlin.time.Duration
 import kotlin.time.minutes
 
@@ -71,6 +72,7 @@ public class AutoHelpBuilder {
     public lateinit var tagSupplier: TagSupplier
     public lateinit var messageRenderer: MessageRenderer
     public lateinit var htmlRenderer: HtmlRenderer
+    public lateinit var loadingEmote: String
     public var cleanupTime: Duration = 2.minutes
     public var contexts: MutableList<EventContext<*>> = mutableListOf()
     public var dispatcher: CoroutineContext = Dispatchers.IO + Job()
@@ -115,8 +117,25 @@ public class AutoHelpBuilder {
 
 
     @PublishedApi
-    internal fun build(): AutoHelp =
-        AutoHelpImpl(analyzer, contexts, dispatcher, tagSupplier, cleanupTime, messageRenderer, htmlRenderer)
+    internal fun build(): AutoHelp {
+        require(::analyzer.isInitialized) { "analyzer may not be null" }
+        val tags: KProperty0<*> = ::tagSupplier
+        require(tags.get() != null) { "tagSupplier may not be null" }
+        require(::messageRenderer.isInitialized) { "messageRenderer may not be null" }
+        val html: KProperty0<*> = ::htmlRenderer
+        require(html.get() != null) { "htmlRenderer may not be null" }
+        require(::loadingEmote.isInitialized) { "loadingEmote may not be null" }
+        return AutoHelpImpl(
+            analyzer,
+            contexts,
+            dispatcher,
+            tagSupplier,
+            cleanupTime,
+            messageRenderer,
+            htmlRenderer,
+            loadingEmote
+        )
+    }
 }
 
 /**

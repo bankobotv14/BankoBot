@@ -46,6 +46,7 @@ internal class AutoHelpImpl(
     override val cleanUpTime: Duration,
     override val messageRenderer: MessageRenderer,
     override val htmlRenderer: HtmlRenderer,
+    override val loadingEmote: String,
 ) : AutoHelp, CoroutineScope {
 
     private val listeners = contexts.map {

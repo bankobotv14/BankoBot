@@ -31,9 +31,12 @@ import dev.schlaubi.forp.analyze.events.JavaDocFoundEvent
 import dev.schlaubi.forp.analyze.events.SourceFileFoundEvent
 import dev.schlaubi.forp.parser.stacktrace.DefaultStackTraceElement
 import dev.schlaubi.forp.parser.stacktrace.StackTraceElement
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.schlaubi.autohelp.help.OutgoingMessage
 import me.schlaubi.autohelp.help.toEmbed
 import mu.KotlinLogging
+import kotlin.time.seconds
 
 private val LOG = KotlinLogging.logger { }
 
@@ -55,6 +58,19 @@ internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: Discor
             tag?.let { exception to tag }
         }.firstOrNull() ?: conversation.exceptions.first() to null
 
+    if (exception.exception != conversation.exception?.exception) {
+        conversation.renderDoc = true
+
+        // This should run async from that to prevent a lock
+        @Suppress("SuspendFunctionOnCoroutineScope")
+        launch {
+            delay(10.seconds)
+            if (conversation.doc != null) {
+                conversation.renderDoc = false
+            }
+        }
+    }
+
     conversation.exception = exception
     conversation.causeElement = exception.elements.firstByUser()
     conversation.explanation = tag
@@ -63,6 +79,9 @@ internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: Discor
         it.exceptionName == exception.exception
     }?.doc
 
+    if (conversation.doc != null) {
+        conversation.renderDoc = true
+    }
     val causeElement = conversation.causeElement as? DefaultStackTraceElement
     val causeSource = causeElement?.source as? DefaultStackTraceElement.FileSource
     if (causeSource != null) {
@@ -71,7 +90,7 @@ internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: Discor
         }?.content?.lineSequence()?.drop(causeSource.lineNumber - 1)?.first()
     }
 
-    val newMessage = OutgoingMessage(null, conversation.toEmbed(htmlRenderer))
+    val newMessage = OutgoingMessage(null, conversation.toEmbed(htmlRenderer, loadingEmote))
     if (conversation.status == null) {
         val message = conversation.message
         conversation.status = messageRenderer.sendMessage(

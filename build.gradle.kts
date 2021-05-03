@@ -36,7 +36,7 @@ plugins {
 }
 
 group = "de.nycode"
-version = "1.0.1-hotfix.3"
+version = "1.1.0"
 
 repositories {
     mavenCentral()

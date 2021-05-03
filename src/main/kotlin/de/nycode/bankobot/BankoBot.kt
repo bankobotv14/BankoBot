@@ -45,6 +45,7 @@ import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
 import de.nycode.bankobot.serialization.SnowflakeSerializer
 import de.nycode.bankobot.twitch.twitchIntegration
+import de.nycode.bankobot.utils.Emotes
 import de.nycode.bankobot.utils.afterAll
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.PresenceStatus
@@ -135,6 +136,7 @@ object BankoBot : CoroutineScope {
         kord = Kord(Config.DISCORD_TOKEN)
         val renderer = htmlRenderer
         autoHelp = me.schlaubi.autohelp.autoHelp {
+            loadingEmote = Emotes.LOADING
             context<KordUpdateMessage> {
                 kordEditEventSource(kord)
             }

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.schlaubi"
-version = "2.0.0-RC.1"
+version = "2.0.0-RC.2"
 
 repositories {
     mavenCentral()
@@ -33,7 +33,8 @@ tasks {
     }
 
     processResources {
-        from(sourceSets["main"].resources) {
+        from(sourceSets.main.get().resources) {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
             val hash = try {
                 ByteArrayOutputStream().use { out ->
                     exec {
@@ -51,7 +52,6 @@ tasks {
                 "version" to version,
                 "commit_hash" to hash
             )
-            duplicatesStrategy = DuplicatesStrategy.INCLUDE
             filter(org.apache.tools.ant.filters.ReplaceTokens::class, mapOf("tokens" to tokens))
         }
     }

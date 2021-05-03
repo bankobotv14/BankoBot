@@ -57,7 +57,7 @@ public data class Embed(
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer): Embed {
+internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer, loadingEmote: String): Embed {
     val fields = buildList {
         val stackTrace = exception
         if (stackTrace != null) {
@@ -67,11 +67,11 @@ internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer): Embed {
                 add(Embed.Field("Beschreibung", exceptionMessage, false))
             }
             val documentation = doc
-            if (doc != null) {
+            if (renderDoc) {
                 val description = with(htmlRenderer) {
                     documentation?.description?.toMarkdown()
                 }
-                add(Embed.Field("Exception Doc", description?.ifBlank { null } ?: "<loading>", false))
+                add(Embed.Field("Exception Doc", description?.ifBlank { null } ?: loadingEmote, false))
             }
             val causeElement = causeElement
             if (causeElement != null

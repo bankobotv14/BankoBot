@@ -118,6 +118,7 @@ internal data class DiscordConversation(
     var exception: StackTrace? = null
     var causeElement: StackTraceElement? = null
     var explanation: String? = null
+    var renderDoc: Boolean = false
 
     var status: EditableMessage? = null
 

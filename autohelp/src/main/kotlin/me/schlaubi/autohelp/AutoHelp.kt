@@ -67,4 +67,9 @@ public interface AutoHelp {
      * Closes all resources needed by autohelp.
      */
     public suspend fun close()
+
+    /**
+     * Text supposed to show loading (might be emote).
+     */
+    public val loadingEmote: String
 }
