@@ -40,6 +40,7 @@ import kotlin.time.seconds
 
 private val LOG = KotlinLogging.logger { }
 
+@Suppress("SuspendFunctionOnCoroutineScope")
 internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: DiscordConversation) {
 
     when (event) {
@@ -52,7 +53,10 @@ internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: Discor
 
     val (exception, tag) = conversation.exceptions
         .asSequence()
-        .flatMap { (it.children + it).asSequence() }
+        .flatMap { root ->
+            val children = root.children.map { ParentAwareChildren(it, root) }
+            (children + root).asSequence()
+        }
         .mapNotNull { exception ->
             val tag = tagSupplier.findTagForException(exception)
             tag?.let { exception to tag }

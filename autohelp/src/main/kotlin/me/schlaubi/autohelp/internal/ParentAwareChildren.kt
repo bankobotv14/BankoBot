@@ -23,14 +23,32 @@
  *
  */
 
-package de.nycode.bankobot.autohelp
+package me.schlaubi.autohelp.internal
 
-import dev.kord.rest.builder.message.EmbedBuilder
+import dev.schlaubi.forp.parser.stacktrace.CausedStackTrace
+import dev.schlaubi.forp.parser.stacktrace.RootStackTrace
 import dev.schlaubi.forp.parser.stacktrace.StackTrace
-import me.schlaubi.autohelp.tags.TagSupplier
 
-object TagSupplier : TagSupplier {
-    override fun findTagForException(exception: StackTrace): String? =
-        if (exception.exception.className == "NullPointerException") EmbedBuilder.ZERO_WIDTH_SPACE else null
-    // this gives NPEs a prio over others
+internal class ParentAwareChildren(
+    private val delegate: CausedStackTrace,
+    private val root: RootStackTrace
+) : CausedStackTrace by delegate {
+    override val parent: StackTrace
+        get() = root.findParentOf(this) ?: this
+
+    // this makes the indexOf() check work
+    override fun equals(other: Any?): Boolean {
+        // It is sus but there is no way around it
+        @Suppress("SuspiciousEqualsCombination")
+        return this === other || delegate == other
+    }
+
+    override fun hashCode(): Int = delegate.hashCode()
 }
+
+internal fun RootStackTrace.findParentOf(child: StackTrace): StackTrace? =
+    when (val me = children.indexOf(child)) {
+        0 -> this
+        -1 -> null
+        else -> children.getOrNull(me - 1)
+    }
