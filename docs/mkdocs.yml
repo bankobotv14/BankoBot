@@ -1,0 +1,11 @@
+site_name: BankoBot
+theme:
+  name: material
+  custom_dir: overrides
+  icon:
+    repo: fontawesome/brands/github
+repo_url: https://github.com/bankobotv14/BankoBot
+repo_name: bankobotv14/BankoBot
+
+markdown_extensions:
+  - attr_list

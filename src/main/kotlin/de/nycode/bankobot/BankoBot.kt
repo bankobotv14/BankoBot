@@ -41,6 +41,7 @@ import de.nycode.bankobot.docdex.DocDex
 import de.nycode.bankobot.docdex.DocumentationModule
 import de.nycode.bankobot.docdex.htmlRenderer
 import de.nycode.bankobot.listeners.autoUploadListener
+import de.nycode.bankobot.listeners.lightshotListener
 import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
 import de.nycode.bankobot.serialization.SnowflakeSerializer
@@ -251,6 +252,7 @@ object BankoBot : CoroutineScope {
             kord.apply {
                 selfMentionListener()
                 autoUploadListener()
+                lightshotListener()
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
                 }
