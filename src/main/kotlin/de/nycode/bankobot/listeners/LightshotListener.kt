@@ -31,6 +31,7 @@ import dev.kord.core.behavior.reply
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 
+// https://regex101.com/r/JEHxwG/1
 private val lightshotRegex by lazy { "(?:http[s]?://)?(?:prnt\\.sc|prntscr.com)".toRegex() }
 
 internal fun Kord.lightshotListener() = on<MessageCreateEvent> {
