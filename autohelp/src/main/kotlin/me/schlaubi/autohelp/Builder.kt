@@ -42,6 +42,7 @@ import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KProperty0
 import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 import kotlin.time.minutes
 
 /**
@@ -73,7 +74,7 @@ public class AutoHelpBuilder {
     public lateinit var messageRenderer: MessageRenderer
     public lateinit var htmlRenderer: HtmlRenderer
     public lateinit var loadingEmote: String
-    public var cleanupTime: Duration = 2.minutes
+    public var cleanupTime: Duration = Duration.minutes(2)
     public var contexts: MutableList<EventContext<*>> = mutableListOf()
     public var dispatcher: CoroutineContext = Dispatchers.IO + Job()
 

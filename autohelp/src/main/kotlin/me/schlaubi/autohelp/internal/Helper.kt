@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import me.schlaubi.autohelp.help.OutgoingMessage
 import me.schlaubi.autohelp.help.toEmbed
 import mu.KotlinLogging
+import kotlin.time.Duration
 import kotlin.time.seconds
 
 private val LOG = KotlinLogging.logger { }
@@ -68,7 +69,7 @@ internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: Discor
         // This should run async from that to prevent a lock
         @Suppress("SuspendFunctionOnCoroutineScope")
         launch {
-            delay(10.seconds)
+            delay(Duration.seconds(2))
             if (conversation.doc != null) {
                 conversation.renderDoc = false
             }

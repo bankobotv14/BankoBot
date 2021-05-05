@@ -45,6 +45,7 @@ import me.schlaubi.autohelp.source.ReceivedMessage
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 import kotlin.time.seconds
 
 private val memory = mutableListOf<DiscordConversation>()
@@ -71,7 +72,7 @@ internal suspend fun ReceivedMessage.handle(autoHelp: AutoHelpImpl) {
 
     if (found) {
         autoHelp.launch {
-            withTimeout(10.seconds) {
+            withTimeout(Duration.seconds(10)) {
                 conversation.events.take(1).single() // wait
                 react(Emojis.thumbsup)
             }

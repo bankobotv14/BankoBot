@@ -38,7 +38,7 @@ repositories {
 
 dependencies {
     api(project(":autohelp"))
-    api("dev.kord", "kord-core", "0.7.0-RC3")
+    api("dev.kord", "kord-core", "kotlin-1.5-SNAPSHOT")
 }
 
 tasks {

@@ -27,9 +27,9 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.32"
-    kotlin("kapt") version "1.4.32"
-    kotlin("plugin.serialization") version "1.4.32"
+    kotlin("jvm") version "1.5.0"
+    kotlin("kapt") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.0"
     id("io.gitlab.arturbosch.detekt") version "1.15.0"
     application
     antlr
@@ -58,7 +58,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-datetime", "0.1.1")
     implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.0.1")
 
-    implementation("dev.kord", "kord-core", "0.7.0-RC3")
+    implementation("dev.kord", "kord-core", "kotlin-1.5-SNAPSHOT")
     implementation("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")
     implementation("dev.kord.x", "commands-runtime-kord", "0.4.0-SNAPSHOT")
     kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")
