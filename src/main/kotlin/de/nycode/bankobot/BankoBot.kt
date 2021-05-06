@@ -159,6 +159,8 @@ object BankoBot : CoroutineScope {
                 dispatcher = coroutineContext
             }
 
+            dispatcher = coroutineContext
+
             tagSupplier(TagSupplier)
 
             htmlRenderer {

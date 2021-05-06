@@ -27,7 +27,7 @@ package me.schlaubi.autohelp
 
 import dev.schlaubi.forp.analyze.StackTraceAnalyzer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import me.schlaubi.autohelp.help.HtmlRenderer
 import me.schlaubi.autohelp.help.MessageRenderer
 import me.schlaubi.autohelp.internal.AutoHelpImpl
@@ -42,8 +42,6 @@ import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KProperty0
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.minutes
 
 /**
  * Creates a new [AutoHelp] instance and applies [builder] to it.
@@ -76,7 +74,7 @@ public class AutoHelpBuilder {
     public lateinit var loadingEmote: String
     public var cleanupTime: Duration = Duration.minutes(2)
     public var contexts: MutableList<EventContext<*>> = mutableListOf()
-    public var dispatcher: CoroutineContext = Dispatchers.IO + Job()
+    public var dispatcher: CoroutineContext = Dispatchers.IO + SupervisorJob()
 
     /**
      * Set's the [tagSupplier] to [supplier].
