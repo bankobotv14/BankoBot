@@ -109,10 +109,10 @@ internal data class DiscordConversation(
     val delegate: Conversation,
 ) : Conversation by delegate, CoroutineScope {
     private val eventQueue: Queue<Event> = LinkedList()
+    private var dead = false
     private var queueRunning = false
     private var onForget: (() -> Unit)? = null
     override val coroutineContext: CoroutineContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-
 
     var causeLine: String? = null
     var doc: DocumentedClassObject? = null
@@ -151,7 +151,9 @@ internal data class DiscordConversation(
 
 
     override fun forget() {
-        delegate.forget()
+        if (dead) return
+        dead = true
         onForget?.invoke()
+        delegate.forget()
     }
 }
