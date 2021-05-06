@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
@@ -71,7 +72,7 @@ private val ForceSongArgument =
 
 @OptIn(ExperimentalTime::class)
 @ModuleName(FunModule)
-@AutoWired
+//@AutoWired // Disabled for 1.5 compatibility
 fun bingBangCommand() = command("bingbang") {
     description("LÄSST DICH SPAß HABEN")
 
@@ -115,7 +116,7 @@ fun bingBangCommand() = command("bingbang") {
                     .take(1)
                     .single() // wait for start
                 @Suppress("MagicNumber")
-                player.seekTo(5.seconds)
+                player.seekTo(Duration.seconds(5))
             }
 
             player.events

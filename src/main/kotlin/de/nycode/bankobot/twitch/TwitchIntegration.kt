@@ -109,7 +109,7 @@ private fun CoroutineScope.launchSubscriptionUpdater(
     } else {
         30.seconds
     }
-    val delay = duration.toLongMilliseconds()
+    val delay = duration.inWholeMilliseconds
     for (unit in ticker(delayMillis = delay, initialDelayMillis = delay)) {
         BankoBot.httpClient.updateSubscription(
             userId,

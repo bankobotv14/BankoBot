@@ -65,10 +65,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.util.*
 import kapt.kotlin.generated.configure
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.toList
 import me.schlaubi.autohelp.AutoHelp
 import me.schlaubi.autohelp.kord.*
@@ -80,13 +77,14 @@ import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.serialization.registerSerializer
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
 object BankoBot : CoroutineScope {
 
     private var initialized = false
-    override val coroutineContext: CoroutineContext = Dispatchers.IO + Job()
+    override val coroutineContext: CoroutineContext = Dispatchers.IO + SupervisorJob()
 
     var availableDocs: List<String>? = null
         private set
@@ -104,8 +102,8 @@ object BankoBot : CoroutineScope {
             serializer = KotlinxSerializer(json)
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 10.seconds.toLongMilliseconds()
-            connectTimeoutMillis = 10.seconds.toLongMilliseconds()
+            requestTimeoutMillis = Duration.seconds(10).inWholeMilliseconds
+            connectTimeoutMillis = Duration.seconds(10).inWholeMilliseconds
         }
     }
 
@@ -132,7 +130,11 @@ object BankoBot : CoroutineScope {
         initialized = true
         loadJavadocs()
 
-        initializeDatabase()
+        coroutineScope {
+            launch {
+                initializeDatabase()
+            }
+        }
 
         kord = Kord(Config.DISCORD_TOKEN)
         val renderer = htmlRenderer
@@ -150,10 +152,11 @@ object BankoBot : CoroutineScope {
             }
 
             @Suppress("MagicNumber")
-            cleanupTime = 30.seconds
+            cleanupTime = Duration.seconds(30)
             analyzer = RemoteStackTraceAnalyzer {
                 serverUrl = Config.AUTO_HELP_SERVER
                 authKey = Config.AUTO_HELP_KEY
+                dispatcher = coroutineContext
             }
 
             tagSupplier(TagSupplier)

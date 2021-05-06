@@ -36,7 +36,7 @@ plugins {
 }
 
 group = "de.nycode"
-version = "1.1.1"
+version = "1.1.2"
 
 repositories {
     mavenCentral()
@@ -45,8 +45,6 @@ repositories {
     maven("https://kotlin.bintray.com/kotlinx/")
     maven("https://schlaubi.jfrog.io/artifactory/lavakord")
     maven("https://schlaubi.jfrog.io/artifactory/forp")
-
-    jcenter()
 }
 
 application {
@@ -56,9 +54,17 @@ application {
 dependencies {
     runtimeOnly(kotlin("scripting-jsr223"))
     implementation("org.jetbrains.kotlinx", "kotlinx-datetime", "0.1.1")
-    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.0.1")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.0.0") {
+        version {
+            strictly("1.0.0")
+        }
+    }
 
-    implementation("dev.kord", "kord-core", "kotlin-1.5-SNAPSHOT")
+    implementation("dev.kord", "kord-core", "kotlin-1.5-SNAPSHOT") {
+        version {
+            strictly("kotlin-1.5-SNAPSHOT")
+        }
+    }
     implementation("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")
     implementation("dev.kord.x", "commands-runtime-kord", "0.4.0-SNAPSHOT")
     kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")

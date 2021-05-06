@@ -88,7 +88,7 @@ private suspend fun newDiscordConversation(
     val conversation = autoHelp.analyzer.createNewConversation()
     val discordConversation = DiscordConversation(message, conversation)
     val forgetfulness = autoHelp.launch {
-        delay(autoHelp.cleanUpTime)
+        delay(autoHelp.cleanUpTime.inWholeMilliseconds)
         discordConversation.forget()
     }
 

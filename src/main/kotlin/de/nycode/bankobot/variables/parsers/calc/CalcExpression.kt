@@ -46,8 +46,8 @@ class CalcExpression(val expression: String) : Expression<CalcExpressionResult> 
         private val httpClient = HttpClient(CIO) {
             expectSuccess = false
             install(HttpTimeout) {
-                requestTimeoutMillis = 10.seconds.toLongMilliseconds()
-                connectTimeoutMillis = 10.seconds.toLongMilliseconds()
+                requestTimeoutMillis = 10.seconds.inWholeMilliseconds
+                connectTimeoutMillis = 10.seconds.inWholeMilliseconds
             }
         }
     }

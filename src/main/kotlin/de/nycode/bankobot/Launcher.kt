@@ -30,11 +30,17 @@ import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.config.Environment
 import io.sentry.Sentry
 import io.sentry.SentryOptions
+import mu.KotlinLogging
 import org.slf4j.LoggerFactory
+
+private val LOG = KotlinLogging.logger { }
 
 suspend fun main() {
     initializeSentry()
     initializeLogging()
+    Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+        LOG.error(throwable) { "Got unhandled error on $thread" }
+    }
     BankoBot()
 }
 

@@ -103,7 +103,7 @@ class PaginatorOptions(val items: ItemProvider) {
     var loadingDescription: String = "Bitte warte, während die Liste geladen wird."
 
     @OptIn(ExperimentalTime::class)
-    var timeout: Duration = 15.seconds
+    var timeout: Duration = Duration.seconds(15)
     var firstPage: Int = 1
     var itemsPerPage: Int = 8
         set(value) {
@@ -220,7 +220,7 @@ private class Paginator constructor(
 
     private fun timeout(): Job {
         return BankoBot.launch {
-            delay(options.timeout)
+            delay(options.timeout.inWholeMilliseconds)
             close()
         }
     }
