@@ -58,8 +58,8 @@ public class KordEventSource(kord: Kord) : EventSource<KordReceivedMessage> {
 public class KordReceivedMessage(public val kordMessage: Message) : ReceivedMessage {
     override val channelId: Long
         get() = kordMessage.channelId.value
-    override val authorId: Long
-        get() = kordMessage.author!!.id.value
+    override val authorId: Long?
+        get() = kordMessage.author?.id?.value
     override val guildId: Long
         get() = kordMessage.data.guildId.value!!.value
     override val content: String

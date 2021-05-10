@@ -40,17 +40,18 @@ import dev.schlaubi.forp.parser.stacktrace.StackTraceElement
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.time.withTimeout
 import me.schlaubi.autohelp.help.EditableMessage
 import me.schlaubi.autohelp.source.ReceivedMessage
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
-import kotlin.time.seconds
 
 private val memory = mutableListOf<DiscordConversation>()
 
 internal suspend fun ReceivedMessage.handle(autoHelp: AutoHelpImpl) {
+    if (authorId == null) return // ignore webhooks
     val (conversation, found) = memory.firstOrNull { (message) ->
         message.channelId == channelId
                 && message.authorId == authorId
@@ -72,7 +73,7 @@ internal suspend fun ReceivedMessage.handle(autoHelp: AutoHelpImpl) {
 
     if (found) {
         autoHelp.launch {
-            withTimeout(Duration.seconds(10)) {
+            withTimeout(Duration.ofSeconds(10)) {
                 conversation.events.take(1).single() // wait
                 react(Emojis.thumbsup)
             }

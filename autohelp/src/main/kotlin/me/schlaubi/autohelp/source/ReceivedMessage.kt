@@ -47,7 +47,7 @@ public interface ReceivedMessage {
     /**
      * The id of the user authoring the message.
      */
-    public val authorId: Long
+    public val authorId: Long?
 
     /**
      * The content of the message.
