@@ -33,7 +33,6 @@ import de.nycode.bankobot.commands.FunModule
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.Embeds
 import dev.kord.common.annotation.KordPreview
-import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.withDefault
@@ -52,7 +51,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 private val tehMusic = listOf(
     "https://youtube.com/watch?v=l-Egisu_4AA",
@@ -72,7 +70,7 @@ private val ForceSongArgument =
 
 @OptIn(ExperimentalTime::class)
 @ModuleName(FunModule)
-//@AutoWired // Disabled for 1.5 compatibility
+// @AutoWired // Disabled for 1.5 compatibility
 fun bingBangCommand() = command("bingbang") {
     description("LÄSST DICH SPAß HABEN")
 

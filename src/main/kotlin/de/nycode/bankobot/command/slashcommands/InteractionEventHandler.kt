@@ -202,7 +202,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
             Optional.Missing(),
             false,
             OptionalSnowflake.Missing,
-            MessageType.Unknown,
+            MessageType.Unknown(-1)
         )
         val message = Message(messageData, interaction.kord, interaction.supplier)
         val member = runBlocking { guildInteraction.member.asMember() }
