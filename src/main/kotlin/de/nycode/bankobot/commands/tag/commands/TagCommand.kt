@@ -33,7 +33,6 @@ import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.commands.tag.UseAction
 import de.nycode.bankobot.commands.tag.checkEmpty
-import de.nycode.bankobot.variables.format
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke
@@ -56,7 +55,9 @@ internal fun tagCommand(): CommandSet = command("tag") {
 
         tag as TagEntry
 
-        sendResponse(tag.format())
+        sendResponse(tag.text) {
+            allowedMentions {}
+        }
 
         val useAction = UseAction(
             author = message.author?.id ?: return@invoke,

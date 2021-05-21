@@ -40,9 +40,11 @@ import dev.kord.x.commands.model.processor.CommandProcessor
 import dev.kord.x.emoji.DiscordEmoji
 
 interface Context : CommandEvent, KordEvent {
-    suspend fun sendResponse(content: String): EditableMessage = createResponse {
-        this.content = content
-    }
+    suspend fun sendResponse(content: String, builder: MessageCreateBuilder.() -> Unit = {}): EditableMessage =
+        createResponse {
+            this.content = content
+            builder()
+        }
 
     suspend fun sendResponse(emoji: DiscordEmoji): EditableMessage = sendResponse(emoji.unicode)
 
