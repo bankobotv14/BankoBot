@@ -16,7 +16,6 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.Job
 import kotlin.time.ExperimentalTime
 
-
 /**
  * Creates a paginator for all items in this list.
  *
@@ -50,7 +49,6 @@ suspend fun ItemProvider.paginate(
 ) = paginate(title, builder, {
     InteractionsPaginator(interactionId, response, ::renderEmbed, options).paginate(options.firstPage)
 }, { response.edit { embeds = mutableListOf(it) } })
-
 
 @OptIn(KordPreview::class, ExperimentalTime::class)
 private class InteractionsPaginator constructor(

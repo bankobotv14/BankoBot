@@ -46,7 +46,6 @@ suspend fun ItemProvider.paginate(
     }
 }, { channel.createEmbed(it) })
 
-
 /**
  * Creates a paginator for all items in this list.
  *

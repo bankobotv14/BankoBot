@@ -135,7 +135,6 @@ class DelegatedItemProvider(private val list: List<String>) : ItemProvider {
         list.subList(startIndex, endIndex)
 }
 
-
 /**
  * Creates a context-aware paginator for all elements in this [ItemProvider] using [context].
  *

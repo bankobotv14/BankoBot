@@ -57,7 +57,6 @@ class SlashCommandCreator(
     fun ApplicationCommandsCreateBuilder.register() = command(name, description, creator)
 }
 
-
 /**
  * Converts this command into a [SlashCommandCreator].
  */

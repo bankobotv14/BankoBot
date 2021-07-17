@@ -82,6 +82,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
     override val context: ProcessorContext<InteractionCreateEvent, MessageCreateEvent, Context>
         get() = InteractionContext
 
+    @Suppress("LongMethod")
     @OptIn(ExperimentalTime::class)
     override suspend fun CommandProcessor.onEvent(event: InteractionCreateEvent) {
         val guildInteraction = event.interaction as? GuildInteraction ?: return
