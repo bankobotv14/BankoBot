@@ -45,7 +45,7 @@ plugins {
 }
 
 group = "de.nycode"
-version = "1.2.0-hotifx.1"
+version = "1.3.0"
 
 repositories {
     mavenCentral()
