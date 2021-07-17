@@ -39,6 +39,7 @@ import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.EditableMessage
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.annotation.KordUnsafe
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.interaction.*
 import dev.kord.core.entity.interaction.EphemeralFollowupMessage
 import dev.kord.core.event.message.MessageCreateEvent
@@ -90,7 +91,8 @@ class SlashCommandContext(
     private val _command: Command<*>?,
     override val commands: Map<String, Command<*>>,
     override val processor: CommandProcessor,
-    private val ack: PublicInteractionResponseBehavior
+    internal val interactionId: Snowflake,
+    internal val ack: PublicInteractionResponseBehavior
 ) : Context {
 
     override val command: Command<*>

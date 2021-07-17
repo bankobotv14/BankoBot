@@ -39,8 +39,8 @@ import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.searchTags
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.LazyItemProvider
-import de.nycode.bankobot.utils.paginate
+import de.nycode.bankobot.utils.paginator.LazyItemProvider
+import de.nycode.bankobot.utils.paginator.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -68,6 +68,6 @@ internal fun searchTagsCommand(): CommandSet = command("search-tag") {
         LazyItemProvider(tags.size) { start, end ->
             tags.subList(start, end + 1)
                 .map { it.name }
-        }.paginate(message.channel, "Tag-Suche \"$search\"")
+        }.paginate(this, "Tag-Suche \"$search\"")
     }
 }

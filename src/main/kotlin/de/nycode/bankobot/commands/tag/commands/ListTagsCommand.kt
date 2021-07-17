@@ -39,8 +39,8 @@ import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.utils.LazyItemProvider
-import de.nycode.bankobot.utils.paginate
+import de.nycode.bankobot.utils.paginator.LazyItemProvider
+import de.nycode.bankobot.utils.paginator.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -69,7 +69,7 @@ internal fun listTagsCommand(): CommandSet = command("list-tags") {
                 .paginate(start, pageSize) {
                     it.name
                 }
-        }.paginate(message.channel, "Tags") {
+        }.paginate(this, "Tags") {
             firstPage = page
             itemsPerPage = pageSize
         }

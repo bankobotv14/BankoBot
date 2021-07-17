@@ -99,7 +99,12 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
                 )
             } else {
                 SlashCommandContext(
-                    messageCreate, foundCommand, commands, this, ack as PublicInteractionResponseBehavior
+                    messageCreate,
+                    foundCommand,
+                    commands,
+                    this,
+                    guildInteraction.id,
+                    ack as PublicInteractionResponseBehavior
                 )
             }
         }

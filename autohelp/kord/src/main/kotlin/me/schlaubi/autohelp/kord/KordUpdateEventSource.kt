@@ -49,8 +49,8 @@ public class KordUpdateMessage(public val kordMessage: Message) : ReceivedMessag
         get() = kordMessage.data.guildId.value!!.value
     override val channelId: Long
         get() = kordMessage.data.channelId.value
-    override val authorId: Long
-        get() = kordMessage.author?.id?.value!!
+    override val authorId: Long?
+        get() = kordMessage.author?.id?.value
     override val content: String? = null
     override val files: List<ReceivedMessage.ReceivedFile>
         get() = kordMessage.embeds.mapNotNull {

@@ -40,8 +40,8 @@ import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagEntry
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.LazyItemProvider
-import de.nycode.bankobot.utils.paginate
+import de.nycode.bankobot.utils.paginator.LazyItemProvider
+import de.nycode.bankobot.utils.paginator.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -76,7 +76,7 @@ internal fun tagsFromUserCommand(): CommandSet = command("from-user") {
                 .paginate(start, pageSize) {
                     it.name
                 }
-        }.paginate(message.channel, "Tags von ${member.displayName}") {
+        }.paginate(this, "Tags von ${member.displayName}") {
             itemsPerPage = pageSize
         }
     }

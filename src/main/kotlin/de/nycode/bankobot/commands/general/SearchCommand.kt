@@ -40,10 +40,9 @@ import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
-import de.nycode.bankobot.utils.Embeds.editEmbed
 import de.nycode.bankobot.utils.GoogleUtil
 import de.nycode.bankobot.utils.doExpensiveTask
-import de.nycode.bankobot.utils.paginate
+import de.nycode.bankobot.utils.paginator.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -70,7 +69,7 @@ private suspend fun Context.search(search: String) {
             editEmbed(Embeds.error("Schade!", "Google möchte dir anscheinend nicht antworten! ._."))
         } else {
             delete()
-            list.paginate(channel, "Suchergebnisse") {
+            list.paginate(this@search, "Suchergebnisse") {
                 itemsPerPage = 1
             }
         }
