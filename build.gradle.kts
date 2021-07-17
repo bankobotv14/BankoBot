@@ -36,10 +36,10 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.0"
-    kotlin("kapt") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.0"
-    id("io.gitlab.arturbosch.detekt") version "1.15.0"
+    kotlin("jvm") version "1.5.21"
+    kotlin("kapt") version "1.5.21"
+    kotlin("plugin.serialization") version "1.5.21"
+    id("io.gitlab.arturbosch.detekt") version "1.17.1"
     application
     antlr
 }
@@ -51,7 +51,6 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
-    maven("https://kotlin.bintray.com/kotlinx/")
     maven("https://schlaubi.jfrog.io/artifactory/lavakord")
     maven("https://schlaubi.jfrog.io/artifactory/forp")
 }
@@ -62,49 +61,40 @@ application {
 
 dependencies {
     runtimeOnly(kotlin("scripting-jsr223"))
-    implementation("org.jetbrains.kotlinx", "kotlinx-datetime", "0.1.1")
-    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.0.0") {
-        version {
-            strictly("1.0.0")
-        }
-    }
+    implementation("org.jetbrains.kotlinx", "kotlinx-datetime", "0.2.1")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.2.1")
 
-    implementation("dev.kord", "kord-core", "kotlin-1.5-SNAPSHOT") {
-        version {
-            strictly("kotlin-1.5-SNAPSHOT")
-        }
-    }
-    implementation("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")
+    implementation("dev.kord", "kord-core", "0.7.3")
+    implementation("dev.kord.x", "emoji", "0.5.0")
     implementation("dev.kord.x", "commands-runtime-kord", "0.4.0-SNAPSHOT")
     kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")
 
-    val ktorVersion = "1.4.1"
-    implementation("io.ktor", "ktor-client", ktorVersion)
-    implementation("io.ktor", "ktor-client-cio", ktorVersion)
-    implementation("io.ktor", "ktor-client-json", ktorVersion)
-    implementation("io.ktor", "ktor-serialization", ktorVersion)
+    implementation(platform("io.ktor:ktor-bom:1.6.1"))
+    implementation("io.ktor", "ktor-client")
+    implementation("io.ktor", "ktor-client-cio")
+    implementation("io.ktor", "ktor-client-json")
+    implementation("io.ktor", "ktor-serialization")
+    implementation("io.ktor", "ktor-server-core")
+    implementation("io.ktor", "ktor-server-cio")
 
-    implementation("io.ktor", "ktor-server-core", ktorVersion)
-    implementation("io.ktor", "ktor-server-cio", ktorVersion)
-
-    implementation("io.github.microutils", "kotlin-logging", "1.12.0")
+    implementation("io.github.microutils", "kotlin-logging", "2.0.10")
     implementation("io.github.cdimascio", "dotenv-kotlin", "6.2.2")
 
-    implementation("org.litote.kmongo", "kmongo-coroutine-serialization", "4.2.3")
+    implementation("org.litote.kmongo", "kmongo-coroutine-serialization", "4.2.8")
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
-    implementation("io.sentry", "sentry", "3.1.0")
-    implementation("io.sentry", "sentry-logback", "3.2.0")
+    implementation("io.sentry", "sentry", "5.0.1")
+    implementation("io.sentry", "sentry-logback", "5.0.1")
 
-    implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.60.2")
+    implementation("com.vladsch.flexmark", "flexmark-html2md-converter", "0.62.2")
 
-    implementation("dev.schlaubi.lavakord", "kord", "1.0.0-SNAPSHOT")
+    implementation("dev.schlaubi.lavakord", "kord", "2.0.0")
 
-    implementation("org.ow2.asm", "asm", "9.1")
-    implementation("org.ow2.asm", "asm-tree", "9.1")
+    implementation("org.ow2.asm", "asm", "9.2")
+    implementation("org.ow2.asm", "asm-tree", "9.2")
 
-    detektPlugins("io.gitlab.arturbosch.detekt", "detekt-formatting", "1.15.0")
+    detektPlugins("io.gitlab.arturbosch.detekt", "detekt-formatting", "1.17.1")
 
-    antlr("org.antlr", "antlr4", "4.9.1")
+    antlr("org.antlr", "antlr4", "4.9.2")
 
     implementation(project(":autohelp:kord"))
     implementation("dev.schlaubi.forp", "forp-analyze-client", "1.0-SNAPSHOT")
@@ -113,8 +103,8 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.6.0")
     testRuntimeOnly("org.slf4j", "slf4j-simple", "1.7.30")
-    testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-test", "1.4.2")
-    testImplementation("com.willowtreeapps.assertk", "assertk-jvm", "0.23")
+    testImplementation("org.jetbrains.kotlinx", "kotlinx-coroutines-test", "1.5.1")
+    testImplementation("com.willowtreeapps.assertk", "assertk-jvm", "0.24")
 }
 
 // Kotlin dsl
@@ -129,6 +119,8 @@ tasks {
     withType<Detekt> {
         // Target version of the generated JVM bytecode. It is used for type resolution.
         this.jvmTarget = "1.8"
+
+        autoCorrect = true
     }
 
     generateGrammarSource {

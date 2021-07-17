@@ -72,10 +72,10 @@ object KordInteractionErrorHandler :
     private const val backtickEscape = "\u200E`"
 
     override suspend fun CommandProcessor.rejectArgument(
-        rejection: ErrorHandler.RejectedArgument<InteractionErrorEvent,
-                MessageCreateEvent,
-                Context>,
-    ) {
+    rejection: ErrorHandler.RejectedArgument<InteractionErrorEvent,
+            MessageCreateEvent,
+            Context>,
+) {
         with(rejection) {
             respondError(
                 event,

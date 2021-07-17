@@ -42,21 +42,20 @@ import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 class CalcExpression(val expression: String) : Expression<CalcExpressionResult> {
 
     private var result: CalcExpressionResult? = null
 
     companion object {
-        @OptIn(KtorExperimentalAPI::class, ExperimentalTime::class)
+        @OptIn(ExperimentalTime::class)
         private val httpClient = HttpClient(CIO) {
             expectSuccess = false
             install(HttpTimeout) {
-                requestTimeoutMillis = 10.seconds.inWholeMilliseconds
-                connectTimeoutMillis = 10.seconds.inWholeMilliseconds
+                requestTimeoutMillis = Duration.seconds(10).inWholeMilliseconds
+                connectTimeoutMillis = Duration.seconds(10).inWholeMilliseconds
             }
         }
     }

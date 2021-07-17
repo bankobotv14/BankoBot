@@ -53,10 +53,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.Role
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.TextChannel
-import dev.kord.core.entity.interaction.GuildInteraction
-import dev.kord.core.entity.interaction.Interaction
-import dev.kord.core.entity.interaction.InteractionCommand
-import dev.kord.core.entity.interaction.OptionValue
+import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.Event
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
@@ -67,6 +64,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaInstant
 import mu.KotlinLogging
+import java.util.*
 import kotlin.time.ExperimentalTime
 
 private val LOG = KotlinLogging.logger {}
@@ -92,7 +90,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         val commandName = guildInteraction.command.rootName
         val foundCommand = getCommand(context, commandName)
         val ephemeral = foundCommand?.ephemeral ?: false
-        val ack = if (ephemeral) guildInteraction.acknowledgeEphemeral() else guildInteraction.ackowledgePublic()
+        val ack = if (ephemeral) guildInteraction.acknowledgeEphemeral() else guildInteraction.acknowledgePublic()
         val messageCreate by lazy { event.toMessageCreateEvent(guildInteraction) }
         val commandEvent by lazy {
             if (ephemeral) {
@@ -160,7 +158,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
         val items = mutableListOf<Any?>()
         var indexTrim = 2 + command.rootName.length // /<command>
         arguments.forEachIndexed { index, argument ->
-            val option = command.options[argument.name.toLowerCase()]
+            val option = command.options[argument.name.lowercase(Locale.getDefault())]
             // each argument is prefix by " <name>:"
             indexTrim += argument.name.length + 2
             val argumentValue =
@@ -220,7 +218,7 @@ object InteractionEventHandler : EventHandler<InteractionCreateEvent> {
 }
 
 @OptIn(KordPreview::class)
-private fun Interaction.buildInvokeString(): String {
+private fun CommandInteraction.buildInvokeString(): String {
     val builder = StringBuilder("/")
     builder.append(command.rootName) // command
 

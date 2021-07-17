@@ -132,7 +132,7 @@ fun evalCommand() = command("ev") {
 
 @OptIn(ExperimentalTime::class)
 private suspend fun eval(engine: ScriptEngine, code: String): Any? {
-    return withTimeout(1.minutes) {
+    return withTimeout(Duration.minutes(1)) {
         try {
             //language=kotlin
             engine.eval(

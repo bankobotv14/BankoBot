@@ -119,7 +119,7 @@ object JDoodleLanguageProvider {
     private val VERSIONS_4 = (0..3)
     private val VERSIONS_5 = (0..4)
 
-    val listOfLanguages = arrayOf(
+    val listOfLanguages: Array<JDoodleLanguage> = arrayOf(
         JDoodleLanguage("kotlin", VERSIONS_3),
         JDoodleLanguage("java", VERSIONS_4),
         JDoodleLanguage("c", VERSIONS_5),

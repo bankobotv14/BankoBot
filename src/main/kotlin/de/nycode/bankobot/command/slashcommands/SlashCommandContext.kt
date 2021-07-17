@@ -39,11 +39,8 @@ import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.EditableMessage
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.annotation.KordUnsafe
-import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
-import dev.kord.core.behavior.interaction.PublicInteractionResponseBehavior
-import dev.kord.core.behavior.interaction.edit
-import dev.kord.core.behavior.interaction.followUp
-import dev.kord.core.entity.interaction.PublicFollowupMessage
+import dev.kord.core.behavior.interaction.*
+import dev.kord.core.entity.interaction.EphemeralFollowupMessage
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.MessageCreateBuilder
 import dev.kord.rest.builder.message.MessageModifyBuilder
@@ -64,17 +61,17 @@ class EphemeralSlashCommandContext(
     @OptIn(KordUnsafe::class)
     override suspend fun createResponse(builder: suspend MessageCreateBuilder.() -> Unit): EditableMessage {
         val messageBuilder = MessageCreateBuilder().apply { builder() }
-        val response = ack.followUp {
+        val response = ack.followUpEphemeral {
             content = messageBuilder.content
-            embeds = messageBuilder.embed?.let { mutableListOf(it.toRequest()) } ?: mutableListOf()
-            allowedMentions = messageBuilder.allowedMentions?.build()
+            messageBuilder.embed?.let { embeds.add(it) }
+            allowedMentions = messageBuilder.allowedMentions
         }
 
         return EditableEphemeralFollowUp(response)
     }
 }
 
-class EditableEphemeralFollowUp(private val response: PublicFollowupMessage) : EditableMessage {
+class EditableEphemeralFollowUp(private val response: EphemeralFollowupMessage) : EditableMessage {
     override suspend fun modify(builder: suspend MessageModifyBuilder.() -> Unit): EditableMessage {
         val messageBuilder = MessageModifyBuilder().apply { builder() }
         response.edit {
@@ -85,7 +82,7 @@ class EditableEphemeralFollowUp(private val response: PublicFollowupMessage) : E
         return this
     }
 
-    override suspend fun delete() = response.delete()
+    override suspend fun delete() = throw UnsupportedOperationException("Not supported by this type of message")
 }
 
 class SlashCommandContext(
@@ -107,8 +104,8 @@ class SlashCommandContext(
         return if (responded) {
             ack.followUp {
                 content = messageBuilder.content
-                embeds = messageBuilder.embed?.let { mutableListOf(it.toRequest()) } ?: mutableListOf()
-                allowedMentions = messageBuilder.allowedMentions?.build()
+                messageBuilder.embed?.let { embeds.add(it) }
+                allowedMentions = messageBuilder.allowedMentions
             }
 
             responded = true
@@ -136,6 +133,7 @@ private class EditableAck(private val ack: PublicInteractionResponseBehavior) : 
         return this
     }
 
+    @OptIn(KordPreview::class)
     override suspend fun delete() = ack.delete()
 }
 

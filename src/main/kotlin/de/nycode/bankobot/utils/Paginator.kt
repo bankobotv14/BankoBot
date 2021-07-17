@@ -84,7 +84,7 @@ interface ItemProvider {
 }
 
 @Suppress("FunctionName")
-fun LazyItemProvider(length: Int, subList: suspend (Int, Int) -> List<String>) =
+fun LazyItemProvider(length: Int, subList: suspend (Int, Int) -> List<String>): ItemProvider =
     object : ItemProvider {
         override val length: Int = length
 
@@ -140,7 +140,7 @@ suspend fun List<String>.paginate(
     channel: MessageChannelBehavior,
     title: String? = null,
     builder: PaginatorOptions.() -> Unit = {},
-) = DelegatedItemProvider(this).paginate(channel, title, builder)
+): Unit = DelegatedItemProvider(this).paginate(channel, title, builder)
 
 /**
  * Creates a reaction based paginator for all elements in this [ItemProvider] in [channel]
@@ -307,7 +307,7 @@ suspend fun <T : Any> CoroutineFindPublisher<T>.paginate(
     start: Int,
     pageSize: Int = 8,
     result: (T) -> String
-) =
+): List<String> =
     skip(start)
         .limit(pageSize)
         .toList()

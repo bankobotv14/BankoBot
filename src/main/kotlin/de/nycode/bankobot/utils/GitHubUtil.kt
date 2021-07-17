@@ -46,7 +46,7 @@ import kotlinx.serialization.Serializable
 object GitHubUtil {
 
     /**
-     * Retrieves a list of [GithubContributors][GithubContributor] of the BankoBot repository.
+     * Retrieves a list of [GithubContributors][GitHubContributor] of the BankoBot repository.
      */
     suspend fun retrieveContributors(): List<GitHubContributor> {
         return BankoBot.httpClient.get(API_BASE) {
@@ -56,9 +56,9 @@ object GitHubUtil {
         }
     }
 
-    const val GITHUB_REPO = "bankobotv14/bankobot"
-    private val API_BASE = Url("https://api.github.com")
-    private const val GET_CONTRIBUTORS_ENDPOINT = "repos/$GITHUB_REPO/contributors"
+    const val GITHUB_REPO: String = "bankobotv14/bankobot"
+    private val API_BASE: Url = Url("https://api.github.com")
+    private const val GET_CONTRIBUTORS_ENDPOINT: String = "repos/$GITHUB_REPO/contributors"
 }
 
 /**

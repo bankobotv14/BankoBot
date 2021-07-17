@@ -59,7 +59,7 @@ suspend fun Context.doExpensiveTask(
     statusTitle: String = "Bitte warten!",
     statusDescription: String? = null,
     task: suspend EditableMessage.() -> Unit,
-) = doExpensiveTask(EmbedBuilder().apply {
+): Unit = doExpensiveTask(EmbedBuilder().apply {
     title = statusTitle
     description = statusDescription
 }, task)
@@ -90,7 +90,7 @@ suspend fun MessageChannelBehavior.doExpensiveTask(
     statusTitle: String = "Bitte warten!",
     statusDescription: String? = null,
     task: suspend MessageBehavior.() -> Unit,
-) = doExpensiveTask(Embeds.loading(statusTitle, statusDescription), task)
+): Unit = doExpensiveTask(Embeds.loading(statusTitle, statusDescription), task)
 
 /**
  * Helper function that runs an expensive [task] in a coroutine and sends a loading message in this channel.

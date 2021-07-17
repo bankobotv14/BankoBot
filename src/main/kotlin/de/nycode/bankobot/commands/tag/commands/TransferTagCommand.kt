@@ -62,6 +62,7 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
@@ -127,7 +128,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
             addReaction(Emojis.whiteCheckMark)
             addReaction(Emojis.x)
             try {
-                withTimeout(45.seconds) {
+                withTimeout(Duration.seconds(45)) {
                     val reactionEvent = live().events.filterIsInstance<ReactionAddEvent>()
                         .filter { it.user.id == member.id }
                         .filter { it.emoji.name in arrayOf(Emojis.x.unicode, Emojis.whiteCheckMark.unicode) }

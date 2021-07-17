@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.schlaubi"
-version = "2.0.0-RC.4"
+version = "2.0.0-RC.5"
 
 repositories {
     mavenCentral()
@@ -15,8 +15,8 @@ repositories {
 
 dependencies {
     api("dev.schlaubi.forp", "forp-analyze-api-jvm", "1.0-SNAPSHOT")
-    api("dev.kord.x", "emoji", "0.5.0-SNAPSHOT")
-    implementation("io.github.microutils", "kotlin-logging", "1.12.0")
+    api("dev.kord.x", "emoji", "0.5.0")
+    implementation("io.github.microutils", "kotlin-logging", "2.0.10")
 }
 
 kotlin {
