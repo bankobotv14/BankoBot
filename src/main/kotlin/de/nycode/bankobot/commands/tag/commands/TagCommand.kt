@@ -37,6 +37,7 @@ package de.nycode.bankobot.commands.tag.commands
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
 import de.nycode.bankobot.commands.tag.TagArgument
 import de.nycode.bankobot.commands.tag.TagEntry
@@ -44,11 +45,17 @@ import de.nycode.bankobot.commands.tag.UseAction
 import de.nycode.bankobot.commands.tag.checkEmpty
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
+import dev.kord.x.commands.argument.extension.optional
+import dev.kord.x.commands.kord.argument.UserArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+
+private val TargetArgument = UserArgument
+    .optional()
+    .asSlashArgument("Der Nutzer an den diese Antwort gerichtet ist")
 
 @PublishedApi
 @AutoWired
@@ -57,15 +64,24 @@ internal fun tagCommand(): CommandSet = command("tag") {
     alias("t")
     description("Einen Tag anzeigen")
 
-    invoke(TagArgument) { tag ->
+    invoke(TagArgument, TargetArgument) { tag, user ->
         if (checkEmpty(tag)) {
             return@invoke
         }
 
         tag as TagEntry
 
-        sendResponse(tag.text) {
-            allowedMentions {}
+        sendResponse("<placeholder>") {
+            content = user?.mention
+            embed {
+                description = tag.text
+            }
+
+            allowedMentions {
+                user?.let {
+                    users.add(it.id)
+                }
+            }
         }
 
         val useAction = UseAction(
