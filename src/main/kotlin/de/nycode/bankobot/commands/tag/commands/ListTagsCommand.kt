@@ -45,6 +45,7 @@ import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.optional
+import dev.kord.x.commands.argument.extension.strictPositive
 import dev.kord.x.commands.argument.primitive.IntArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -57,8 +58,9 @@ internal fun listTagsCommand(): CommandSet = command("list-tags") {
     description("Alle Tags anzeigen")
 
     invoke(
-        IntArgument.named("page").optional(1).asSlashArgument("Die Seite"),
-        IntArgument.named("pageSize").optional(8).asSlashArgument("Die Seitengröße")
+        IntArgument.strictPositive().named("page").optional(1).asSlashArgument("Die Seite"),
+        IntArgument.strictPositive().named("pageSize").optional(8)
+            .asSlashArgument("Die Seitengröße")
     ) { page, pageSize ->
         val tagCount = BankoBot.repositories.tag.countDocuments().toInt()
 
