@@ -116,13 +116,6 @@ tasks {
         }
     }
 
-    withType<Detekt> {
-        // Target version of the generated JVM bytecode. It is used for type resolution.
-        this.jvmTarget = "1.8"
-
-        autoCorrect = true
-    }
-
     generateGrammarSource {
         outputDirectory =
             File("${project.buildDir}/generated-src/antlr/main/de/nycode/bankobot/variables")
@@ -131,5 +124,18 @@ tasks {
 
     test {
         useJUnitPlatform()
+    }
+}
+
+subprojects {
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+
+    tasks {
+        withType<Detekt> {
+            // Target version of the generated JVM bytecode. It is used for type resolution.
+            this.jvmTarget = "1.8"
+
+            autoCorrect = true
+        }
     }
 }
