@@ -39,12 +39,13 @@ import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.TagModule
-import de.nycode.bankobot.utils.LazyItemProvider
-import de.nycode.bankobot.utils.paginate
+import de.nycode.bankobot.utils.paginator.LazyItemProvider
+import de.nycode.bankobot.utils.paginator.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.extension.optional
+import dev.kord.x.commands.argument.extension.strictPositive
 import dev.kord.x.commands.argument.primitive.IntArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.commands.model.module.CommandSet
@@ -57,8 +58,9 @@ internal fun listTagsCommand(): CommandSet = command("list-tags") {
     description("Alle Tags anzeigen")
 
     invoke(
-        IntArgument.named("page").optional(1).asSlashArgument("Die Seite"),
-        IntArgument.named("pageSize").optional(8).asSlashArgument("Die Seitengröße")
+        IntArgument.strictPositive().named("page").optional(1).asSlashArgument("Die Seite"),
+        IntArgument.strictPositive().named("pageSize").optional(8)
+            .asSlashArgument("Die Seitengröße")
     ) { page, pageSize ->
         val tagCount = BankoBot.repositories.tag.countDocuments().toInt()
 
@@ -67,7 +69,7 @@ internal fun listTagsCommand(): CommandSet = command("list-tags") {
                 .paginate(start, pageSize) {
                     it.name
                 }
-        }.paginate(message.channel, "Tags") {
+        }.paginate(this, "Tags") {
             firstPage = page
             itemsPerPage = pageSize
         }

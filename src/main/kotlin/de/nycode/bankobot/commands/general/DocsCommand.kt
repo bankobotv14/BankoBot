@@ -56,6 +56,7 @@ import dev.kord.x.commands.argument.extension.named
 import dev.kord.x.commands.argument.result.extension.FilterResult
 import dev.kord.x.commands.argument.text.WordArgument
 import dev.kord.x.commands.model.command.invoke
+import java.util.*
 
 @Suppress("TopLevelPropertyNaming")
 const val DocsModule = "Documentation"
@@ -77,7 +78,7 @@ private fun <CONTEXT> Argument<String, CONTEXT>.docsFilter() = filter { doc ->
 @OptIn(KordPreview::class)
 private val JavaDocArgument = WordArgument
     .named("javadoc-name")
-    .map { it.toLowerCase() }
+    .map { it.lowercase(Locale.getDefault()) }
     .docsFilter()
     .asSlashArgument("Das Javadoc in dem gesucht werden soll") {
         choice("JDK 11 Dokumentation", "jdk11")
@@ -176,7 +177,7 @@ private fun formatClassDefinition(doc: DocumentedClassObject): String =
             " ",
             postfix = "\n"
         ) { "@${it.className}" }
-    }${doc.modifiers.joinToString(" ")} ${doc.type.name.toLowerCase()} ${doc.name} ${
+    }${doc.modifiers.joinToString(" ")} ${doc.type.name.lowercase(Locale.getDefault())} ${doc.name} ${
         if (doc.metadata.extensions.isNotEmpty()) {
             "extends ${doc.metadata.extensions.first().className} "
         } else {

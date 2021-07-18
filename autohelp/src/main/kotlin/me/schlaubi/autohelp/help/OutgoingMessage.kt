@@ -56,8 +56,12 @@ public data class Embed(
     public data class Footer(public val name: String, public val url: String?, public val avatar: String?)
 }
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalStdlibApi::class)
-internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer, loadingEmote: String): Embed {
+internal fun DiscordConversation.toEmbed(
+    htmlRenderer: HtmlRenderer,
+    loadingEmote: String
+): Embed {
     val fields = buildList {
         val stackTrace = exception
         if (stackTrace != null) {
@@ -110,7 +114,8 @@ internal fun DiscordConversation.toEmbed(htmlRenderer: HtmlRenderer, loadingEmot
             add(
                 Embed.Field(
                     "Ursache - Code",
-                    "Ich konnte keinen Code finden, bitte schicke die komplette Klasse, in der der Fehler auftritt (Am besten via hastebin)",
+                    "Ich konnte keinen Code finden, bitte schicke die komplette" +
+                            " Klasse, in der der Fehler auftritt (Am besten via hastebin)",
                     false
                 )
             )

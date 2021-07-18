@@ -52,6 +52,7 @@ import dev.kord.x.commands.kord.argument.CodeBlock
 import dev.kord.x.commands.kord.argument.CodeBlockArgument
 import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.emoji.Emojis
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
@@ -99,7 +100,7 @@ private suspend fun Context.executeViaJDoodle(argument: CodeBlock) {
                 editEmbed(Embeds.error("Heute leider nicht!", descriptionString))
             }
             else -> {
-                val cpuTime = response.cpuTime?.seconds
+                val cpuTime = response.cpuTime?.let { Duration.seconds(it) }
                 val memory = response.memory?.let { it / 1000.0 }
                 val descriptionString = "```${Emojis.timerClock} $cpuTime " +
                         "${Emojis.desktopComputer} $memory KB```" +

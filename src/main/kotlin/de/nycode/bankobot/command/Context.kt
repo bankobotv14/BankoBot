@@ -95,7 +95,7 @@ interface EditableMessage {
 
 fun KordCommandEvent.toContext(): Context = DelegatedKordCommandContext(this)
 
-private class DelegatedKordCommandContext(private val delegate: KordCommandEvent) : Context, KordEvent by delegate {
+internal class DelegatedKordCommandContext(private val delegate: KordCommandEvent) : Context, KordEvent by delegate {
     override val command: Command<*> get() = delegate.command
     override val commands: Map<String, Command<*>> get() = delegate.commands
     override val processor: CommandProcessor get() = delegate.processor

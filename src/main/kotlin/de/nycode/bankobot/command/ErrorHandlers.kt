@@ -59,14 +59,16 @@ private val kordHandler = KordErrorHandler()
 
 const val ERROR_MARKER = "[ERROR]"
 
+private typealias ErrorHandlerInterface = ErrorHandler<MessageCreateEvent, MessageCreateEvent, Context>
+
+private typealias RejectedArgument = ErrorHandler.RejectedArgument<MessageCreateEvent,
+        MessageCreateEvent,
+        Context>
+
 @Suppress("UnnecessaryAbstractClass", "UNCHECKED_CAST")
 abstract class AbstractErrorHandler :
-    ErrorHandler<MessageCreateEvent, MessageCreateEvent, Context> {
-    override suspend fun CommandProcessor.rejectArgument(
-        rejection: ErrorHandler.RejectedArgument<MessageCreateEvent,
-                MessageCreateEvent,
-                Context>,
-    ) {
+    ErrorHandlerInterface {
+    override suspend fun CommandProcessor.rejectArgument(rejection: RejectedArgument) {
         if (rejection.message == "Expected more input but reached end.") {
             rejection.event.message.channel.createEmbed(Embeds.command(rejection.command, this))
         } else with(kordHandler) {

@@ -38,14 +38,20 @@ repositories {
 
 dependencies {
     api(project(":autohelp"))
-    api("dev.kord", "kord-core", "kotlin-1.5-SNAPSHOT")
+    api("dev.kord", "kord-core", "0.7.3")
 }
 
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "15"
         }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(15)) // kapt dies on JDK 16
     }
 }
 

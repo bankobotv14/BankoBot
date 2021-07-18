@@ -38,6 +38,7 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.rest.builder.interaction.BaseApplicationBuilder
 import dev.kord.x.commands.argument.Argument
 import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandArgument
+import java.util.*
 
 /**
  * [Argument] which is compatible with slash commands.
@@ -52,6 +53,8 @@ import de.nycode.bankobot.command.slashcommands.arguments.AbstractSlashCommandAr
 interface SlashArgument<T, CONTEXT> : Argument<T, CONTEXT> {
     val description: String
     val required: Boolean
+    override val name: String
+        get() = name.lowercase(Locale.getDefault())
 
     /**
      * Applies the argument configuration to the [BaseApplicationBuilder]

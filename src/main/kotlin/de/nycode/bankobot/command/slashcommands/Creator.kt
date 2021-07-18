@@ -40,6 +40,8 @@ import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
 import dev.kord.rest.builder.interaction.ApplicationCommandsCreateBuilder
 import dev.kord.x.commands.model.command.CommandBuilder
 
+private val NAME_REGEX = "^[\\w-]{1,32}\$".toRegex()
+
 /**
  * Class containing all necessary information to register a slash command
  * @property name the name
@@ -61,6 +63,8 @@ class SlashCommandCreator(
 @OptIn(KordPreview::class)
 fun CommandBuilder<*, *, *>.toSlashCommand(): SlashCommandCreator {
     val description = description ?: "<unknown description>"
+    require(name.matches(NAME_REGEX)) { "$name is not a valid name" }
+    require(name.none(Char::isUpperCase)) { "$name has upper case characters" }
     val creator: ApplicationCommandCreateBuilder.() -> Unit = {
         arguments.forEach {
             if (it is SlashArgument<*, *>) {

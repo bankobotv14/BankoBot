@@ -37,7 +37,7 @@ package de.nycode.bankobot.commands
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.permissions.PermissionLevel
 import de.nycode.bankobot.command.permissions.permission
-import de.nycode.bankobot.utils.paginate
+import de.nycode.bankobot.utils.paginator.paginate
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.model.command.invoke

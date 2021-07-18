@@ -42,10 +42,7 @@ import dev.kord.rest.request.errorString
 import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ticker
-import kotlin.time.ExperimentalTime
-import kotlin.time.days
-import kotlin.time.milliseconds
-import kotlin.time.seconds
+import kotlin.time.*
 
 const val TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 
@@ -73,7 +70,7 @@ internal fun Kord.twitchIntegration() = this.launch {
 internal suspend fun Kord.updatePresence(stream: TwitchStream) {
     if (stream.isLive) {
         editPresence {
-            streaming(if (stream.title.isBlank()) "Banko auf Twitch" else stream.title, "https://twitch.tv/DerBanko")
+            streaming(stream.title.ifBlank { "Banko auf Twitch" }, "https://twitch.tv/DerBanko")
         }
     } else {
         editPresence {
@@ -114,9 +111,9 @@ private fun CoroutineScope.launchSubscriptionUpdater(
     token: TwitchAccessTokenResponse
 ) = launch {
     val duration = if (Config.ENVIRONMENT == Environment.PRODUCTION) {
-        1.days
+        Duration.days(1)
     } else {
-        30.seconds
+        Duration.seconds(30)
     }
     val delay = duration.inWholeMilliseconds
     for (unit in ticker(delayMillis = delay, initialDelayMillis = delay)) {
@@ -124,7 +121,7 @@ private fun CoroutineScope.launchSubscriptionUpdater(
             userId,
             "subscribe",
             token,
-            duration = delay.milliseconds.inSeconds.toInt()
+            duration = Duration.milliseconds(delay).toInt(DurationUnit.SECONDS)
         )
         webhookLogger.info("Updated twitch webhook subscription!")
     }

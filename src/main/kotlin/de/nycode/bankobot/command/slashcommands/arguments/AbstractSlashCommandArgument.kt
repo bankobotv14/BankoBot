@@ -39,6 +39,7 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.rest.builder.interaction.OptionsBuilder
 import dev.kord.x.commands.argument.Argument
 import dev.kord.x.commands.argument.extension.optional
+import java.util.*
 
 /**
  * Abstract implementation for [SlashArgument] which delegates [Argument] to [delegate]
@@ -48,6 +49,9 @@ abstract class AbstractSlashCommandArgument<T, CONTEXT>(
     override val description: String,
     private val delegate: Argument<T, CONTEXT>,
 ) : Argument<T, CONTEXT> by delegate, SlashArgument<T, CONTEXT> {
+    override val name: String
+        get() = delegate.name.lowercase(Locale.getDefault())
+
     override val required: Boolean
         get() = !delegate.toString().contains("optional|default".toRegex())
 

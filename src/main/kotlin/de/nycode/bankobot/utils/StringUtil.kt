@@ -39,13 +39,13 @@ import java.security.MessageDigest
 /**
  * Limits this string to [maxLength] and adds [truncate] at the end if the string was shortened-
  */
-fun String.limit(maxLength: Int, truncate: String = "...") = if (length > maxLength) {
+fun String.limit(maxLength: Int, truncate: String = "..."): String = if (length > maxLength) {
     substring(0, maxLength - truncate.length) + truncate
 } else {
     this
 }
 
-fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }) =
+fun <T> List<T>.format(transform: (T) -> CharSequence = { it.toString() }): String =
     joinToString(prefix = "`", separator = "`, `", postfix = "`", transform = transform)
 
 fun String.asNullable(): String? = ifBlank { null }

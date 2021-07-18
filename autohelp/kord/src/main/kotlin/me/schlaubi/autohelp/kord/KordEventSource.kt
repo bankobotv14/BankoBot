@@ -49,7 +49,6 @@ public class KordEventSource(kord: Kord) : EventSource<KordReceivedMessage> {
     override val events: Flow<KordReceivedMessage> = kord.events
         .filterIsInstance<MessageCreateEvent>()
         .map { KordReceivedMessage(it.message) }
-
 }
 
 /**

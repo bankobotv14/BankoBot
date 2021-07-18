@@ -35,6 +35,7 @@
 package de.nycode.bankobot.docdex
 
 import info.debatty.java.stringsimilarity.Levenshtein
+import java.util.*
 
 /**
  * Discount Google (aka. Bing) which searches for docs
@@ -57,15 +58,21 @@ object DocsGoogle {
 
         if (query.`package` != null) {
             penalty += levenshtein.distance(
-                query.`package`.toLowerCase(),
-                obj.`package`.toLowerCase()
+                query.`package`.lowercase(Locale.getDefault()),
+                obj.`package`.lowercase(Locale.getDefault())
             )
         }
 
         if (query.clazz != null) {
             penalty += levenshtein.distance(
-                query.clazz.toLowerCase(),
-                if (obj is DocumentedMethodObject) obj.metadata.owner.toLowerCase() else obj.name.toLowerCase()
+                query.clazz.lowercase(Locale.getDefault()),
+                if (obj is DocumentedMethodObject) {
+                    obj.metadata.owner.lowercase(Locale.getDefault())
+                } else {
+                    obj.name.lowercase(
+                        Locale.getDefault()
+                    )
+                }
             ) * 0.3
             // this has a very low value since sometimes you refer
             // to a method from an interface by a common implementation
@@ -77,8 +84,8 @@ object DocsGoogle {
                 penalty += 100
             } else {
                 penalty += levenshtein.distance(
-                    query.method.toLowerCase(),
-                    obj.name.toLowerCase()
+                    query.method.lowercase(Locale.getDefault()),
+                    obj.name.lowercase(Locale.getDefault())
                 ) * 20 // This has a very high value, see explanation for className above
             }
         }

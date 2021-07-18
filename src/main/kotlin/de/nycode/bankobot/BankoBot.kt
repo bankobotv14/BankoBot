@@ -72,7 +72,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
-import io.ktor.util.*
 import kapt.kotlin.generated.configure
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.toList
@@ -88,7 +87,6 @@ import org.litote.kmongo.serialization.registerSerializer
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 object BankoBot : CoroutineScope {
 
@@ -101,7 +99,7 @@ object BankoBot : CoroutineScope {
     private val logger = KotlinLogging.logger { }
 
     @Suppress("MagicNumber")
-    @OptIn(KtorExperimentalAPI::class, ExperimentalTime::class)
+    @OptIn(ExperimentalTime::class)
     val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
             val json = kotlinx.serialization.json.Json {

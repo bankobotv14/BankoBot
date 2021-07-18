@@ -71,6 +71,7 @@ internal suspend fun ReceivedMessage.handle(autoHelp: AutoHelpImpl) {
         }
     }
 
+    @Suppress("MagicNumber")
     if (found) {
         autoHelp.launch {
             withTimeout(Duration.ofSeconds(10)) {

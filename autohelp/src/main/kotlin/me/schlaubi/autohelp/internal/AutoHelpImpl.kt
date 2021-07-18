@@ -39,6 +39,7 @@ import me.schlaubi.autohelp.tags.TagSupplier
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
+@Suppress("LongParameterList")
 internal class AutoHelpImpl(
     override val analyzer: StackTraceAnalyzer, contexts: List<EventContext<*>>,
     override val coroutineContext: CoroutineContext,

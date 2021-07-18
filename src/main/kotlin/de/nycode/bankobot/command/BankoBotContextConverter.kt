@@ -49,12 +49,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
 @Suppress("MagicNumber")
 @OptIn(ExperimentalTime::class)
-private val timeout = 5.seconds
+private val timeout = Duration.seconds(5)
 
 /**
  * Implementation of [ContextConverter] which sends typing before replying to a command.
