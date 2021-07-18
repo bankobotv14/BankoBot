@@ -24,4 +24,4 @@ jobs:
             ~/build
             ~/.gradle
       - name: Build with Gradle
-        run: ./gradlew compileKotlin detektMain check
+        run: ./gradlew compileKotlin detekt check
