@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.schlaubi"
-version = "2.0.0-RC.5"
+version = "2.0.0-RC.6"
 
 repositories {
     mavenCentral()

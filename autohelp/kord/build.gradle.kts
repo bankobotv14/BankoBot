@@ -38,7 +38,7 @@ repositories {
 
 dependencies {
     api(project(":autohelp"))
-    api("dev.kord", "kord-core", "0.7.3")
+    api("dev.kord", "kord-core", "0.8.0-M4")
 }
 
 tasks {

@@ -62,14 +62,14 @@ application {
 dependencies {
     runtimeOnly(kotlin("scripting-jsr223"))
     implementation("org.jetbrains.kotlinx", "kotlinx-datetime", "0.2.1")
-    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.2.1")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.2.2")
 
-    implementation("dev.kord", "kord-core", "0.7.3")
+    implementation("dev.kord", "kord-core", "0.8.0-M4")
     implementation("dev.kord.x", "emoji", "0.5.0")
     implementation("dev.kord.x", "commands-runtime-kord", "0.4.0-SNAPSHOT")
     kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")
 
-    implementation(platform("io.ktor:ktor-bom:1.6.1"))
+    implementation(platform("io.ktor:ktor-bom:1.6.2"))
     implementation("io.ktor", "ktor-client")
     implementation("io.ktor", "ktor-client-cio")
     implementation("io.ktor", "ktor-client-json")
