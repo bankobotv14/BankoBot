@@ -102,10 +102,10 @@ object HastebinErrorHandler : AbstractErrorHandler() {
             // Pingy ping!
             content =
                 "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
-            embed = Embeds.loading(
+            embeds.add(Embeds.loading(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte warte einen Augenblick, während ich versuche mehr Informationen über den Fehler herauszufinden"
-            )
+            ))
         }.edit {
             val hastebinLink =
                 HastebinUtil.postToHastebin(
@@ -119,10 +119,10 @@ object HastebinErrorHandler : AbstractErrorHandler() {
                         Thread.currentThread()
                     )
                 )
-            embed = Embeds.error(
+            embeds = mutableListOf(Embeds.error(
                 "Ein Fehler ist aufgetreten!",
                 "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
-            )
+            ))
         }
     }
 

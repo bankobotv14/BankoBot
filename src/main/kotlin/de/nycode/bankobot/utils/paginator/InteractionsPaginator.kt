@@ -11,8 +11,8 @@ import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageDeleteEvent
 import dev.kord.core.on
 import dev.kord.rest.builder.component.ActionRowBuilder
-import dev.kord.rest.builder.interaction.actionRow
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.modify.actionRow
 import kotlinx.coroutines.Job
 import kotlin.time.ExperimentalTime
 

@@ -63,7 +63,7 @@ internal suspend fun AutoHelpImpl.handleEvent(event: Event, conversation: Discor
         .mapNotNull { exception ->
             val tag = tagSupplier.findTagForException(exception)
             tag?.let { exception to tag }
-        }.firstOrNull() ?: conversation.exceptions.first() to null
+        }.firstOrNull() ?: (conversation.exceptions.first() to null)
 
     if (exception.exception != conversation.exception?.exception) {
         conversation.renderDoc = true

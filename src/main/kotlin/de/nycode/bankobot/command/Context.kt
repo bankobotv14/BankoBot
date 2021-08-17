@@ -35,14 +35,14 @@
 package de.nycode.bankobot.command
 
 import dev.kord.core.behavior.MessageBehavior
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.MessageCreateBuilder
-import dev.kord.rest.builder.message.MessageModifyBuilder
+import dev.kord.rest.builder.message.create.MessageCreateBuilder
+import dev.kord.rest.builder.message.modify.MessageModifyBuilder
 import dev.kord.x.commands.kord.model.KordEvent
 import dev.kord.x.commands.kord.model.context.KordCommandEvent
-import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.command.CommandEvent
 import dev.kord.x.commands.model.processor.CommandProcessor
@@ -61,7 +61,7 @@ interface Context : CommandEvent, KordEvent {
         base: EmbedBuilder = EmbedBuilder(),
         builder: suspend EmbedBuilder.() -> Unit = {}
     ): EditableMessage = createResponse {
-        embed = base.apply { builder() }
+        embeds.add(base.apply { builder() })
     }
 
     suspend fun createResponse(builder: suspend MessageCreateBuilder.() -> Unit): EditableMessage
@@ -85,7 +85,7 @@ interface EditableMessage {
         builder: suspend EmbedBuilder.() -> Unit = {}
     ): EditableMessage =
         modify {
-            embed = base.apply { builder() }
+            embeds = mutableListOf(base.apply { builder() })
         }
 
     suspend fun delete()
@@ -101,7 +101,7 @@ internal class DelegatedKordCommandContext(private val delegate: KordCommandEven
     override val processor: CommandProcessor get() = delegate.processor
 
     override suspend fun createResponse(builder: suspend MessageCreateBuilder.() -> Unit): EditableMessage {
-        val message = delegate.respond {
+        val message = delegate.message.channel.createMessage {
             builder()
         }
 

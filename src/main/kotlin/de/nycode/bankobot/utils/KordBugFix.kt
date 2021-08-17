@@ -32,29 +32,17 @@
  *
  */
 
-package de.nycode.bankobot.listeners
+package de.nycode.bankobot.utils
 
-import de.nycode.bankobot.utils.Embeds
-import dev.kord.core.Kord
-import dev.kord.core.behavior.reply
-import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.core.on
+import dev.kord.core.behavior.channel.createMessage
+import dev.kord.core.entity.Message
+import dev.kord.rest.builder.message.create.MessageCreateBuilder
+import dev.kord.x.commands.kord.model.KordEvent
 
-// https://regex101.com/r/BPg9DR/1
-private val lightshotRegex by lazy { "(?:http[s]?://)?(?:prnt\\.sc|prntscr\\.com)".toRegex() }
 
-internal fun Kord.lightshotListener() = on<MessageCreateEvent> {
-    if (message.content.contains(lightshotRegex)) {
-        message.reply {
-            embeds.add(
-                Embeds.info(
-                    "Lightshot erkannt!", """Du scheinst Lightshot zu verwenden.
-                    |Aus vielen Gründen möchten wir dich bitten Lightshot nicht mehr zu verwenden.
-                    |
-                    |Eine deutlich bessere Alternative zu Lightshot ist [ShareX](https://getsharex.com)
-                """.trimMargin()
-                )
-            )
-        }
-    }
+/**
+ * Creates a message in the [KordEvent.channel] configured by the [builder].
+ */
+suspend inline fun KordEvent.respond(builder: MessageCreateBuilder.() -> Unit): Message {
+    return message.channel.createMessage(builder)
 }

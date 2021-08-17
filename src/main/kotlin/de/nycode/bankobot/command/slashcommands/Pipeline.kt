@@ -41,10 +41,10 @@ import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.exce
 import de.nycode.bankobot.command.slashcommands.KordInteractionErrorHandler.rejectArgument
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.HastebinUtil
+import de.nycode.bankobot.utils.respond
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.processor.CommandProcessor
 import dev.kord.x.commands.model.processor.ErrorHandler
 import dev.kord.x.commands.model.processor.ProcessorContext
@@ -72,10 +72,10 @@ object KordInteractionErrorHandler :
     private const val backtickEscape = "\u200E`"
 
     override suspend fun CommandProcessor.rejectArgument(
-    rejection: ErrorHandler.RejectedArgument<InteractionErrorEvent,
-            MessageCreateEvent,
-            Context>,
-) {
+        rejection: ErrorHandler.RejectedArgument<InteractionErrorEvent,
+                MessageCreateEvent,
+                Context>,
+    ) {
         with(rejection) {
             respondError(
                 event,
@@ -111,10 +111,12 @@ object KordInteractionErrorHandler :
                 // Pingy ping!
                 content =
                     "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
-                embed = Embeds.loading(
-                    "Ein Fehler ist aufgetreten!",
-                    "Bitte warte einen Augenblick, während ich versuche mehr Informationen" +
-                            " über den Fehler herauszufinden"
+                embeds.add(
+                    Embeds.loading(
+                        "Ein Fehler ist aufgetreten!",
+                        "Bitte warte einen Augenblick, während ich versuche mehr Informationen" +
+                                " über den Fehler herauszufinden"
+                    )
                 )
             }
 
@@ -123,9 +125,11 @@ object KordInteractionErrorHandler :
             event.context.respond {
                 content =
                     "$ERROR_MARKER <@!419146440682766343> <@!416902379598774273> <@!449893028266770432>"
-                embed = Embeds.error(
-                    "Ein Fehler ist aufgetreten!",
-                    "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
+                embeds.add(
+                    Embeds.error(
+                        "Ein Fehler ist aufgetreten!",
+                        "Bitte senden [diesen]($hastebinLink) Link an einen Entwickler"
+                    )
                 )
             }
         }

@@ -43,7 +43,6 @@ import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.commands.kord.model.KordEvent
-import dev.kord.x.commands.kord.model.respond
 import dev.kord.x.commands.model.command.AliasInfo
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.processor.CommandProcessor
@@ -184,7 +183,7 @@ object Embeds {
     ): Message {
         return createMessage {
             creator(base)
-            embed = base
+            embeds.add(base)
         }
     }
 
@@ -197,21 +196,16 @@ object Embeds {
     ): Message {
         return edit {
             creator(base)
-            embed = base
+            embeds = mutableListOf(base)
         }
     }
 
     /**
      * Responds to this command with an embed provided by [base] and applies [creator] to it
      */
-    @Deprecated("Use sendResponse instead", ReplaceWith("sendResponse(base, creator)"))
+    @Deprecated("Use sendResponse instead", ReplaceWith("sendResponse(base, creator)"), DeprecationLevel.ERROR)
     suspend fun KordEvent.respondEmbed(
         base: EmbedBuilder,
         creator: suspend EmbedBuilder.() -> Unit = {}
-    ): Message {
-        return respond {
-            creator(base)
-            embed = base
-        }
-    }
+    ): Message = throw UnsupportedOperationException("This method is deprecated")
 }

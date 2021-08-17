@@ -43,8 +43,9 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.interaction.*
 import dev.kord.core.entity.interaction.EphemeralFollowupMessage
 import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.rest.builder.message.MessageCreateBuilder
-import dev.kord.rest.builder.message.MessageModifyBuilder
+import dev.kord.rest.builder.message.create.MessageCreateBuilder
+import dev.kord.rest.builder.message.create.UserMessageCreateBuilder
+import dev.kord.rest.builder.message.modify.MessageModifyBuilder
 import dev.kord.x.commands.model.command.Command
 import dev.kord.x.commands.model.processor.CommandProcessor
 
@@ -61,11 +62,8 @@ class EphemeralSlashCommandContext(
 
     @OptIn(KordUnsafe::class)
     override suspend fun createResponse(builder: suspend MessageCreateBuilder.() -> Unit): EditableMessage {
-        val messageBuilder = MessageCreateBuilder().apply { builder() }
         val response = ack.followUpEphemeral {
-            content = messageBuilder.content
-            messageBuilder.embed?.let { embeds.add(it) }
-            allowedMentions = messageBuilder.allowedMentions
+            builder()
         }
 
         return EditableEphemeralFollowUp(response)
@@ -74,11 +72,8 @@ class EphemeralSlashCommandContext(
 
 class EditableEphemeralFollowUp(private val response: EphemeralFollowupMessage) : EditableMessage {
     override suspend fun modify(builder: suspend MessageModifyBuilder.() -> Unit): EditableMessage {
-        val messageBuilder = MessageModifyBuilder().apply { builder() }
         response.edit {
-            content = messageBuilder.content
-            embeds = messageBuilder.embed?.let { mutableListOf(it) } ?: mutableListOf()
-            allowedMentions = messageBuilder.allowedMentions
+            builder()
         }
         return this
     }
@@ -102,21 +97,19 @@ class SlashCommandContext(
     private var responded = false
 
     override suspend fun createResponse(builder: suspend MessageCreateBuilder.() -> Unit): EditableMessage {
-        val messageBuilder = MessageCreateBuilder().apply { builder() }
         return if (responded) {
             ack.followUp {
-                content = messageBuilder.content
-                messageBuilder.embed?.let { embeds.add(it) }
-                allowedMentions = messageBuilder.allowedMentions
+                builder()
             }
 
             responded = true
 
             EditableFollowUp
         } else {
+            val messageBuilder = UserMessageCreateBuilder().apply { builder() }
             editableAck.modify {
                 content = messageBuilder.content
-                embed = messageBuilder.embed
+                embeds = messageBuilder.embeds
                 allowedMentions = messageBuilder.allowedMentions
             }
         }
@@ -125,11 +118,8 @@ class SlashCommandContext(
 
 private class EditableAck(private val ack: PublicInteractionResponseBehavior) : EditableMessage {
     override suspend fun modify(builder: suspend MessageModifyBuilder.() -> Unit): EditableMessage {
-        val messageBuilder = MessageModifyBuilder().apply { builder() }
         ack.edit {
-            content = messageBuilder.content
-            embeds = messageBuilder.embed?.let { mutableListOf(it) }
-            allowedMentions = messageBuilder.allowedMentions
+            builder()
         }
 
         return this

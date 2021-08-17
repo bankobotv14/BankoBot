@@ -32,6 +32,8 @@ import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.modify.embed
 import me.schlaubi.autohelp.help.EditableMessage
 import me.schlaubi.autohelp.help.Embed
 import me.schlaubi.autohelp.help.MessageRenderer

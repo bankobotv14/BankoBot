@@ -43,9 +43,11 @@ import de.nycode.bankobot.commands.tag.*
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.Embeds.editEmbed
 import dev.kord.common.annotation.KordPreview
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Member
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.live.live
+import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.commands.annotation.AutoWired
 import dev.kord.x.commands.annotation.ModuleName
 import dev.kord.x.commands.argument.extension.named
@@ -114,7 +116,7 @@ internal fun transferTagCommand(): CommandSet = command("transfer") {
             return@invoke
         }
 
-        respond {
+        message.channel.createMessage {
             content = member.mention
             embed {
                 description =
