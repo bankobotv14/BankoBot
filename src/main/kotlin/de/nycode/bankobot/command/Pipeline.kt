@@ -63,5 +63,4 @@ package de.nycode.bankobot.command
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.x.commands.model.processor.ProcessorContext
 
-object BankoBotContext :
-    ProcessorContext<MessageCreateEvent, MessageCreateEvent, Context>
+object BankoBotContext : ProcessorContext<MessageCreateEvent, MessageCreateEvent, Context>

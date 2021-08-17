@@ -39,7 +39,6 @@ import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.x.commands.kord.model.KordEvent
 
-
 /**
  * Creates a message in the [KordEvent.channel] configured by the [builder].
  */
