@@ -96,24 +96,21 @@ private class InteractionsPaginator constructor(
         onInteraction(emoji)
     }
 
-    private fun ActionRowBuilder.button(emoji: String, name: String) = interactionButton(ButtonStyle.Primary, name) {
-        this.emoji = DiscordPartialEmoji(name = emoji)
-    }
+    private fun ActionRowBuilder.button(emoji: String, name: String, condition: Boolean = true) =
+        interactionButton(ButtonStyle.Primary, name) {
+            this.emoji = DiscordPartialEmoji(name = emoji)
+            disabled = !condition
+        }
 
     private fun ActionRowBuilder.prepareButtons() {
-        if (currentPage > 1) { // can go back
-            if (currentPage > 2) { // can go to beginning
-                button(BULK_LEFT, "bulkleft")
-            }
+        // can go to beginning
+        button(BULK_LEFT, "bulkleft", currentPage > 2)
+        // can go back
+        button(LEFT, "left", currentPage > 1)
 
-            button(LEFT, "left")
-        }
-
-        if (currentPage < options.pages) { // can go forward
-            button(RIGHT, "right")
-            if (currentPage < options.pages - 1) { // can go to end
-                button(BULK_RIGHT, "bulkright")
-            }
-        }
+        // can go forward
+        button(RIGHT, "right", currentPage < options.pages)
+        // can go to end
+        button(BULK_RIGHT, "bulkright", currentPage < options.pages - 1)
     }
 }

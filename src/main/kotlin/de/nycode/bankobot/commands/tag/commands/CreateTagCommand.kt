@@ -98,6 +98,7 @@ internal fun createTagCommand(): CommandSet = command("create-tag") {
                         TimeZone.currentSystemDefault()
                     )
                 )
+
                 BankoBot.repositories.tag.save(entry)
 
                 entry.saveCreation(message.author?.id)
