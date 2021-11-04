@@ -46,11 +46,11 @@ public class KordUpdateEventSource(kord: Kord) : EventSource<KordUpdateMessage> 
 
 public class KordUpdateMessage(public val kordMessage: Message) : ReceivedMessage {
     override val guildId: Long
-        get() = kordMessage.data.guildId.value!!.value
+        get() = kordMessage.data.guildId.value!!.value.toLong()
     override val channelId: Long
-        get() = kordMessage.data.channelId.value
+        get() = kordMessage.data.channelId.value.toLong()
     override val authorId: Long?
-        get() = kordMessage.author?.id?.value
+        get() = kordMessage.author?.id?.value?.toLong()
     override val content: String? = null
     override val files: List<ReceivedMessage.ReceivedFile>
         get() = kordMessage.embeds.mapNotNull {

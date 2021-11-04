@@ -56,11 +56,11 @@ public class KordEventSource(kord: Kord) : EventSource<KordReceivedMessage> {
  */
 public class KordReceivedMessage(public val kordMessage: Message) : ReceivedMessage {
     override val channelId: Long
-        get() = kordMessage.channelId.value
+        get() = kordMessage.channelId.value.toLong()
     override val authorId: Long?
-        get() = kordMessage.author?.id?.value
+        get() = kordMessage.author?.id?.value?.toLong()
     override val guildId: Long
-        get() = kordMessage.data.guildId.value!!.value
+        get() = kordMessage.data.guildId.value!!.value.toLong()
     override val content: String
         get() = kordMessage.content
     override val files: List<ReceivedMessage.ReceivedFile>
