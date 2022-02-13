@@ -1,6 +1,6 @@
 /*
  *     This file is part of the BankoBot Project.
- *     Copyright (C) 2021  BankoBot Contributors
+ *     Copyright (C) 2022  BankoBot Contributors
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -32,29 +32,15 @@
  *
  */
 
-package de.nycode.bankobot.command
+package de.nycode.bankobot.commands.dev
 
-import dev.kord.x.commands.model.command.Command
-import dev.kord.x.commands.model.command.CommandBuilder
-import dev.kord.x.commands.model.command.CommandEvent
-import dev.kord.x.commands.model.metadata.Metadata
+import dev.schlaubi.mikbot.plugin.api.owner.OwnerExtensionPoint
+import dev.schlaubi.mikbot.plugin.api.owner.OwnerModule
+import org.pf4j.Extension
 
-private object CommandDescription : Metadata.Key<String>
-
-/**
- * The description of a command.
- */
-val Command<*>.description: String?
-    get() = data.metadata[CommandDescription]
-
-/**
- * The description of a command.
- */
-val CommandBuilder<*, *, *>.description: String?
-    get() = metaData[CommandDescription]
-
-/**
- * Sets the description of a command to [description].
- */
-fun <S, A, COMMANDCONTEXT : CommandEvent> CommandBuilder<S, A, COMMANDCONTEXT>.description(description: String): Unit =
-    metaData.set(CommandDescription, description)
+@Extension
+class OwnerExtension : OwnerExtensionPoint {
+    override suspend fun OwnerModule.apply() {
+        varCommand()
+    }
+}

@@ -34,21 +34,14 @@
 
 package de.nycode.bankobot.commands.general
 
-import de.nycode.bankobot.command.Context
-import de.nycode.bankobot.command.callback
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
-import de.nycode.bankobot.commands.GeneralModule
+import com.kotlindiscord.kord.extensions.ExtensibleBot
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.converters.impl.optionalString
+import com.kotlindiscord.kord.extensions.extensions.ephemeralSlashCommand
+import com.kotlindiscord.kord.extensions.types.EphemeralInteractionContext
+import de.nycode.bankobot.command.respond
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.GitHubUtil
-import dev.kord.common.annotation.KordPreview
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.optional
-import dev.kord.x.commands.argument.text.WordArgument
-import dev.kord.x.commands.model.command.invoke
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
@@ -57,39 +50,59 @@ import org.objectweb.asm.tree.LineNumberNode
 private const val GITHUB_BASE = "https://github.com/${GitHubUtil.GITHUB_REPO}"
 private const val GITHUB_FILE_APPENDIX = "/tree/main/src/main/kotlin/"
 
-@OptIn(KordPreview::class)
-private val CommandArgument = WordArgument.named("command")
-    .optional()
-    .asSlashArgument("Der spezifische Befehl für den der Quellcode angezeigt werden soll")
+class SourceArguments : Arguments() {
+    val command by optionalString {
+        name = "command"
+        description = "Der spezifische Befehl für den der Quellcode angezeigt werden soll"
+    }
+}
 
-@PublishedApi
-@AutoWired
-@ModuleName(GeneralModule)
-internal fun sourceCommand() = command("source") {
-    alias("skid", "github")
-    description("Zeigt dir den Sourcecode eines bestimmten Befehls")
+suspend fun GeneralModule.sourceCommand() = ephemeralSlashCommand(::SourceArguments) {
+    name = "source"
+    description = "Zeigt dir den Sourcecode eines bestimmten Befehls"
 
-    invoke(CommandArgument) { name ->
+    action {
+        val name = arguments.command
         if (name == null) {
             github()
         } else {
-            specificCommand(name)
+            specificCommand(bot, name)
         }
     }
 }
 
 @Suppress("BlockingMethodInNonBlockingContext") // Afaik there is no ASM based on coroutines
-private suspend fun Context.specificCommand(name: String) {
-    val command = processor.getCommand(name)
+private suspend fun EphemeralInteractionContext.specificCommand(bot: ExtensibleBot, name: String) {
+
+    val split = name.split("\\s+".toRegex())
+    val commandName = split[0]
+    val groupName = split.getOrNull(1)
+    val groupCommandName = split.getOrNull(2)
+
+    val command = bot.extensions
+        .flatMap { (_, extension) -> extension.slashCommands }
+        .firstOrNull { it.name == name }
+        ?.let { parent ->
+            when {
+                groupCommandName != null -> {
+                    val group = parent.groups[groupName]
+
+                    group?.subCommands?.first { parent.name == groupCommandName } ?: parent
+                }
+                groupName != null -> parent.subCommands.firstOrNull { it.name == groupName } ?: parent
+                else -> parent
+            }
+        }
+
     if (command == null) {
-        sendResponse(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
+        respond(Embeds.error("Unbekannter Befehl", "Dieser Befehl ist nicht bekannt"))
         return
     }
-    val (stack) = command.callback
-    val reader = ClassReader(stack.className)
+
+    val reader = ClassReader(command.body::class.qualifiedName)
     val clazz = ClassNode(Opcodes.ASM9)
     reader.accept(clazz, Opcodes.ASM9)
-    val method = clazz.methods.first { it.name == stack.methodName }
+    val method = clazz.methods.first { it.name == "stack.methodName" }
     val (start, end) = method.instructions
         .asSequence()
         .filterIsInstance<LineNumberNode>()
@@ -98,15 +111,15 @@ private suspend fun Context.specificCommand(name: String) {
     val url =
         "$GITHUB_BASE$GITHUB_FILE_APPENDIX${clazz.name.dropLast(2) /* Drop Kt file suffix */}.kt#L$start-L$end"
 
-    sendResponse(
+    respond(
         Embeds.info(
             "Source code",
-            "Den Code zu diesem Command findest du hier: [${stack.fileName}]($url)"
+            "Den Code zu diesem Command findest du hier: [${"stack.fileName"}]($url)"
         )
     )
 }
 
-private suspend fun Context.github() = sendResponse(
+private suspend fun EphemeralInteractionContext.github() = respond(
     Embeds.info(
         "Source code",
         "Dieser Bot ist Open Source du findest ihn auf [GitHub]($GITHUB_BASE)"

@@ -34,48 +34,47 @@
 
 package de.nycode.bankobot.commands.moderation
 
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.converters.impl.member
+import com.kotlindiscord.kord.extensions.extensions.ephemeralSlashCommand
 import de.nycode.bankobot.BankoBot
 import de.nycode.bankobot.command.BlacklistEntry
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.permissions.PermissionLevel
-import de.nycode.bankobot.command.permissions.permission
-import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
-import de.nycode.bankobot.commands.ModerationModule
+import de.nycode.bankobot.command.respond
+import de.nycode.bankobot.command.safeMember
 import de.nycode.bankobot.utils.Embeds
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.kord.argument.MemberArgument
-import dev.kord.x.commands.model.command.invoke
+import dev.schlaubi.mikbot.plugin.api.settings.SettingsModule
+import dev.schlaubi.mikbot.plugin.api.settings.guildAdminOnly
 
-private val TargetArgument =
-    MemberArgument.asSlashArgument("Der User der auf die Blacklist gesetzt/von der Blacklist entfernt werden soll")
+class BlacklistArguments : Arguments() {
+    val member by member {
+        name = "target"
+        description = "Der User der auf die Blacklist gesetzt/von der Blacklist entfernt werden soll"
+    }
+}
 
-@PublishedApi
-@AutoWired
-@ModuleName(ModerationModule)
-internal fun blacklistCommand() = command("blacklist") {
-    alias("bl", "schwarzeliste", "schwarze-liste")
-    permission(PermissionLevel.MODERATOR)
+suspend fun SettingsModule.blacklistCommand() = ephemeralSlashCommand(::BlacklistArguments) {
+    name = "blacklist"
+    guildAdminOnly()
 
-    invoke(TargetArgument) { member ->
-        val entry = BankoBot.repositories.blacklist.findOneById(member.id.value)
+    action {
+        val entry = BankoBot.repositories.blacklist.findOneById(arguments.member.id.value)
         if (entry == null) {
-            val newEntry = BlacklistEntry(member.id)
+            val newEntry = BlacklistEntry(safeMember.id)
             BankoBot.repositories.blacklist.save(newEntry)
 
-            sendResponse(
+            respond(
                 Embeds.success(
                     "Hinzugefügt",
-                    "${member.mention} wurde erfolgreich auf die Blacklist gesetzt."
+                    "${safeMember.mention} wurde erfolgreich auf die Blacklist gesetzt."
                 )
             )
         } else {
             BankoBot.repositories.blacklist.deleteOneById(entry.userId)
 
-            sendResponse(
+            respond(
                 Embeds.success(
                     "Entfernt",
-                    "${member.mention} wurde erfolgreich von der Blacklist entfernt."
+                    "${safeMember.mention} wurde erfolgreich von der Blacklist entfernt."
                 )
             )
         }

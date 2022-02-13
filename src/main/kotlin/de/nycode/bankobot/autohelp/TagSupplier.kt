@@ -39,7 +39,7 @@ import dev.schlaubi.forp.parser.stacktrace.StackTrace
 import me.schlaubi.autohelp.tags.TagSupplier
 
 object TagSupplier : TagSupplier {
+    // this gives NPEs a prio over others
     override fun findTagForException(exception: StackTrace): String? =
         if (exception.exception.className == "NullPointerException") EmbedBuilder.ZERO_WIDTH_SPACE else null
-    // this gives NPEs a prio over others
 }

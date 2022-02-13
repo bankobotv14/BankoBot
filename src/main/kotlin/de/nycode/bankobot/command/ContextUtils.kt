@@ -34,17 +34,27 @@
 
 package de.nycode.bankobot.command
 
-import de.nycode.bankobot.command.slashcommands.SlashCommandContext
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
+import com.kotlindiscord.kord.extensions.commands.application.slash.SlashCommandContext
+import com.kotlindiscord.kord.extensions.types.EphemeralInteractionContext
+import com.kotlindiscord.kord.extensions.types.PublicInteractionContext
+import com.kotlindiscord.kord.extensions.types.respond
+import dev.kord.rest.builder.message.EmbedBuilder
 
-@OptIn(ExperimentalContracts::class)
-fun Context.isSlashCommandContext(): Boolean {
-    contract {
-        returns(true) implies (this@isSlashCommandContext is SlashCommandContext)
-    }
-
-    return this is SlashCommandContext
+suspend fun EphemeralInteractionContext.respond(obj: Any) = respond {
+    content = obj.toString()
 }
 
-fun Context.isMessageCommandContext(): Boolean = !isSlashCommandContext()
+suspend fun EphemeralInteractionContext.respond(embedBuilder: EmbedBuilder) = respond {
+    embeds.add(embedBuilder)
+}
+
+suspend fun PublicInteractionContext.respond(obj: Any) = respond {
+    content = obj.toString()
+}
+
+suspend fun PublicInteractionContext.respond(embedBuilder: EmbedBuilder) = respond {
+    embeds.add(embedBuilder)
+}
+
+val SlashCommandContext<*,*>.safeMember
+    get() = member ?: error("Please only use this in a safe context")

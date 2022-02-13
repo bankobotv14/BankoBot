@@ -34,19 +34,14 @@
 
 package de.nycode.bankobot.commands.`fun`
 
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.converters.impl.defaultingBoolean
+import com.kotlindiscord.kord.extensions.extensions.ephemeralSlashCommand
 import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
-import de.nycode.bankobot.commands.FunModule
+import de.nycode.bankobot.command.respond
+import de.nycode.bankobot.command.safeMember
 import de.nycode.bankobot.config.Config
 import de.nycode.bankobot.utils.Embeds
-import dev.kord.common.annotation.KordPreview
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.extension.withDefault
-import dev.kord.x.commands.argument.primitive.BooleanArgument
-import dev.kord.x.commands.model.command.invoke
 import dev.kord.x.emoji.Emojis
 import dev.schlaubi.lavakord.audio.TrackEndEvent
 import dev.schlaubi.lavakord.audio.TrackStartEvent
@@ -54,12 +49,12 @@ import dev.schlaubi.lavakord.kord.connectAudio
 import dev.schlaubi.lavakord.kord.getLink
 import dev.schlaubi.lavakord.kord.lavakord
 import dev.schlaubi.lavakord.rest.loadItem
+import dev.schlaubi.mikbot.plugin.api.util.safeGuild
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import kotlin.time.Duration.Companion.seconds
 
 private val tehMusic = listOf(
     "https://youtube.com/watch?v=l-Egisu_4AA",
@@ -71,17 +66,17 @@ private val tehMusic = listOf(
     "https://youtube.com/watch?v=ON-HaqBLt_0"
 )
 
-@OptIn(KordPreview::class)
-private val ForceSongArgument =
-    BooleanArgument.named("force").withDefault(false).asSlashArgument("Erzwingt den BingBang") {
-        default = false
+class BingBangArguments : Arguments() {
+    val force by defaultingBoolean {
+        name = "force"
+        description = "Erzwingt den BingBang"
+        defaultValue = true
     }
+}
 
-@OptIn(ExperimentalTime::class)
-@ModuleName(FunModule)
-// @AutoWired // Disabled for 1.5 compatibility
-fun bingBangCommand() = command("bingbang") {
-    description("LÄSST DICH SPAß HABEN")
+suspend fun FunModule.bingBangCommand() = ephemeralSlashCommand(::BingBangArguments) {
+    name = "bingbang"
+    description = "LÄSST DICH SPAß HABEN"
 
     val lavalink = BankoBot.kord.lavakord()
 
@@ -91,19 +86,19 @@ fun bingBangCommand() = command("bingbang") {
         lavalink.addNode(lavalinkHost, lavalinkPassword)
     }
 
-    invoke(ForceSongArgument) { force ->
-        val channelId = message.getAuthorAsMember()?.getVoiceStateOrNull()?.channelId
+    action {
+        val channelId = safeMember.getVoiceStateOrNull()?.channelId
         if (channelId == null) {
-            sendResponse(
+            respond(
                 Embeds.error(
                     "Du bist in keinem voice channel!",
                     "Bitte joine einen VoiceChannel."
                 )
             )
-            return@invoke
+            return@action
         }
 
-        val guildId = guild?.id ?: return@invoke
+        val guildId = safeGuild.id
 
         val link = lavalink.getLink(guildId)
         link.connectAudio(channelId)
@@ -111,10 +106,10 @@ fun bingBangCommand() = command("bingbang") {
         val player = link.player
 
         @Suppress("SpellCheckingInspection") // STFU THE NAME IS GREAT
-        val track = link.loadItem(if (force) tehMusic.first() else tehMusic.random()).track
+        val track = link.loadItem(if (arguments.force) tehMusic.first() else tehMusic.random()).track
         player.playTrack(track)
 
-        sendResponse(Emojis.musicalNote)
+        respond(Emojis.musicalNote)
 
         BankoBot.launch {
             if (track.info.identifier == "l-Egisu_4AA") {
@@ -123,7 +118,7 @@ fun bingBangCommand() = command("bingbang") {
                     .take(1)
                     .single() // wait for start
                 @Suppress("MagicNumber")
-                player.seekTo(Duration.seconds(5))
+                player.seekTo(5.seconds)
             }
 
             player.events

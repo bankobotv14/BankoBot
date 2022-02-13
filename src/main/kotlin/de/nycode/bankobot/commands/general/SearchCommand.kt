@@ -34,45 +34,41 @@
 
 package de.nycode.bankobot.commands.general
 
-import de.nycode.bankobot.command.Context
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
-import de.nycode.bankobot.commands.GeneralModule
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommandContext
+import com.kotlindiscord.kord.extensions.commands.converters.impl.string
+import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
+import com.kotlindiscord.kord.extensions.types.editingPaginator
+import de.nycode.bankobot.command.respond
 import de.nycode.bankobot.utils.Embeds
 import de.nycode.bankobot.utils.GoogleUtil
-import de.nycode.bankobot.utils.doExpensiveTask
-import de.nycode.bankobot.utils.paginator.paginate
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.extension.named
-import dev.kord.x.commands.argument.text.StringArgument
-import dev.kord.x.commands.model.command.invoke
+import dev.schlaubi.mikbot.plugin.api.util.forList
 
-private val QueryArgument = StringArgument.named("Text").asSlashArgument("Die Such-Query nach der gesucht werden soll")
-
-@AutoWired
-@ModuleName(GeneralModule)
-fun searchCommand() = command("google") {
-    alias("find", "search", "duckduckgo")
-    description("Sucht dir deinen Scheiß aus dem Internet zusammen.")
-
-    invoke(QueryArgument) { argument ->
-        search(argument)
+class SearchCommand : Arguments() {
+    val query by string {
+        name = "Text"
+        description = "Die Such-Query nach der gesucht werden soll"
     }
 }
 
-private suspend fun Context.search(search: String) {
-    doExpensiveTask("Searching...", "Bitte warte, bis ich Ergebnisse gefunden habe!") {
-        val list = getResultAsList(search)
-        if (list.isNullOrEmpty()) {
-            editEmbed(Embeds.error("Schade!", "Google möchte dir anscheinend nicht antworten! ._."))
-        } else {
-            delete()
-            list.paginate(this@search, "Suchergebnisse") {
-                itemsPerPage = 1
-            }
-        }
+suspend fun GeneralModule.searchCommand() = publicSlashCommand(::SearchCommand) {
+    name = "google"
+    description = "Sucht dir deinen Scheiß aus dem Internet zusammen."
+
+
+    action {
+        search(arguments.query)
+    }
+}
+
+private suspend fun PublicSlashCommandContext<*>.search(search: String) {
+    val list = getResultAsList(search)
+    if (list.isNullOrEmpty()) {
+        respond(Embeds.error("Schade!", "Google möchte dir anscheinend nicht antworten! ._."))
+    } else {
+        editingPaginator {
+            forList(user, list, { it }, { _, _ -> "Suchergebnisse" })
+        }.send()
     }
 }
 

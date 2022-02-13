@@ -1,6 +1,6 @@
 /*
  *     This file is part of the BankoBot Project.
- *     Copyright (C) 2021  BankoBot Contributors
+ *     Copyright (C) 2022  BankoBot Contributors
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -32,34 +32,14 @@
  *
  */
 
-package de.nycode.bankobot.command.slashcommands.arguments
+package de.nycode.bankobot.commands.general
 
-import de.nycode.bankobot.command.slashcommands.SlashArgument
-import dev.kord.x.commands.argument.primitive.BooleanArgument
-import dev.kord.common.annotation.KordPreview
-import dev.kord.rest.builder.interaction.BaseApplicationBuilder
-import dev.kord.rest.builder.interaction.BooleanBuilder
-import dev.kord.x.commands.argument.Argument
+import com.kotlindiscord.kord.extensions.extensions.Extension
 
-/**
- * Turns this [Argument] into a [SlashArgument] with [description]
- *
- * @see BooleanBuilder
- * @see BooleanArgument
- */
-@OptIn(KordPreview::class)
-fun <T : Boolean?, CONTEXT> Argument<T, CONTEXT>.asSlashArgument(
-    description: String,
-    builder: BooleanBuilder.() -> Unit = {},
-): SlashArgument<T, CONTEXT> = BooleanSlashArgument(description, this, builder)
+class GeneralModule : Extension() {
+    override val name: String = "banko_bot"
 
-@OptIn(KordPreview::class)
-private class BooleanSlashArgument<T : Boolean?, CONTEXT>(
-    description: String,
-    delegate: Argument<T, CONTEXT>,
-    private val builder: BooleanBuilder.() -> Unit,
-) : AbstractSlashCommandArgument<T, CONTEXT>(description, delegate) {
-    override fun BaseApplicationBuilder.applyArgument() {
-        boolean(name, description, builder.applyRequired())
+    override suspend fun setup() {
+        TODO("Not yet implemented")
     }
 }

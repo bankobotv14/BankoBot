@@ -1,6 +1,6 @@
 /*
  *     This file is part of the BankoBot Project.
- *     Copyright (C) 2021  BankoBot Contributors
+ *     Copyright (C) 2022  BankoBot Contributors
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -32,23 +32,14 @@
  *
  */
 
-package de.nycode.bankobot.command.slashcommands
+package de.nycode.bankobot.commands.`fun`
 
-import dev.kord.x.commands.model.command.Command
-import dev.kord.x.commands.model.command.CommandBuilder
-import dev.kord.x.commands.model.metadata.Metadata
+import com.kotlindiscord.kord.extensions.extensions.Extension
 
-private object Ephemeral : Metadata.Key<Boolean>
+class FunModule : Extension() {
+    override val name: String = "fun"
 
-/**
- * Whether a Command supports slash commands or not
- */
-val Command<*>.ephemeral: Boolean
-    get() = data.metadata[Ephemeral] == true
-
-/**
- * Disables slash commands for this command.
- */
-fun CommandBuilder<*, *, *>.useEphemeral() {
-    metaData[Ephemeral] = true
+    override suspend fun setup() {
+        bingBangCommand()
+    }
 }

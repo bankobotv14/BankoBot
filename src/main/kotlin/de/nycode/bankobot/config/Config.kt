@@ -40,10 +40,11 @@ import de.nycode.bankobot.command.HastebinErrorHandler
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
 import dev.kord.common.entity.Snowflake
+import dev.schlaubi.mikbot.plugin.api.EnvironmentConfig
 import io.ktor.http.*
 
 @Suppress("MagicNumber")
-object Config {
+object Config : EnvironmentConfig("") {
 
     val AUTO_HELP_SERVER: Url by getEnv { Url(it) }
     val AUTO_HELP_KEY: String by getEnv()
@@ -52,20 +53,9 @@ object Config {
         it.split(", ").map { item -> item.toLong() }
     }
 
-    val ENVIRONMENT: Environment by getEnv(default = Environment.PRODUCTION) {
-        Environment.valueOf(it)
-    }
-    val LOG_LEVEL: Level by getEnv(default = Level.INFO) { Level.toLevel(it) }
-
     val HASTE_HOST: String by getEnv(default = "https://pasta.with-rice.by.devs-from.asia/")
 
-    val SENTRY_TOKEN: String? by getEnv().optional()
-    val DISCORD_TOKEN: String by getEnv()
-
     val DOCDEX_URL: Url by getEnv(default = Url("https://docs-repository.schlaubi.net/")) { Url(it) }
-
-    val MONGO_DATABASE: String by getEnv()
-    val MONGO_URL: String by getEnv()
 
     val GOOGLE_API_KEY: String by getEnv()
     val GOOGLE_CX_CODE: String by getEnv()
@@ -73,11 +63,6 @@ object Config {
     val JDOODLE_SECRET: String by getEnv()
     val JDOODLE_ID: String by getEnv()
     val JDOODLE_REQUESTS_MAX: Int by getEnv(default = 200) { it.toInt() }
-
-    val MODERATOR_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-    val ADMIN_ROLE: Snowflake? by getEnv { Snowflake(it) }.optional()
-
-    val DEV_GUILD_ID: Snowflake by getEnv(default = Snowflake(803209056730349568L)) { Snowflake(it) }
 
     val TWITCH_CLIENT_ID: String by getEnv()
     val TWITCH_CLIENT_SECRET: String by getEnv()
@@ -91,11 +76,6 @@ object Config {
      * https://mathjs.org/
      */
     val MATHJS_SERVER_URL: String by getEnv()
-
-    /**
-     * Used to disable registering slash commands in development
-     */
-    val REGISTER_SLASH_COMMANDS: Boolean by getEnv(default = true) { it.toBoolean() }
 
     /**
      * Used to disable or enable twitch webhooks

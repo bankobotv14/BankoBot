@@ -34,24 +34,28 @@
 
 package de.nycode.bankobot.commands.dev
 
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.permissions.PermissionLevel
-import de.nycode.bankobot.command.permissions.permission
-import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
-import de.nycode.bankobot.commands.BotOwnerModule
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.converters.impl.string
+import com.kotlindiscord.kord.extensions.extensions.ephemeralSlashCommand
+import de.nycode.bankobot.command.respond
 import de.nycode.bankobot.variables.VariableParser.replaceVariables
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.argument.text.StringArgument
-import dev.kord.x.commands.model.command.invoke
-import dev.kord.x.commands.model.module.CommandSet
+import dev.schlaubi.mikbot.plugin.api.owner.OwnerModule
+import dev.schlaubi.mikbot.plugin.api.owner.ownerOnly
 
-@PublishedApi
-@ModuleName(BotOwnerModule)
-@AutoWired
-internal fun varCommand(): CommandSet = command("var") {
-    permission(PermissionLevel.BOT_OWNER)
-    invoke(StringArgument.asSlashArgument("Der Ausdruck")) {
-        sendResponse(it.replaceVariables())
+class VarArguments : Arguments() {
+    val expression by string {
+        name = "expression"
+        description = "Der Ausdruck"
+    }
+}
+
+suspend fun OwnerModule.varCommand() = ephemeralSlashCommand(::VarArguments) {
+    name = "var"
+    description = "Macht irgendwas mit variablen"
+
+    ownerOnly()
+
+    action {
+        respond(arguments.expression.replaceVariables())
     }
 }

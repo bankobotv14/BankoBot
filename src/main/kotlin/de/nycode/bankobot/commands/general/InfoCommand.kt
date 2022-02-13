@@ -34,27 +34,21 @@
 
 package de.nycode.bankobot.commands.general
 
+import com.kotlindiscord.kord.extensions.extensions.ephemeralSlashCommand
+import com.kotlindiscord.kord.extensions.types.EphemeralInteractionContext
+import com.kotlindiscord.kord.extensions.types.edit
 import de.nycode.bankobot.BankoBot
-import de.nycode.bankobot.command.Context
-import de.nycode.bankobot.command.command
-import de.nycode.bankobot.command.description
-import de.nycode.bankobot.commands.GeneralModule
+import de.nycode.bankobot.command.respond
 import de.nycode.bankobot.utils.Emotes
 import de.nycode.bankobot.utils.GitHubUtil
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.x.commands.annotation.AutoWired
-import dev.kord.x.commands.annotation.ModuleName
-import dev.kord.x.commands.model.command.invoke
 import kotlinx.coroutines.async
 
-@PublishedApi
-@AutoWired
-@ModuleName(GeneralModule)
-internal fun infoCommand() = command("info") {
-    alias("i", "whoareyou")
-    description("Zeigt Informationen über den Bot")
+suspend fun GeneralModule.infoCommand() = ephemeralSlashCommand {
+    name = "info"
+    description = "Zeigt Informationen über den Bot"
 
-    invoke {
+    action {
         sendInfo()
     }
 }
@@ -63,7 +57,7 @@ internal fun infoCommand() = command("info") {
  * Sends an about message for the bot in this channel.
  * The developers field is fetched from the GitHub repository contributors
  */
-suspend fun Context.sendInfo() = sendInfo({ sendResponse(it) }) { editEmbed(it) }
+suspend fun EphemeralInteractionContext.sendInfo() = sendInfo({ respond(it) }) { edit { embeds = mutableListOf(it) } }
 
 suspend inline fun <O> sendInfo(
     sender: (EmbedBuilder) -> O,
@@ -74,11 +68,6 @@ suspend inline fun <O> sendInfo(
             name = "Programmiersprache"
             value = "[Kotlin](https://kotlinlang.org)"
             inline = true
-        }
-
-        field {
-            name = "Prefix"
-            value = "xd"
         }
     }
 
