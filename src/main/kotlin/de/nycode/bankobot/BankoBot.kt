@@ -37,7 +37,6 @@ package de.nycode.bankobot
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.IndexOptions
-import de.nycode.bankobot.autohelp.TagSupplier
 import de.nycode.bankobot.command.*
 import de.nycode.bankobot.command.permissions.DebugPermissionHandler
 import de.nycode.bankobot.command.permissions.RolePermissionHandler
@@ -55,7 +54,6 @@ import de.nycode.bankobot.listeners.selfMentionListener
 import de.nycode.bankobot.serialization.LocalDateTimeSerializer
 import de.nycode.bankobot.serialization.SnowflakeSerializer
 import de.nycode.bankobot.twitch.twitchIntegration
-import de.nycode.bankobot.utils.Emotes
 import de.nycode.bankobot.utils.afterAll
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.PresenceStatus
@@ -66,7 +64,6 @@ import dev.kord.x.commands.kord.BotBuilder
 import dev.kord.x.commands.kord.model.prefix.mention
 import dev.kord.x.commands.model.prefix.or
 import dev.kord.x.commands.model.processor.BaseEventHandler
-import dev.schlaubi.forp.analyze.client.RemoteStackTraceAnalyzer
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
@@ -75,8 +72,6 @@ import io.ktor.client.features.json.serializer.*
 import kapt.kotlin.generated.configure
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.toList
-import me.schlaubi.autohelp.AutoHelp
-import me.schlaubi.autohelp.kord.*
 import mu.KotlinLogging
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -122,9 +117,6 @@ object BankoBot : CoroutineScope {
     val permissionHandler =
         if (Config.ENVIRONMENT == Environment.PRODUCTION) RolePermissionHandler else DebugPermissionHandler
 
-    lateinit var autoHelp: AutoHelp
-        private set
-
     class Repositories internal constructor() {
         lateinit var blacklist: CoroutineCollection<BlacklistEntry>
         lateinit var tag: CoroutineCollection<TagEntry>
@@ -145,36 +137,6 @@ object BankoBot : CoroutineScope {
 
         kord = Kord(Config.DISCORD_TOKEN)
         val renderer = htmlRenderer
-        autoHelp = me.schlaubi.autohelp.autoHelp {
-            loadingEmote = Emotes.LOADING
-            context<KordUpdateMessage> {
-                kordEditEventSource(kord)
-            }
-            useKordMessageRenderer(kord)
-            context<KordReceivedMessage> {
-                kordEventSource(kord)
-                filter {
-                    it.kordMessage.author?.isBot != true && it.channelId in Config.AUTO_HELP_CHANNELS
-                }
-            }
-
-            @Suppress("MagicNumber")
-            cleanupTime = Duration.seconds(30)
-            analyzer = RemoteStackTraceAnalyzer {
-                serverUrl = Config.AUTO_HELP_SERVER
-                authKey = Config.AUTO_HELP_KEY
-                dispatcher = coroutineContext
-            }
-
-            dispatcher = coroutineContext
-
-            tagSupplier(TagSupplier)
-
-            htmlRenderer {
-                renderer.convert(this)
-            }
-        }
-
         initializeKord()
     }
 
@@ -268,9 +230,14 @@ object BankoBot : CoroutineScope {
                 with(BankoBotContextConverter) {
                     messageDeleteListener()
                 }
-                if (Config.ENABLE_TWITCH_WEBHOOKS) {
-                    on<ReadyEvent> {
+                on<ReadyEvent> {
+                    if (Config.ENABLE_TWITCH_WEBHOOKS) {
                         twitchIntegration()
+                    } else {
+                        kord.editPresence {
+                            status = PresenceStatus.Online
+                            playing("mit Dingen")
+                        }
                     }
                 }
             }
