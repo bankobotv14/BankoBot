@@ -67,7 +67,7 @@ dependencies {
     implementation("dev.kord", "kord-core", "0.8.0-M4")
     implementation("dev.kord.x", "emoji", "0.5.0")
     implementation("dev.kord.x", "commands-runtime-kord", "0.4.0-SNAPSHOT")
-//    kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")
+    kapt("dev.kord.x", "commands-processor", "0.4.0-SNAPSHOT")
 
     implementation(platform("io.ktor:ktor-bom:1.6.2"))
     implementation("io.ktor", "ktor-client")
