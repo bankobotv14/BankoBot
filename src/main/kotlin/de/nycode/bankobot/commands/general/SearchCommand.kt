@@ -37,6 +37,7 @@ package de.nycode.bankobot.commands.general
 import de.nycode.bankobot.command.Context
 import de.nycode.bankobot.command.command
 import de.nycode.bankobot.command.description
+import de.nycode.bankobot.command.isSlashCommandContext
 import de.nycode.bankobot.command.slashcommands.arguments.asSlashArgument
 import de.nycode.bankobot.commands.GeneralModule
 import de.nycode.bankobot.utils.Embeds
@@ -68,7 +69,7 @@ private suspend fun Context.search(search: String) {
         if (list.isNullOrEmpty()) {
             editEmbed(Embeds.error("Schade!", "Google möchte dir anscheinend nicht antworten! ._."))
         } else {
-            delete()
+            if (!isSlashCommandContext()) delete()
             list.paginate(this@search, "Suchergebnisse") {
                 itemsPerPage = 1
             }
