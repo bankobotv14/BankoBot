@@ -36,9 +36,6 @@ package de.nycode.bankobot
 
 import ch.qos.logback.classic.Logger
 import de.nycode.bankobot.config.Config
-import de.nycode.bankobot.config.Environment
-import io.sentry.Sentry
-import io.sentry.SentryOptions
 import mu.KotlinLogging
 import org.slf4j.LoggerFactory
 
