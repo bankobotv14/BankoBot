@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory
 private val LOG = KotlinLogging.logger { }
 
 suspend fun main() {
-    initializeSentry()
     initializeLogging()
     Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
         LOG.error(throwable) { "Got unhandled error on $thread" }
@@ -56,15 +55,4 @@ suspend fun main() {
 private fun initializeLogging() {
     val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
     rootLogger.level = Config.LOG_LEVEL
-}
-
-private fun initializeSentry() {
-    val configure: (SentryOptions) -> Unit =
-        if (Config.ENVIRONMENT != Environment.DEVELOPMENT) {
-            { it.dsn = Config.SENTRY_TOKEN; }
-        } else {
-            { it.dsn = "" }
-        }
-
-    Sentry.init(configure)
 }
